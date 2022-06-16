@@ -637,7 +637,7 @@ Methods to eliminate this numerical inaccuracy remains to be investigated in fut
 
 \begin{figure}
 	\centering
-	\includegraphics{figures/MF-moment-error-degenerate}
+	\includegraphics[scale=1.4]{figures/MF-moment-error-degenerate}
 	\caption{Maximum difference between Monte Carlo method and the proposed recursive calculation when $s_2$ is close to $s_3$, with $s_1=25$, $s_2=10$.
 	Double precision floating-point format is used in the recursive calculation. \label{fig:MF-moment-error-degenerate}}
 \end{figure}
@@ -653,8 +653,11 @@ This makes \eqref{eqn:MF-S2D} extremely difficult to solve when $S$ has very lar
 However, large $S$ means the matrix Fisher distribution is highly concentrated.
 As an analog of Gaussian distribution on $\SO{3}$, it can actually be approximated by a Gaussian distribution when $S$ is large.
 This is similar to the von Mises and von Mises Fisher distributions on $\Sph^n$ \cite{mardia2009directional}.
-Nevertheless, since $\SO{3}$ has three degrees of freedom, it must be specified first the number of degrees of freedom in which the distribution is highly concentrated.
-In the subsequent three subsections, the cases when the matrix Fisher distribution is highly concentrated in all three, two, and one degrees of freedom are discussed.
+Nevertheless, since $\SO{3}$ has three degrees of freedom, the number of degrees of freedom in which the distribution is highly concentrated must be specified.
+In the subsequent three subsections, the cases when the matrix Fisher distribution is highly concentrated in all three degrees of freedom, and in two degrees of freedom, are discussed.
+And these approximations lead to simplifications of the normalizing constant, and its first order derivatives, which are computational costly to be evaluated.
+The results can be further used to expedite the MLE of the parameter F, which requires solving the partial differential equation \eqref{eqn:MF-S2D} involving the normalizing constant.
+Unfortunately, we were unable to give an approximation when the matrix Fisher distribution is only highly concentrated in one degree of freedom using the same strategy.
 
 \subsection{Highly Concentrated in Three Degrees of Freedom}
 
@@ -680,7 +683,7 @@ The Gaussian approximation for this case has been studied in \cite{lee2018bayesi
 \end{proof}
 
 Theorem \ref{thm:MF-approx-1d} gives the following approximation of the normalizing constant.
-\begin{corollary}[\cite{lee2018bayesian-b}]
+\begin{corollary}[\cite{lee2018bayesian-b}] \label{cor:MF-normal-approx1}
 	If $s_2+s_3\gg 0$, then
 	\begin{align}
 		c(S) &\approx \frac{\etr{S}}{\sqrt{8\pi(s_1+s_2)(s_1+s_3)(s_2+s_3)}} \label{eqn:MF-normalizing-approx1} \\
@@ -702,7 +705,33 @@ Theorem \ref{thm:MF-approx-1d} gives the following approximation of the normaliz
 	Then \eqref{eqn:MF-normalizing-approx1} can be obtained using the normalizing constant of $\mathcal{N}(0,\Sigma)$, and its derivation can also be calculated directly as \eqref{eqn:MF-S2D-approx1}.
 \end{proof}
 
-\subsection{Highly Concentrated in Two Degrees of Freedom}
+\begin{figure}
+	\centering
+	\includegraphics[scale=1.4]{figures/MF-normal-approx1}
+	\caption{Comparison of the normalizing constant $c(S)$ calculated using the one dimensional integral formula \eqref{eqn:MF-normalizing-1dInt}, the saddle point approximation \cite{kume2005saddlepoint}, the highly concentrated approximations \eqref{eqn:MF-normalizing-approx1} (approx 1) and \eqref{eqn:MF-normalizing-approx2} (approx 2).
+	The parameter is $S = sI_{3\times 3}$.
+	\label{fig:MF-nomral-approx1}}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=1.4]{figures/MF-S2D-approx1}
+	\caption{Comparison of the first order moment $1-d_1$ calculated using the one dimensional integral formula \eqref{eqn:MF-S2D-1dint}, the saddle point approximation \cite{kume2005saddlepoint,kume2007derivatives}, the highly concentrated approximations \eqref{eqn:MF-S2D-approx1} (approx 1) and \eqref{eqn:MF-S2D-approx2-1} (approx 2).
+	The parameter is $S = sI_{3\times 3}$.
+	\label{fig:MF-S2D-approx1}}
+\end{figure}
+
+Corollary \ref{cor:MF-normal-approx1} provides a very fast computation for the normalizing constant $c(S)$ and its first order derivatives, using only basic functions.
+Its accuracy is demonstrated in Figure \ref{fig:MF-nomral-approx1} against the one dimensional integral formula \eqref{eqn:MF-S2D-1dint}, and the saddle point approximation in \cite{kume2005saddlepoint}.
+In addition, since the case when the matrix Fisher distribution is highly concentrated in two dimensions is a special case when it is highly concentrated in all three dimensions, the approximation in \eqref{eqn:MF-normalizing-approx2} is also compared.
+The tested parameter is when $S = sI_{3\times 3}$, for $s$ ranging from 0.1 to 100.
+It is shown that all calculations agree well when $s > 50$, whereas when $s < 50$, the two approximations deviate from the other two calculations, due to that the distribution is no longer highly concentrated.
+
+The derivative of $c(S)$ is compared as $1-d_1 = 1-\tfrac{1}{c(S)} \tfrac{\partial c(S)}{\partial s_1}$ in Figure \ref{fig:MF-S2D-approx1}.
+Again, all calculates are very close when $s>100$, but the two approximations become less accurate when the distribution is not highly concentrated.
+It should be note that for extremely large $s$, for example when $s > 10^4$, the one dimensional integral formula, especially for the derivative \ref{eqn:MF-S2D-1dint}, becomes inaccurate when implemented with MATLAB \texttt{integral} function.
+
+\subsection{Highly Concentrated in Two Degrees of Freedom} \label{section:MF-approx-2}
 
 In this subsection, the case when $s_1+s_3\gg 0$ is considered, i.e., the matrix Fisher distribution is highly concentrated along the second and third principal axes, but may have large dispersion along the first axis.
 Note that because $s_1 \geq s_2 \geq |s_3| \geq 0$, $s_1+s_3\gg 0$ is equivalent to $s_1 \gg s_2$.
@@ -753,7 +782,7 @@ The quotient group of $\mathbf{K}$ is $\SO{3}/\mathbf{K} = \{ T\in\SO{3} \,|\, T
 \begin{align} \label{eqn:SO3-SO3/K}
 	j:\, \SO{3}/\mathbf{K} \to \Sph^2, \qquad T\mathbf{K} \mapsto Te_1.
 \end{align}
-Therefore, for any $Q\in\SO{3} = \SO{3}/\mathbf{K} \times \mathbf{K} \cong \Sph^2\times \Sph^1$, it can be decomposed as $Q = T \expb{\theta\hat{e}_1}$,
+Therefore, for any $Q\in\SO{3} = \SO{3}/\mathbf{K} \times \mathbf{K} \cong \Sph^2\times \Sph^1$, it can be decomposed as $Q = T(x) \expb{\theta\hat{e}_1}$,
 for $x\in\Sph^2$ and $0\leq \theta< 2\pi$, where $T\mathbf{K} = j^{-1}(x)$.
 And the Haar measure $\diff{Q}$ can be decomposed as $\tfrac{1}{8\pi^2} \diff \theta \diff \sigma(x)$, where $\diff \sigma(x)$ is the surface area measure on $\Sph^2$.
 This decomposition can be used to obtain an approximation of the normalizing constant given in the next Corollary.
@@ -790,6 +819,41 @@ This decomposition can be used to obtain an approximation of the normalizing con
 	The derivatives \eqref{eqn:MF-S2D-approx2-1} and \eqref{eqn:MF-S2D-approx2-2} can be directly calculated by differentiating \eqref{eqn:MF-normalizing-approx2}.
 \end{proof}
 
-\subsection{Highly Concentrated in One Degree of Freedom}
+\begin{figure}
+	\centering
+	\includegraphics[scale=1.4]{figures/MF-normal-approx2}
+	\caption{Comparison of the normalizing constant $c(S)$ calculated using the one dimensional integral formula \eqref{eqn:MF-normalizing-1dInt}, the saddle point approximation \cite{kume2005saddlepoint}, the highly concentrated approximations \eqref{eqn:MF-normalizing-approx1} (approx 1) and \eqref{eqn:MF-normalizing-approx2} (approx 2).
+	The parameter is $S = \diag(s,0.1,0.1)$.
+	\label{fig:MF-nomral-approx2}}
+\end{figure}
 
-Finally, this subsection studies the case when $s_1+s_2\gg 0$, i.e., the matrix Fisher distribution is only highly concentrated along the third principal axis, but may have large dispersion along the first and second principal axes.
+\begin{figure}
+	\centering
+	\includegraphics[scale=1.4]{figures/MF-S2D-approx2-1}
+	\caption{Comparison of the first order moment $1-d_1$ calculated using the one dimensional integral formula \eqref{eqn:MF-S2D-1dint}, the saddle point approximation \cite{kume2005saddlepoint,kume2007derivatives}, the highly concentrated approximations \eqref{eqn:MF-S2D-approx1} (approx 1) and \eqref{eqn:MF-S2D-approx2-1} (approx 2).
+	The parameter is $S = \diag(s,0.1,0.1)$.
+	\label{fig:MF-S2D-approx2-1}}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=1.4]{figures/MF-S2D-approx2-2}
+	\caption{Comparison of the first order moment $1-d_2$ calculated using the one dimensional integral formula \eqref{eqn:MF-S2D-1dint}, the saddle point approximation \cite{kume2005saddlepoint,kume2007derivatives}, the highly concentrated approximations \eqref{eqn:MF-S2D-approx2-2} (approx 2).
+	The parameter is $S = \diag(s,0.1,0.1)$.
+	\label{fig:MF-S2D-approx2-2}}
+\end{figure}
+
+Although the approximations \eqref{eqn:MF-normalizing-approx2} and \eqref{eqn:MF-S2D-approx2-2} involve the modified Bessel function of the first kind, then are much easier to be evaluated than $c(S)$ itself.
+The comparision of $c(S)$ calculated from different methods is shown in Figure \ref{fig:MF-nomral-approx2}, for $S = \diag(s,0.1,0.1)$ with $s$ rangin from 0.1 to 100.
+It can be seen that when $s>50$, the approximation \eqref{eqn:MF-normalizing-approx2} is very close to the one dimensional integral and saddle point approximation.
+However, because $s_2+s_3 = 0.2$ is very small, the matrix Fisher distribution has very large dispersion in the first principal axis, and the approximation \eqref{eqn:MF-normalizing-approx1} developed for high concentration in all three degrees of freedom does not approximate $c(S)$ as well as \eqref{eqn:MF-normalizing-approx2}, even when $s_1 = s$ is large.
+
+Next, the comparison of $1-d_1 = 1-\tfrac{1}{c(S)} \tfrac{\partial c(S)}{\partial s_1}$ is presented in Figure \ref{fig:MF-S2D-approx2-1}.
+Similarly, the approximation \eqref{eqn:MF-S2D-approx2-1} becomes very close to the one dimensional integral and saddle point approximation.
+And since \eqref{eqn:MF-S2D-approx1} is the same as \eqref{eqn:MF-S2D-approx2-1}, it also approximates the derivative well.
+The comparison of $1-d_2 = 1-\tfrac{1}{c(s)}\tfrac{\partial c(S)}{\partial s_2}$ is presented in Figure \ref{fig:MF-S2D-approx2-2} for $S = \diag(s,0.1,0.1)$ with $s$ ranging from 10 to 10000.
+It can be seen that the difference between the approximation \eqref{eqn:MF-S2D-approx2-2} and one dimensional integral becomes small when $s>500$.
+The approximation \eqref{eqn:MF-S2D-approx1} for high concentration in all three degrees of freedom is not shown because its error is too large.
+Also, it appears the that one dimensional integral is more accurate than the saddle point approximation, which is in general the case for $S$ that are not extremely large.
+
+
