@@ -1,0 +1,795 @@
+% !TEX root = ../thesis-WW.tex
+
+\chapter{Matrix Fisher Distribution on $\SO{3}$} \label{chap:MF}
+
+The matrix Fisher distribution was first introduced as a density function on the Stiefel manifold to model the orientation of an object \cite{downs1972orientation}.
+As a special case, it is defined on the 3D rotational group $\SO{3}$, and can be regarded as an analog of the Gaussian distribution.
+As a tool to model random rotation matrices, it has been used in attitude estimation algorithms \cite{lee2018bayesian}, head pose estimation \cite{liu2021mfdnet}, and regression for 3D rotations from image and point cloud inputs \cite{mohlin2020probabilistic,yin2022fishermatch}.
+
+This chapter introduces some properties of the matrix Fisher distribution, which will be useful in the subsequent construction of the matrix Fisher--Gaussian distribution on $\SO{3}\times \mathbb{R}^n$ in Chapter \ref{chap:MFG}, and the developments of estimation algorithms in Chapter \ref{chap:estimation}.
+In particular, chapter \ref{section:MF-SO(3)} reviews some basic properties of $\SO{3}$.
+The matrix Fisher distribution is formally introduced in chapter \ref{section:MF-MF}, and its construction and properties are also reviewed.
+In chapter \ref{section:MF-Bingham}, the Bingham distribution defined on $\Sph^3$, which is equivalent to the matrix Fisher distribution, is reviewed.
+Next, some new results on the computation of higher order moments of matrix Fisher distribution are developed in Chapter \ref{section:MF-moments}.
+And finally, Chapter \ref{section:MF-approx} introduces two new approximations when the matrix Fisher distribution is highly concentrated in one or two directions.
+
+\section{Properties of \SO{3} as a Lie Group} \label{section:MF-SO(3)}
+
+The three dimensional special orthogonal group $\SO{3}$ is defined as
+\begin{align}
+	\SO{3} = \left\{ R\in\mathbb{R}^{3\times 3} \,|\, RR^T = I_{3\times 3},\, \det R = 1 \right\}.
+\end{align}
+An element $R\in\SO{3}$ is usually called a rotation matrix, which is used to transform the coordinates of a vector after it undergoes a rotation in the three dimensional space.
+Suppose there are two reference frames, the inertial frame, or the world frame which is considered fixed; and the body-fixed frame, which is fixed to the rigid body.
+For a vector $\vec{v}$, let its coordinates in the inertial frame be denoted by $v^I \in \mathbb{R}^3$, and its coordinates in the body-fixed frame be denoted by $v^B \in \mathbb{R}^3$.
+In this dissertation, $R$ is used to transform $v^B$ to $v^I$, i.e.,
+\begin{align}
+	v^I = Rv^B,
+\end{align}
+if the two frames have the same origin.
+
+The set $\SO{3}$ is a Lie group, which means it is both a smooth manifold, and an algebraic group.
+Its tangent space at identity $I_{3\times 3} \in \SO{3}$ is the Lie algebra $\so{3}$ composed of 3-by-3 skew symmetric matrices:
+\begin{align}
+	\so{3} = \left\{ A \in \mathbb{R}^{3\times 3} \,|\, A = -A^T \right\}.
+\end{align}
+There is a natural identification of $\so{3}$ and $\mathbb{R}^3$, denoted by the ``hat'' and ``vee'' maps:
+\begin{align}
+	\so{3} \ni\begin{bmatrix}
+		0 & -\Omega_z & \Omega_y \\
+		\Omega_z & 0 & -\Omega_x \\
+		-\Omega_y & \Omega_x & 0
+	\end{bmatrix} \begin{array}{c}
+		\xrightarrow{\text{vee } \vee} \\ \xleftarrow{\text{hat } \wedge}
+	\end{array} \begin{bmatrix}
+		\Omega_x \\ \Omega_y \\ \Omega_z
+	\end{bmatrix} \in \mathbb{R}^3.
+\end{align}
+Note that for any $u,v\in\mathbb{R}^3$, $\hat{u}v = u\times v$.
+The tangent space at a specific $R\in \SO{3}$ is $T_R\SO{3} = \{ RA \,|\, A\in\so{3} \}$.
+
+The Lie group $\SO{3}$ can be locally identified with its tangent space through the exponential map.
+More specifically, for a given $R\in \SO{3}$, there is a neighborhood of $R$ such that the map $\exp$ from $\so{3}$ to $\SO{3}$:
+\begin{align*}
+	\exp:\, \so{3}\to\SO{3}, \qquad A \mapsto R\exp(A),
+\end{align*}
+is one-to-one and onto in this neighborhood.
+The exponential map is same as the usual matrix exponential \cite{hall2003lie}:
+\begin{align}
+	\exp(A) = \sum_{n=1}^\infty \frac{A^n}{n!},
+\end{align}
+and it has a closed form known as the Rodrigues rotation formula for $A = \hat{\Omega}$:
+\begin{align} \label{eqn:rv2rot}
+	\exp(\hat{\Omega}) = I_{3\times 3} + \frac{\sin\norm{\Omega}}{\norm{\Omega}} \hat{\Omega} + \frac{1-\cos\norm{\Omega}}{\norm{\Omega}^2} \hat{\Omega}^2.
+\end{align}
+The rotation vector introduced in Chapter \ref{section:intro-review-estimation} also satisfies \eqref{eqn:rv2rot} when converted to a rotation matrix.
+And for a rotation about the axis $u\in\Sph^2$ by an angle $\theta$, \eqref{eqn:rv2rot} becomes
+\begin{align} \label{eqn:aa2rot}
+	\exp(\theta\hat{u}) = I_{3\times 3} + \sin\theta \hat{u} + (1-\cos\theta)\hat{u}^2.
+\end{align}
+The local inverse of exponential map is called the logarithm map, denoted by $\log$ as usual.
+
+As a matrix Lie group, the multiplication of $\SO{3}$ is not commutative, i.e., for $R_1, R_2\in\SO{3}$, in general $R_1R_2 \neq R_2R_1$.
+This makes $\SO{3}$ much more complicated than $\SO{2}$, and exhibits some interesting behaviors for density functions on $\SO{3}$.
+The non-commutative error can be explicitly computed by the Baker–Campbell–Hausdorff (BCH) formula \cite{hall2003lie}:
+\begin{align}
+	\exp(A) \exp(B) = \exp(A+B+C),
+\end{align}
+where $A,B\in\so{3}$, and $C\in\so{3}$ is a correction term composed of iterated Lie brackets:
+\begin{align}
+	C = \frac{1}{2}[A,B] + \frac{1}{12}[A,[A,B]] - \frac{1}{12}[B,[A,B]] + \cdots,
+\end{align}
+where the Lie brackets $[A,B] = AB-BA$ is also known as the matrix commutator.
+It should be noted that $\so{3}$ is closed under Lie brackets.
+
+For a curve $R(t)\in\SO{3}$, its angular velocity can be expressed in two different ways
+\begin{subequations}
+	\begin{align}
+		\diff R(t) / \diff t &= R(t)\hat{\Omega}(t), \\
+		\diff R(t) / \diff t &= \hat{\omega}(t)R(t),
+	\end{align}
+\end{subequations}
+where $\Omega(t)\in\mathbb{R}^3$ is the angular velocity expressed in the body-fixed frame, and $\omega(t)\in\mathbb{R}^3$ is the angular velocity expressed in the inertial frame.
+They can be transformed to each other by $\omega(t) = R(t)\Omega(t)$.
+
+Before moving to the next section, some identities that will be used in subsequent chapters in this dissertation need to be reviewed.
+First, given $R^{-1} = R^T$ for any $R\in\SO{3}$, it can be shown that
+\begin{align} \label{eqn:SO3-Rkk}
+	R_{kk} = R_{ii}R_{jj} - R_{ij}R_{ji},
+\end{align}
+for $i,j,k\in\{1,2,3\}$ and $i\neq j\neq k$, where the subscripts denote the row and column indices of the matrix element.
+Also, for any $R\in\SO{3}$, $A\in\mathbb{R}^{3\times 3}$, and $x\in\mathbb{R}^{3}$, the following identities involving the hap and vee maps hold:
+\begin{gather}
+	\widehat{Rx} = R\hat{x}R^T, \\
+	\hat{x}^2 = xx^T - x^TxI_{3 \times 3}, \\
+	(\hat{x}A+A^T\hat{x})^\vee = (\tr{A}I_{3 \times 3}-A)x, \\
+	\tr{\hat x A} = x^T(A^T -A)^\vee. \label{eqn:SO3-trhatxA}
+\end{gather}
+
+\section{Matrix Fisher Distribution} \label{section:MF-MF}
+
+In this chapter, the definition, properties and construction of the matrix Fisher distribution on $\SO{3}$ are reviewed.
+
+\subsection{Definition and Properties}
+
+The matrix Fisher distribution of a random matrix $R\in\SO{3}$ is defined by the following density function
+\begin{equation} \label{eqn:MF-density}
+	p(R;F) = \frac{1}{c(F)}\etr{FR^T},
+\end{equation}
+with respect to the uniform distribution on $\SO{3}$, where $\etr{\cdot}$ is the abbreviation for $\exp(\tr{\cdot})$.
+The matrix $F\in\mathbb{R}^{3\times 3}$ is the parameter describing the shape of the distribution, and $c(F)\in\mathbb{R}$ is the normalizing constant.
+This is denoted by $R\sim\mathcal{M}(F)$.
+From \eqref{eqn:MF-density}, it is straightforward to show the matrix Fisher distribution is closed under rotations: if $R\sim\mathcal{M}(F)$ then $RA \sim \mathcal{M}(FA)$ and $AR \sim \mathcal{M}(AF)$ for any fixed $A\in\SO{3}$. 
+
+Various properties of a matrix Fisher distribution can be accessed through the \textit{proper} singular value decomposition (pSVD) of $F$~\cite{khatri1977mises,lee2018bayesian,markley1988attitude}.
+
+\begin{definition} \label{def:psvd}
+	Let the singular value decomposition of $F$ be given by $F= U'S' V'^T$, where $S'\in\real{3\times3}$ is a diagonal matrix composed of the singular values $ s'_1\geq s'_2\geq s'_3\geq 0$ of $F$, and $U',V'\in\mathrm{O}(3)$ are orthogonal matrices.
+	The \textit{proper singular value decomposition} of $F$ is 
+	\begin{align}
+		F=USV^T
+	\end{align}
+	where the rotation matrices $U,V\in\SO{3}$, and the diagonal matrix $S\in\mathbb{R}^{3\times 3}$ are defined as
+	\begin{align}
+		U &= U'\diag(1,1,\det[U']), \nonumber \\
+		S &= \diag(s_1,s_2,s_3)=\diag(s'_1,s'_2,\det[U'V']s'_3), \nonumber \\
+		V &= V'\diag(1,1,\det[V']).
+	\end{align}
+\end{definition}
+
+The motivation of the above proper SVD is to ensure $U,V\in\SO{3}$, while allowing $s_3$ to be negative.
+The normalizing constant $c(F)$ depends only on the proper singular values of $F$, i.e., $c(F) = c(S)$.
+The first order moment of $R$ is given by 
+\begin{gather} \label{eqn:MF-ER}
+	\expect{R} = UDV^T = U\diag(d_1,d_2,d_3)V^T,
+\end{gather}
+where $d_i\in\mathbb{R}$ for $i\in\{1,2,3\}$ is
+\begin{gather} \label{eqn:MF-S2D}
+	d_i = \frac{1}{c(S)} \frac{\partial c(S)}{\partial s_i}.
+\end{gather}
+However, $\expect{R}\in\real{3\times 3}$  does not belong to $\SO{3}$ in general. 
+Instead, the \textit{mean attitude} of $R$ is usually interpreted as $UV^T \triangleq M\in\SO{3}$, which maximizes the density \eqref{eqn:MF-density}, and also minimizes the Frobenius mean squared error \cite{lee2018bayesian}. 
+
+Similar to the Gaussian distribution, the matrix Fisher distribution has three principal axes, given by the columns of $U$ resolved in the inertial frame, or equivalently the columns of $V$ when resolved in the body-fixed frame specified by the mean attitude $M$.
+The attitude rotated from the mean attitude $M$ about the $i$-th principal axis for an angle $\theta$, i.e., $R(\theta) = \exp(\theta\widehat{Ue_i})M = M\exp(\theta\widehat{Ve_i})$, has the density
+\begin{equation} \label{eqn:MF-density-principal}
+	p(R(\theta);F) = \frac{e^{s_i}}{c(S)}\expb{(s_j+s_k)\cos\theta},
+\end{equation}
+where $i,j,k\in\{1,2,3\}$ and $i\neq j\neq k$.
+This corresponds to the von Mises distribution for $\theta$ defined on the unit circle $\mathbb{S}^1$, and its concentration around the mean angle $\theta=0$ is specified by $s_j+s_k$.
+An interesting property is that when $s_j+s_k$ is sufficiently large, it is approximated by the Gaussian density with the zero mean and variance $1/(s_j+s_k)$.
+This implies that the distribution of $R$ can be approximated by a three-dimensional Gaussian distribution when $R$ is concentrated around its mean attitude, which will be discussed in detail in Chapter \ref{section:MF-approx}.
+
+To inference a matrix Fisher distribution from random samples, the maximum likelihood estimation (MLE) of the parameter $F$ is needed.
+Given the expectation $\expect{R}$, let its pSVD be given in \eqref{eqn:MF-ER}, and let $S = \diag(s_1,s_2,s_3)$ be solved from $D$ using \eqref{eqn:MF-S2D},
+then the MLE of $F$ is given by $F=USV^T$ \cite{khatri1977mises,lee2018bayesian}.
+
+\subsection{Construction}
+
+In directional statistics, a generic way of constructing a ``Gaussian'' like probability distribution on a manifold is through conditioning \cite{pewsey2021recent}.
+The idea is that the manifold is first embedded into a Euclidean space, where a Gaussian distribution is defined.
+Then the Gaussian distribution is conditioned onto the manifold, and becomes a new probability distribution on the manifold.
+A number of famous models can be constructed using this approach, including von Mises and von Mises--Fisher distribution on $\Sph^n$ \cite{mardia2009directional}, the matrix Fisher distribution on Stiefel manifold \cite{downs1972orientation}, the Bingham distribution on $\Sph^n$ \cite{bingham1974antipodally}, and the distribution on the cylinder \cite{mardia1978model}, etc.
+
+Here the construction of matrix Fisher distribution on $\SO{3}$ through conditioning is given in the following theorem.
+\begin{theorem}[\cite{downs1972orientation}] \label{thm:MF-construction}
+	Suppose $R\sim\mathcal{M}(F)$, and $F=USV^T$ is its proper singular value decomposition.
+	Let $M = UV^T$, $K_I = VSV^T$, $K_B = USU^T$.
+	Also, let $\mu_I = \mathrm{vec}(M^T)$, $\Sigma_I^{-1} = I_{3\times 3}\otimes K_I$; and $\mu_B = \mathrm{vec}(M)$, $\Sigma_B^{-1} = I_{3\times 3}\otimes K_B$, where $\mathrm{vec}(\cdot)$ denotes the concatenation of the columns of a matrix into a column vector, and $\otimes$ denotes Kronecker product.
+	Suppose $\mathrm{vec}(R^T) \sim \mathcal{N}(\mu_I,\Sigma_I)$, or $\mathrm{vec}(R) \sim \mathcal{N}(\mu_B,\Sigma_B)$.
+	Then the density functions of $R$ for these two Gaussian distributions are the density function for the matrix Fisher distribution \eqref{eqn:MF-density} when restricted to $R\in\SO{3}$.
+\end{theorem}
+\begin{proof}
+	For $\mathcal{N}(\mu_I,\Sigma_I)$, the density for $R$ is
+	\begin{align*}
+		p_I(R) &\propto \expb{-\tfrac{1}{2} \left( \mathrm{vec}(R^T)-\mu_I \right)^T \Sigma_I^{-1} \left( \mathrm{vec}(R^T)-\mu_I \right)} \\
+		&= \expb{-\tfrac{1}{2} \tr{K_I(R-M)^T(R-M)}} \\
+		&= \expb{-\tfrac{1}{2} \tr{2K_I - K_IR^TM - K_IM^TR}} \\
+		&\propto \expb{FR^T},
+	\end{align*}
+	where the second equality is because $R^TR = I_{3\times 3}$ on $\SO{3}$.
+	Similarly, for $\mathcal{N}(\mu_B,\Sigma_B)$, the density for $R$ is
+	\begin{align*}
+		p_B(R) &\propto \expb{-\tfrac{1}{2} \left( \mathrm{vec}(R)-\mu_B \right)^T \Sigma_B^{-1} \left( \mathrm{vec}(R)-\mu_B \right)} \\
+		&= \expb{-\tfrac{1}{2} \tr{K_B(R-M)(R-M)^T}} \\
+		&\propto \expb{FR^T}.
+	\end{align*}
+	This concludes the proof.
+\end{proof}
+
+\section{Bingham Distribution} \label{section:MF-Bingham}
+
+The Bingham distribution is defined on the unit sphere $\Sph^n$ with antipodal symmetry.
+It is equivalent to the matrix Fisher distribution on $\SO{3}$ when defined on $\Sph^3$ for unit quaternions.
+This chapters reviews its definition, properties, its equivalence with the matrix Fisher distribution, and the computation of its normalizing constant.
+
+\subsection{Definition and Properties}
+
+A random vector $q\in\Sph^3$ follows a Bingham distribution with parameter $A = A^T\in\mathbb{R}^{4\times 4}$ if it has the following density function:
+\begin{align} \label{eqn:Bh-density}
+	p(q;A) = \frac{1}{c(A)} \expb{q^TAq}
+\end{align}
+with respect to the uniform distribution on $\Sph^3$, where $c(A)$ is the normalizing constant.
+This distribution is denoted by $q\in \mathcal{B}(A)$.
+The Bingham distribution is antipodally symmetric, i.e., $p(q) = p(-q)$ for any $q\in\Sph^3$.
+
+The properties of a Bingham distribution are determined by the eigenvalue decomposition of the parameter $A = MZM^T$, where $M = [m_0, m_1, m_2, m_3]$ are the eigenvectors of $A$, and $Z = \diag(z_0,z_1,z_2,z_3)$ are the corresponding eigenvalues.
+For uniqueness, the eigenvalues are assumed to be in descending order.
+Due to the unit length constraint, it is straight forward to show $\mathcal{B}\left(MZM^T\right) = \mathcal{B}\left(M(Z + zI_{4\times 4})M^T\right)$ for any $z\in\mathbb{R}$.
+Thus, in this dissertation the following assumption is made: 
+\begin{align}
+	0 = z_0 \geq z_1 \geq z_2 \geq z_3.
+\end{align}
+The normalizing constant depends only on the eigenvalues, i.e., $c(A) = c(Z)$.
+Since the Bingham distribution is antipodally symmetric, its first order moment $\expect{q} = 0$.
+Its second order moment, or the moment of inertia is given by
+\begin{align} \label{eqn:Bh-Eqq}
+	\expect{qq^T} = MDM^T \triangleq M\diag(d_0,d_1,d_2,d_3)M^T,
+\end{align}
+where
+\begin{align} \label{eqn:Bh-Z2D}
+	d_i = \frac{1}{c(Z)} \frac{\partial c(Z)}{\partial z_i}, \qquad i = 0,1,2,3.
+\end{align}
+Since $q^Tq = 1$, the matrix $D$ satisfies $d_0+d_1+d_2+d_3 = 1$.
+
+The mode of Bingham distribution is $q = m_0$, which maximizes the density \eqref{eqn:Bh-density}, and can be regarded as the \textit{mean attitude}.
+The principal axes are given by the unit quaternions $m_1,m_2,m_3\in\Sph^3$, and the concentration along the principal axes are described by $-z_1,-z_2,-z_3$ respectively, with larger $-z_i$ implying higher concentration.
+For the MLE of the parameter $A$, suppose the second order moment $\expect{qq^T}$ is given.
+Let its eigen decomposition be given in \eqref{eqn:Bh-Eqq}, and let $Z = \diag(z_0,z_1,z_2,z_3)$ be solved from \eqref{eqn:Bh-Z2D} using $D$, then $A = MZM^T$.
+The Bingham distribution can also be constructed by conditioning a Gaussian distribution from $\mathbb{R}^4$ onto $\Sph^3$, the details of this construction is available in \cite{bingham1974antipodally}.
+
+\subsection{Equivalence With the Matrix Fisher Distribution}
+
+The 3-sphere $\Sph^3$ is also a Lie group under the quaternion multiplication $\otimes:\, \Sph^3\times \Sph^3 \to \Sph^3$, defined by
+\begin{align} \label{eqn:quaternion multiplication}
+	p \otimes q = \begin{bmatrix} p_0q_0 - p_1q_1 - p_2q_2 - p_3q_3 \\ p_0q_1 + p_1q_0 + p_2q_3 - p_3q_2 \\ p_0q_2 - p_1q_3 + p_2q_0 + p_3q_1 \\ p_0q_3 + p_1q_2 - p_2q_1 + p_3q_0 \end{bmatrix},
+\end{align}
+for any $p = [p_0,p_1,p_2,p_3]^T$ and $q = [q_0,q_1,q_2,q_3]^T \in\Sph^3$.
+Quaternion multiplication \eqref{eqn:quaternion multiplication} can also be written in matrix form as
+\begin{align}
+	p\otimes q = [p]_Lq = [q]_Rp,
+\end{align}
+where
+\begin{align}
+	[p]_L = \begin{bmatrix} p_0 & -p_1 & -p_2 & -p_3 \\ p_1 & p_0 & -p_3 & p_2 \\ p_2 & p_3 & p_0 & -p_1 \\ p_3 & -p_2 & p_1 & p_0 \end{bmatrix},
+\end{align}
+and
+\begin{align}
+	[q]_R = \begin{bmatrix} q_0 & -q_1 & -q_2 & -q_3 \\ q_1 & q_0 & q_3 & -q_2 \\ q_2 & -q_3 & q_0 & q_1 \\ q_3 & q_2 & -q_1 & q_0 \end{bmatrix}.
+\end{align}
+
+The maps $[\cdot]_L$ and $[\cdot]_R: \Sph^3 \to \mathrm{GL}(4)$ define two group homomorphisms.
+The ranges are denoted by $\Sph^3_L$ and $\Sph^3_R$, and are named left- and right-isoclinic rotation groups respectively.
+$\Sph^3_L$ and $\Sph^3_R$ commute with each other, i.e., for any $p,q\in\Sph^3$, the equality $[p]_L[q]_R = [q]_R[p]_L$ holds.
+It is straightforward to check $\Sph^3_L,\ \Sph^3_R \subset \SO{4}$, and in fact, they are two normal subgroups of $\SO{4}$.
+Furthermore, their direct product $\Sph^3_L \times \Sph^3_R$ is a double cover of $\SO{4}$.
+Specifically, any $M\in\SO{4}$ can be uniquely decomposed into
+\begin{align}
+	M = [p]_L[q]_R
+\end{align}
+for some $p,q\in\Sph^3$ up to the signs of $p$ and $q$.
+
+The Lie group $\Sph^3$ is isomorphic to $\mathrm{SU}(2)$, which is also a double cover of $\SO{3}$, so $q$ and $-q$ represent the same 3D rotation.
+The conversion from a rotation vector to a unit quaternion is given in \eqref{eqn:rv2qua}, together with $\eqref{eqn:aa2rot}$, this defines a Lie group homomorphism $\varphi:\, \Sph^3\to\SO{3}$
+\begin{align} \label{eqn:SO3-Sph3}
+	q \mapsto \varphi(q) =  \begin{bmatrix}
+		1-2(q_2^2+q_3^2) & 2(q_1q_2-q_0q_3) & 2(q_1q_3+q_0q_2) \\
+		2(q_1q_2+q_0q_3) & 1-2(q_1^2+q_3^2) & 2(q_2q_3-q_0q_1) \\
+		2(q_1q_3-q_0q_2) & 2(q_2q_3+q_0q_1) & 1-2(q_1^2+q_2^2)
+	\end{bmatrix}.
+\end{align}
+The homomorphism $\varphi$ satisfies the following identity \cite{prentice1986orientation}:
+for any $q$, $p\in\Sph^3$,
+\begin{align} \label{eqn:q_1^Tq_2}
+	\tr{\varphi(p)\varphi(q)^T} + 1 = 4(p^Tq)^2.
+\end{align}
+
+Next, the equivalence between the Bingham distribution and the matrix Fisher distribution is established in the following theorem.
+
+\begin{theorem}[\cite{prentice1986orientation}] \label{thm:Bh2MF}
+	Let $M\in\SO{4}$, and $Z = \diag(0,z_1,z_2,z_3)$ with $0 \geq z_1 \geq z_2 \geq z_3$.
+	Define $S = \diag(s_1,s_2,s_3)$ as $s_1 = \tfrac{1}{4}(z_1-z_2-z_3)$, $s_2 = \tfrac{1}{4}(z_2-z_1-z_3)$, and $s_3 = \tfrac{1}{4}(z_3-z_1-z_2)$.
+	Let $M = [u]_L[v^{-1}]_R$ be its isoclinic decomposition.
+	Define $U = \varphi(u)$ and $V = \varphi(v)$.
+	Then $q\sim\mathcal{B}(MZM^T)$ if and only if $\varphi(q)\sim\mathcal{M}(USV^T)$.
+\end{theorem}
+\begin{proof}
+	It suffices to check for all $q\in\Sph^3$, $c\cdot\exp\left(q^TMZM^Tq\right) = \etr{USV^T\varphi(q)^T}$ for some constant $c\in\mathbb{R}$.
+	Let $M = [m_0, m_1, m_2, m_3]$, $I_{4\times 4} = [e_0, e_1, e_2, e_3]$, and $I_{3\times 3} = [\varepsilon_1, \varepsilon_2, \varepsilon_3]$, then
+	\begin{align}
+		\varphi(m_0) &= \varphi([u]_L[v^{-1}]_Re_0) = UV^T, \label{eqn:Bh2MF-mean} \\
+		\varphi(m_i) &= \varphi([u]_L[v^{-1}]_Re_i) = U\exp(\pi\hat{\varepsilon}_i) V^T \label{eqn:Bh2MF-principal},
+	\end{align}
+	for $i=1,2,3$.
+	By some straightforward calculations, it can be shown that
+	\begin{align*}
+		USV^T = \frac{1}{4}\sum_{i=1}^{3} z_i\varphi(m_i).
+	\end{align*}
+	Then, using \eqref{eqn:q_1^Tq_2}, the following equality can be proved
+	\begin{align*}
+		&\tr{USV^T\varphi(q)^T} = \frac{1}{4} \sum_{i=1}^3 z_i\cdot\left( 4(q^Tm_i)^2-1 \right) \\
+		= &\sum_{i=1}^3 z_i(q^Tm_i)^2 - \frac{1}{4}\sum_{i=1}^3 z_i = q^TMZM^Tq + c,
+	\end{align*}
+	which shows the equivalence.
+\end{proof}
+
+Looking at \eqref{eqn:Bh2MF-mean} and \eqref{eqn:Bh2MF-principal}, the mean attitude and principal axes of the matrix Fisher and Bingham distributions are the same.
+Also, the concentration parameter along the $i$-th principal axis $2(s_j+s_k) = -z_i$ are also the same for the two distribution, for $i,j,k\in\{1,2,3\}$ and $i\neq j\neq k$.
+
+\subsection{Normalizing Constant}
+
+The normalizing constant of the Bingham distribution is
+\begin{align} \label{eqn:Bh-normalizing}
+	c_B(Z) = \int_{q\in\Sph^3} \expb{q^TZq} \diff q,
+\end{align}
+where $\diff q$ is normalized such that $\int_{q\in\Sph^3} \diff q = 1$.
+And it can be written as a hypergeometric function of
+matrix argument $c_B(Z) = {}_1F_1(\frac{1}{2},2,Z)$ \cite{bingham1974antipodally}.
+Also, the normalizing constant of the matrix Fisher distribution is
+\begin{align} \label{eqn:MF-normalizing}
+	c_M(S) = \int_{R\in\SO{3}} \etr{SR^T} \diff R,
+\end{align}
+where $\diff R$ is normalized such that $\int_{R\in\SO{3}}\diff R = 1$.
+Similarly, it can be written as a hypergeometric function of
+matrix argument $c_M(S) = {}_0F_1(\tfrac{3}{2};\tfrac{1}{4}S^2)$ \cite{khatri1977mises}.
+Given the equivalence of matrix Fisher and Bingham distributions, their normalizing constants are also the same $c_M(S) = c_B(Z)$ \cite{lee2018bayesian} if $S$ and $Z$ satisfies the relationship in Theorem \ref{thm:Bh2MF}.
+It should be noted in some literature $\diff q$ in \eqref{eqn:Bh-normalizing} is the usual Lebesgue measure in $\mathbb{R}^4$, and the normalizing constant $c_B(Z)$ is scaled by the surface area of $\Sph^3$ which is $2\pi^2$.
+
+The normalizing constant $c_M(S)$ or $c_B(Z)$ and their derivatives are very hard to compute.
+In \cite{gilitschenski2014efficient}, several algorithms are compared to compute $c_B(Z)$, including the series expansion \cite{koev2006efficient}, the saddle point approximation \cite{kume2005saddlepoint}, the holonomic gradient method \cite{sei2015calculating}, and the new algorithm proposed in \cite{koev2006efficient}.
+Furthermore, a one dimensional integration formula has been developed in \cite{lee2018bayesian,wood1993estimation} as
+\begin{align} \label{eqn:MF-normalizing-1dInt}
+	c_M(S) = \int_{-1}^1 \frac{1}{2} I_0\left[ \frac{1}{2}(s_i-s_j)(1-u) \right] I_0\left[ \frac{1}{2}(s_i+s_j)(1+u) \right] \expb{s_ku} \diff u
+\end{align}
+for $(i,j,k) \in \{(1,2,3),(2,3,1),(3,1,2)\}$, where $I_\nu$ is the modified Bessel function of the first kind with order $\nu$.
+This can be used with a one dimensional numerical integration scheme to compute $c_M(S)$.
+
+As indicated in \eqref{eqn:MF-S2D} and \eqref{eqn:Bh-Z2D}, evaluation of the moments $\expect{R}$ and $\expect{qq^T}$ needs the derivative of $c_M(S)$ and $c_B(Z)$.
+According to Theorem \ref{thm:Bh2MF}, the assumption $z_0 = 0$, and $d_0+d_1+d_2+d_3 = 1$, $\partial c_M(S)/\partial s_i$ and $\partial c_B(Z)/\partial z_j$ for $i=1,2,3$ and $j=0,1,2,3$ can be converted to each other using the following linear transform
+\begin{subequations}
+	\begin{align}
+		\frac{\partial c_M(S)}{\partial s_1} &= \frac{\partial c_B(Z)}{\partial z_0} + \frac{\partial c_B(Z)}{\partial z_1} - \frac{\partial c_B(Z)}{\partial z_2} - \frac{\partial c_B(Z)}{\partial z_3}, \\
+		\frac{\partial c_M(S)}{\partial s_2} &= \frac{\partial c_B(Z)}{\partial z_0} - \frac{\partial c_B(Z)}{\partial z_1} + \frac{\partial c_B(Z)}{\partial z_2} - \frac{\partial c_B(Z)}{\partial z_3}, \\
+		\frac{\partial c_M(S)}{\partial s_3} &= \frac{\partial c_B(Z)}{\partial z_0} - \frac{\partial c_B(Z)}{\partial z_1} - \frac{\partial c_B(Z)}{\partial z_2} + \frac{\partial c_B(Z)}{\partial z_3}.
+	\end{align}
+\end{subequations}
+The derivative $\partial c_M(S)/\partial s_k$ can be directly obtained by taking the derivative of \eqref{eqn:MF-normalizing-1dInt}, as
+\begin{align} \label{eqn:MF-S2D-1dint}
+	\frac{\partial c_M(S)}{\partial s_k} = \int_{-1}^1 \frac{1}{2} I_0\left[ \frac{1}{2}(s_i-s_j)(1-u) \right] I_0\left[ \frac{1}{2}(s_i+s_j)(1+u) \right] u\expb{s_ku} \diff u,
+\end{align}
+for $(i,j,k) \in \{(1,2,3),(2,3,1),(3,1,2)\}$.
+Moreover, the derivative $\partial c_B(Z)/\partial z_j$ can be evaluated using the approach proposed in \cite{kume2007derivatives} by computing the normalizing constant of a Bingham distribution on $\Sph^5$.
+Higher order derivatives of $c_M(S)$ can be calculated using a recursive algorithm in Theorem \ref{thm:MF-moment-dcds} introduced in Chapter \ref{section:MF-moments}.
+In particular, the second order derivatives of $c_M(S)$ can be evaluated by solving a simple linear system using the first order derivatives, as given in Theorem \ref{thm:MF-moment-dcds-second}.
+
+\section{Central Moments of Matrix Fisher Distribution} \label{section:MF-moments}
+
+This chapter presents a new algorithms to compute the higher order moments of the matrix Fisher distribution on $\SO{3}$.
+The algorithm is recursive in the order of the moments, and is able to compute moments up to an arbitrary order in theory, despite it becomes prohibitively computational expansive when the order is too high.
+A set of non-recursive expressions for the second and third order moments are given in Appendix \ref{app:MF-moment-second-third}.
+Also, if not stated otherwise, this chapter assumes $s_1$, $s_2$ and $|s_3|$ have distinct values to avoid a singular case in the recursive formula.
+Nonetheless, since the moments are continuous in $S$, they can be approximated by making $s_1$, $s_2$ and $|s_3|$ slightly different if they have repeated values.
+However, this approximation becomes inaccurate when the order is very high due to the accuracy limitation of floating point arithmetic.
+
+\subsection{The Central Moments}
+
+For a random rotation matrix $R\sim\mathcal{M}(F)$, let $F=USV^T$ be its pSVD, and $Q = U^TRV$.
+This chapter calculates the following moments
+\begin{align} \label{eqn:MF-moment-int}
+	\expect{Q_{i_1j_1} \cdots Q_{i_nj_n}} = \frac{1}{c(S)} \int_{Q\in\SO{3}} Q_{i_1j_1} \cdots Q_{i_nj_n} \etr{SQ^T} \diff Q,
+\end{align}
+for the indices $i_1,j_1,i_2,j_2,\ldots, i_n,j_n\in\{1,2,3\}$.
+This is referred to as the \textit{central} moment because $Q=I_{3\times 3}$ when $R= UV^T$.
+The central moments can be evaluated using the moment generating function of the matrix Fisher distribution, given in \cite{khatri1977mises,lee2018bayesian} as
+\begin{equation}
+	M(T) = \expect{\etr{T^TQ}} = \frac{c(S+T)}{c(S)},
+\end{equation}
+for $T\in\real{3\times 3}$. 
+And the moments are calculated by differentiating $M(T)$ with respect to $T$ evaluated at $T=0$, namely
+\begin{equation} \label{eqn:MF-moment-dcdT}
+	\expect{Q_{i_1j_1} \cdots Q_{i_nj_n}} = \frac{1}{c(S)} \left. \frac{\partial^n c(S+T)}{\partial T_{i_1j_1} \cdots \partial T_{i_nj_n}} \right|_{T=0}.
+\end{equation}
+In \cite{lee2018bayesian,khatri1977mises}, the first order moment, and the second order moment of the form $\expect{Q_{ii}Q_{jj}}$ are calculated, but no expressions for other moments are available.
+
+Let the pSVD of $S+T$ be $S+T=U'S'V'^T$, where $S' = \diag(s'_1,s'_2,s'_3) \in \mathbb{R}^{3\times 3}$ and $U',V'\in\SO{3}$.
+The matrices $U',S',V'$ are considered as functions of $T$.
+For example, $S'|_{T=0} = S$.
+Since $c(S+T) = c(S') $, the derivative in \eqref{eqn:MF-moment-dcdT} can be expanded using the chain rule by first taking its derivatives with respect to $s'_\alpha$, and then multiplying the derivative of $s'_\alpha$ with respect to $T_{ij}$, for $\alpha = 1,2,3$.
+To do this, a notation $\mathcal{C}(n,k)$ needs to be introduced, defined as
+\begin{align} \label{eqn:MF-moment-C}
+	\mathcal{C}(n,k) = \big\{ \{m_1,\ldots,m_k\} &| m_1,\ldots,m_k \text{ are non-empty subsets} \nonumber \\
+	&\qquad \text{ of $\{1,\ldots, n\}$ and form its partition } \big\}.
+\end{align}
+For example, $\mathcal{C}(3,2)$ is a partition of $\{1,2,3\}$ with two components, i.e., $\mathcal{C}(3,2) = \Big\{ \big\{\{1\}, \allowbreak \{2,3\}\big\}, \allowbreak \big\{\{2\}, \allowbreak \{1,3\}\big\}, \allowbreak \big\{\{3\}, \allowbreak \{1,2\}\big\} \Big\}$.
+Then, \eqref{eqn:MF-moment-dcdT} is expanded as follows.
+
+\begin{theorem}
+	Equation \eqref{eqn:MF-moment-dcdT} satisfies
+	\begin{align} \label{eqn:MF-moment-dcdTExpand}
+		\frac{\partial^n c(S+T)}{\partial T_{i_1j_1} \cdots \partial T_{i_nj_n}} &= \sum_{\alpha_1=1}^{3} \frac{\partial c(S+T)}{\partial s'_{\alpha_1}} \frac{\partial^n s'_{\alpha_1}}{\partial T_{i_1j_1} \cdots \partial T_{i_nj_n}} + \cdots \nonumber \\
+		&\quad + \sum_{\alpha_1=1}^{3}\cdots\sum_{\alpha_k=1}^{3} \frac{\partial^k c(S+T)}{\partial s'_{\alpha_1} \cdots \partial s'_{\alpha_k}} \left( \sum_{\{m_1,\ldots,m_k\}\in\mathcal{C}(n,k)} \partial_{m_1}s'_{\alpha_1} \cdots \partial_{m_k}s'_{\alpha_k} \right) + \cdots \nonumber \\
+		&\quad + \sum_{\alpha_1=1}^{3}\cdots\sum_{\alpha_n=1}^{3} \frac{\partial^n c(S+T)}{\partial s'_{\alpha_1}\cdots\partial s'_{\alpha_n}} \frac{\partial s'_{\alpha_1}}{\partial T_{i_1j_1}} \cdots \frac{\partial s'_{\alpha_n}}{\partial T_{i_nj_n}},
+	\end{align}
+	where $\partial_{m_r}s'_{\alpha_r} = \partial^t s'_{\alpha_r} / \left(\partial T_{i_{m_r^1}j_{m_r^1}} \cdots \partial T_{i_{m_r^t}j_{m_r^t}} \right)$ if $m_r = \{m_r^1,\ldots,m_r^t\}$, for $r = 1,\ldots,k$.
+\end{theorem}
+\begin{proof}
+	This can be shown by a straightforward but tedious algebraic manipulation with induction.
+	Clearly \eqref{eqn:MF-moment-dcdTExpand} is true when $n=1$. 
+	Suppose \eqref{eqn:MF-moment-dcdTExpand} holds for $n-1$.
+	Then for $n$, the $k$-th term is contributed by two terms from the expansion for $n-1$: the $(k-1)$-th term and the $k$-th term for $n-1$.
+	Specifically, it is written as
+	\begin{align*}
+		&\frac{\partial}{\partial T_{i_nj_n}} \left( \frac{\partial^{n-1} c(S+T)}{\partial T_{i_1j_1} \cdots \partial T_{i_{n-1}j_{n-1}}}\right) = \cdots \nonumber \\
+		&\quad + \sum_{\alpha_1=1}^{3}\cdots\sum_{\alpha_k=1}^{3} \frac{\partial^k c(S+T)}{\partial s'_{\alpha_1} \cdots \partial s'_{\alpha_k}} \frac{\partial}{\partial T_{i_nj_n}}\left( \sum_{\{m_1,\ldots,m_k\}\in\mathcal{C}(n-1,k)} \partial_{m_1}s'_{\alpha_1} \cdots \partial_{m_k}s'_{\alpha_k} \right) \\
+		&\quad + \sum_{\alpha_1=1}^{3}\cdots\sum_{\alpha_k=1}^{3} \frac{\partial^k c(S+T)}{\partial s'_{\alpha_1} \cdots \partial s'_{\alpha_k}} \left( \sum_{\{m_1,\ldots,m_{k-1}\}\in\mathcal{C}(n-1,k-1)} \partial_{m_1}s'_{\alpha_1} \cdots \partial_{m_{k-1}}s'_{\alpha_{k-1}} \right) \frac{\partial s'_{\alpha_k}}{\partial T_{i_nj_n}} + \cdots
+	\end{align*}
+	Combine these two terms with the common factor.
+	Then, the remaining parts can be reorganized as the summation in the first parentheses above, with the summation in $\mathcal{C}'(n,k)$ given by
+	\begin{align*}
+		\mathcal{C}'(n,k) &= \left\{ \{m_1\cup\{n\},m_2,\ldots,m_k\} \,|\, \{m_1,\ldots,m_n\}\in\mathcal{C}(n-1,k) \right\} \cup \cdots \\
+		&\qquad \cup \left\{ \{m_1,\ldots,m_{k-1},m_k\cup\{n\}\} \,|\, \{m_1,\ldots,m_n\}\in\mathcal{C}(n-1,k) \right\} \\
+		&\qquad \cup \left\{ \{m_1,\ldots,m_{k-1},\{n\}\} \,|\, \{m_1,\ldots,m_{k-1}\}\in\mathcal{C}(n-1,k-1) \right\} = \mathcal{C}(n,k),
+	\end{align*}
+	which results in the $k$-th term of \eqref{eqn:MF-moment-dcdTExpand}.
+\end{proof}
+
+In order to evaluate \eqref{eqn:MF-moment-dcdTExpand}, $\partial_m s'_\alpha$ and $\partial^k c(S+T)/ (\partial s'_{\alpha_1} \cdots \partial s'_{\alpha_k})$ need to be calculated.
+In the subsequent two subsections, it is shown that both of them can be evaluated recursively.
+Note that $\partial_m s'_\alpha$ is the derivative of a singular value with respect to the matrix elements, so it is assumed that $s'_1 \neq s'_2 \neq |s'_3|$ to guarantee differentiability.
+This is legitimate because we only need to consider $T$ varying in a small neighborhood of $0$, and $s_1 \neq s_2 \neq |s_3|$ has already been assumed.
+
+\subsection{Calculating $\partial_m s'_\alpha$}
+
+In this subsection $\partial_m s'_\alpha$ presented in \eqref{eqn:MF-moment-dcdTExpand} is denoted by $\partial^t s'_\alpha / \left( \partial T_{i_1j_1} \cdots \partial T_{i_tj_t} \right)$, i.e.,  the letter $m$ in the subscripts for $T$ is omitted for simplicity.
+It is first shown that some $\partial_m s'_\alpha = 0$ by just looking at the indices $\{i,j\}$.
+This is formulated in the following lemma:
+\begin{lemma} \label{lemma:MF-moment-dsdT-zero}
+	Suppose $s'_1 \neq s'_2 \neq |s'_3|$, and let $n_1\in\mathbb{N}$ be the number of occurrence of $1$ in $\{i_1,j_1,\ldots,i_t,j_t\}$.
+	The integers $n_2$ and $n_3$ are defined similarly. 
+	Then  $\left. \partial_m s'_\alpha \right|_{T=0} = 0$ if any of $n_1$, $n_2$, or $n_3$ is odd.
+\end{lemma}
+\begin{proof}
+	Let $(\gamma_1,\gamma_2,\gamma_3) \in \{(1,-1,-1),(-1,1,-1),(-1,-1,1)\}$ and $\Gamma = \diag(\gamma_1,\gamma_2,\gamma_3)$.
+	Note that $\Gamma\in\SO{3}$, so $S+\Gamma^TT\Gamma = \Gamma^T(S+T)\Gamma = \Gamma^TU'S'(\Gamma^TV')^T$.
+	Because $\Gamma^T$ does not change the polarity of $U'$ or $V'$, $s'_1,s'_2,s'_3$ are also the proper singular values of $S+\Gamma^TT\Gamma$.
+	This proves
+	\begin{equation*}
+		\frac{\partial^t s'_\alpha(S+T)}{\partial T_{i_1j_1} \cdots \partial T_{i_tj_t}} = \frac{\partial^t s'_\alpha(S+\Gamma^TT\Gamma)}{\partial T_{i_1j_1} \cdots \partial T_{i_tj_t}}.
+	\end{equation*}
+	On the other hand, since $(\Gamma^TT\Gamma)_{ij} = \gamma_i\gamma_jT_{ij}$, we have $\partial (\Gamma^TT\Gamma)_{i'j'} / \partial T_{ij} = \delta_i^{i'}\delta_j^{j'}\gamma_i\gamma_j$, and the higher order derivatives of $(\Gamma^TT\Gamma)_{i'j'}$ with respect to $\partial T_{ij}$ are zero since $\delta_i^{i'}\delta_j^{j'}\gamma_i\gamma_j$ is a constant. 
+	Therefore, using a similar calculation as in \eqref{eqn:MF-moment-dcdTExpand}, it can be shown that
+	\begin{align*}
+		\left. \frac{\partial^t s'_\alpha(S+\Gamma^TT\Gamma)}{\partial T_{i_1j_1} \cdots \partial T_{i_tj_t}} \right|_{T=0} &= \left. \frac{\partial^t s'_\alpha(S+\Gamma^TT\Gamma)}{\partial (\Gamma^TT\Gamma)_{i_1j_1} \cdots \partial (\Gamma^TT\Gamma)_{i_tj_t}} \right|_{T=0} \gamma_{i_1}\gamma_{j_1} \cdots \gamma_{i_t}\gamma_{j_t} \\
+		&= \left. \frac{\partial^t s'_\alpha(S+T)}{\partial T_{i_1j_1} \cdots \partial T_{i_tj_t}} \right|_{T=0} \gamma_1^{n_1} \gamma_2^{n_2} \gamma_3^{n_3}.
+	\end{align*}
+	Suppose $n_1$ is odd. 
+	Since $n_1+n_2+n_3 = 2t$ is even, either $n_2$ or $n_3$ is also odd.
+	In case $n_2$ is odd and $n_3$ is even, substitute $(\gamma_1,\gamma_2,\gamma_3) = (1,-1,-1)$ into the above two equations to obtain $\partial_m s'_\alpha = -\partial_m s'_\alpha$, which yields $\partial_m s'_\alpha = 0$.
+	Other cases can be shown similarly. 
+\end{proof}
+
+\begin{corollary} \label{cor:MF-moment-zero}
+	$\expect{Q_{i_1j_1} \cdots Q_{i_nj_n}} = 0$ if $\{i_1,j_1,\ldots,i_n,j_n\}$ has an odd number of 1, 2, or 3.
+\end{corollary}
+\begin{proof}
+	When $s_1 \neq s_2 \neq |s_3|$, it follows directly from Lemma \ref{lemma:MF-moment-dsdT-zero} and \eqref{eqn:MF-moment-dcdTExpand}.
+	Next, suppose $s_1, s_2, |s_3|$ have repeated values. 
+	For example, let $s_1 = s_2$.
+	It is clearly seen from \eqref{eqn:MF-normalizing} and \eqref{eqn:MF-moment-int} that $\expect{Q_{i_1j_1} \cdots Q_{i_nj_n}}$ is a continuous function of $S$.
+	Then, we can take the limit $s_1\rightarrow s_2$ of \eqref{eqn:MF-moment-dcdTExpand} to show that the expectation vanishes. 
+	The other cases can be shown similarly. 
+\end{proof}
+
+Corollary \ref{cor:MF-moment-zero} specifies cases for zero moments, which generalizes the similar results for the first and second order moments in \cite{khatri1977mises}.
+Even when the condition for Corollary \ref{cor:MF-moment-zero} is not satisfied, Lemma \ref{lemma:MF-moment-dsdT-zero} simplifies \eqref{eqn:MF-moment-dcdTExpand} substantially.
+There is another trick to simplify calculations: the derivative of $s'_\alpha$ is unchanged after switching the subscript of $T$.
+
+\begin{lemma}
+	If $s'_1 \neq s'_2 \neq |s'_3|$, then 
+	\begin{equation}
+		\left. \frac{\partial^n s'_\alpha}{\partial T_{i_1j_1} \cdots \partial T_{i_tj_t}} \right|_{T=0} = \left. \frac{\partial^n s'_\alpha}{\partial T_{j_1i_1} \cdots \partial T_{j_ti_t}} \right|_{T=0}.
+	\end{equation}
+\end{lemma}
+\begin{proof}
+	It is straightforward to show $S+T$ and $S+T^T$ have the same singular values since if $S+T = U'S'V'^T$, then $S+T^T = V'S'U'^T$.
+	The remaining proof is the same as Lemma \ref{lemma:MF-moment-dsdT-zero}.
+\end{proof}
+Together with \eqref{eqn:MF-moment-dcdT} and \eqref{eqn:MF-moment-dcdTExpand}, this shows the following symmetry of the moments. 
+\begin{corollary} \label{cor:MF-moment-switch}
+	\begin{equation}
+		\expect{Q_{i_1j_1} \cdots Q_{i_nj_n}} = \expect{Q_{j_1i_1} \cdots Q_{j_ni_n}}.
+	\end{equation}
+\end{corollary}
+
+Finally, a recursive calculation for the non-zero $\left.\partial_m s'_\alpha\right|_{T=0}$ is presented.
+In preparation for this, the derivatives of SVD \cite{papadopoulo2000estimating} $S+T = U'S'V'^T$ are first introduced:
+\begin{equation} \label{eqn:dsvd-dsdT}
+	\frac{\partial s'_\alpha}{\partial T_{ij}} = U'_{i\alpha}V'_{j_\alpha},
+\end{equation}
+with
+\begin{equation} \label{eqn:dsvd-dUVdT}
+	\frac{\partial U'_{kl}}{\partial T_{ij}} = \left( U'\Omega_U^{ij} \right)_{kl} \qquad
+	\frac{\partial U'_{kl}}{\partial T_{ij}} = -\left( V'\Omega_V^{ij} \right)_{kl},
+\end{equation}
+where $\Omega_U^{ij}$ and $\Omega_V^{ij}$ are 3-by-3 skew-symmetric matrices with their off-diagonal elements satisfying
+\begin{align} \label{eqn:dsvd-OmegaUV}
+	s'_l\Omega_{U_{kl}}^{ij} + s'_k\Omega_{V_{kl}}^{ij} &= U'_{ik}V'_{jl}, \nonumber \\
+	s'_k\Omega_{U_{kl}}^{ij} + s'_l\Omega_{V_{kl}}^{ij} &= -U'_{il}V'_{jk}.
+\end{align}
+for $k\neq l \in\{1,2,3\}$.
+It should be noted that since $s'_1 \neq s'_2 \neq |s'_3|$, the above linear system always has a unique solution.
+In addition, the generalized Leibniz rule is adapted to the notation $\mathcal{C}$ in \eqref{eqn:MF-moment-C} as below.
+\begin{lemma} \label{lemma:Leibniz}
+	Suppose $f,g\in C^t(\real{N})$, then for any $i_1,\ldots,i_t\in\{1,\ldots,N\}$
+	\begin{equation}
+		\frac{\partial^t (fg)}{\partial x_{i_1} \cdots \partial x_{i_t}} = f\frac{\partial^t g}{\partial x_{i_1} \cdots \partial x_{i_t}} + g\frac{\partial^t f}{\partial x_{i_1} \cdots \partial x_{i_t}} + \sum_{\{m_1,m_2\}\in\mathcal{C}(t,2)} \left( \partial_{m_1}f\partial_{m_2}g + \partial_{m_2}f\partial_{m_1}g \right).
+	\end{equation}
+\end{lemma}
+
+The recursive calculation scheme is formulated in the following theorem.
+\begin{theorem} \label{thm:MF-moment-dsdT}
+	If $s'_1 \neq s'_2 \neq |s'_3|$, then $\partial_m s'_\alpha$ is given by
+	\begin{equation} \label{eqn:MF-moment-dsdT}
+		\frac{\partial^t s'_{\alpha}}{\partial T_{i_1j_1} \cdots \partial T_{i_tj_t}} = \frac{\partial^{t-1} (U'_{i_1\alpha}V'_{j_1\alpha})}{\partial T_{i_2j_2} \cdots \partial T_{i_tj_t}},
+	\end{equation}
+	which can be evaluated recursively by the chain rule and 
+	\begin{align} \label{eqn:MF-moment-dUVdT}
+		\frac{\partial^t U'_{kl}}{\partial T_{i_1j_1} \cdots \partial T_{i_tj_t}} &= \frac{\partial^{t-1} \left( U'_{kp}\Omega_{U_{pl}}^{i_1j_1} \right)}{\partial T_{i_2j_2} \cdots \partial T_{i_tj_t}} + \frac{\partial^{t-1} \left( U'_{kq}\Omega_{U_{ql}}^{i_1j_1} \right)}{\partial T_{i_2j_2} \cdots \partial T_{i_tj_t}}, \nonumber \\
+		\frac{\partial^t V'_{kl}}{\partial T_{i_1j_1} \cdots \partial T_{i_tj_t}} &= -\frac{\partial^{t-1} \left( V'_{kp}\Omega_{V_{pl}}^{i_1j_1} \right)}{\partial T_{i_2j_2} \cdots \partial T_{i_tj_t}} - \frac{\partial^{t-1} \left( V'_{kq}\Omega_{V_{ql}}^{i_1j_1} \right)}{\partial T_{i_2j_2} \cdots \partial T_{i_tj_t}},
+	\end{align}
+	where $\{p,q\} = \{1,2,3\} \text{\textbackslash} \{l\}$, and
+	\begin{subequations} \label{eqn:MF-moment-dOmegadT}
+		\begin{align}
+			s'_l \frac{\partial^t \Omega_{U_{kl}}^{ij}}{\partial T_{i_1j_1} \cdots \partial T_{i_tj_t}} &+ s'_k \frac{\partial^t \Omega_{V_{kl}}^{ij}}{\partial T_{i_1j_1} \cdots \partial T_{i_tj_t}} = \frac{\partial^t (U'_{ik}V'_{jl})}{\partial T_{i_1j_1} \cdots \partial T_{i_tj_t}} - \frac{\partial^t s'_l}{\partial T_{i_1j_1} \cdots \partial T_{i_tj_t}}\Omega_{U_{kl}}^{ij} \nonumber \\
+			&- \frac{\partial^t s'_k}{\partial T_{i_1j_1} \cdots \partial T_{i_tj_t}}\Omega_{V_{kl}}^{ij} - \sum_{\{m_1,m_2\}\in\mathcal{C}(t,2)} \left( \partial_{m_1}s'_l\partial_{m_2}\Omega_{U_{kl}}^{ij} + \partial_{m_2}s'_l\partial_{m_1}\Omega_{U_{kl}}^{ij} \right) \nonumber \\
+			&-\sum_{\{m_1,m_2\}\in\mathcal{C}(t,2)} \left( \partial_{m_1}s'_k\partial_{m_2}\Omega_{V_{kl}}^{ij} + \partial_{m_2}s'_k\partial_{m_1}\Omega_{V_{kl}}^{ij} \right), \\
+			s'_k \frac{\partial^t \Omega_{U_{kl}}^{ij}}{\partial T_{i_1j_1} \cdots \partial T_{i_tj_t}} &+ s'_l \frac{\partial^t \Omega_{V_{kl}}^{ij}}{\partial T_{i_1j_1} \cdots \partial T_{i_tj_t}} = -\frac{\partial^t (U'_{il}V'_{jk})}{\partial T_{i_1j_1} \cdots \partial T_{i_tj_t}} - \frac{\partial^t s'_k}{\partial T_{i_1j_1} \cdots \partial T_{i_tj_t}}\Omega_{U_{kl}}^{ij} \nonumber \\
+			&- \frac{\partial^t s'_l}{\partial T_{i_1j_1} \cdots \partial T_{i_tj_t}}\Omega_{V_{kl}}^{ij} - \sum_{\{m_1,m_2\}\in\mathcal{C}(t,2)} \left( \partial_{m_1}s'_k\partial_{m_2}\Omega_{U_{kl}}^{ij} + \partial_{m_2}s'_k\partial_{m_1}\Omega_{U_{kl}}^{ij} \right) \nonumber \\
+			&- \sum_{\{m_1,m_2\}\in\mathcal{C}(t,2)} \left( \partial_{m_1}s'_l\partial_{m_2}\Omega_{V_{kl}}^{ij} + \partial_{m_2}s'_l\partial_{m_1}\Omega_{V_{kl}}^{ij} \right).
+		\end{align}
+	\end{subequations}
+\end{theorem}
+\begin{proof}
+	Equation \eqref{eqn:MF-moment-dsdT} is simply \eqref{eqn:dsvd-dsdT}.
+	Equation \eqref{eqn:MF-moment-dUVdT} is constructed by expanding the matrix multiplication of the term in the parenthesis of $\eqref{eqn:dsvd-dUVdT}$ with the skew-symmetry of $\Omega_U, \Omega_V$, and then, taking the derivatives with respect to the remaining $T_{i_2 j_2},\ldots, T_{i_tj_t}$. 
+	Equation \eqref{eqn:MF-moment-dOmegadT} is obtained by directly differentiating \eqref{eqn:dsvd-OmegaUV}.
+\end{proof}
+
+For \eqref{eqn:MF-moment-dsdT} and \eqref{eqn:MF-moment-dUVdT}, the order of differentiation on the right hand side is one less than the left hand side.
+For \eqref{eqn:MF-moment-dOmegadT}, note that $\partial_{m_1}$ and $\partial_{m_2}$ are at most $(t-1)$-th order for $(m_1,m_2)\in\mathcal{C}(t,2)$.
+Also, the $t$-th order differentiation of $U$ and $V$ is reduced to at most the $(t-1)$-th order of $\Omega_U$ and $\Omega_V$ as shown in \eqref{eqn:MF-moment-dUVdT}.
+Similarly, the $t$-th order differentiation of $s_\alpha$ corresponds to the $(t-1)$-th order of $U$ and $V$, and thus the $(t-2)$-th order of $\Omega_U$ and $\Omega_V$.
+So in general, the order of differentiation on the right hand side is smaller than the left hand side.
+This means the recursion will finally terminate when $t$ reaches 1, when the differentiation can be calculated explicitly using \eqref{eqn:dsvd-dsdT}-\eqref{eqn:dsvd-OmegaUV}.
+The recursion stated in the above theorem is very difficult to untwist into a non-recursive expression.
+In Appendix \ref{app:MF-moment-specialRecursion}, a very special case in Theorem \ref{thm:MF-moment-dsdT} is studied and shown to have a non-recursive formula, which exhibits the complexity of this recursion.
+
+\subsection{Calculating $\partial^k c(S+T)/ (\partial s'_{\alpha_1} \cdots \partial s'_{\alpha_k})$}
+
+In this subsection, a recursive calculation scheme for $\left. \partial^k c(S+T)/ (\partial s'_{\alpha_1} \cdots \partial s'_{\alpha_k}) \right|_{T=0} = \partial^k c(S) / (\partial s_{\alpha_1} \cdots \partial s_{\alpha_k})$ is given, such that \eqref{eqn:MF-moment-dcdTExpand} can be evaluated recursively together with Theorem \ref{thm:MF-moment-dsdT} in the preceding subsection.
+First, the moments for the diagonal elements of $Q$ are presented below.
+\begin{lemma} \label{lemma:MF-moment-EQii}
+	\begin{equation} \label{eqn:MF-moment-EQii}
+		\expect{Q_{i_1i_1} \cdots Q_{i_ni_n}} = \frac{1}{c(S)} \frac{\partial^n c(S)}{\partial s_{i_1} \cdots \partial s_{i_n}}.
+	\end{equation}
+\end{lemma}
+\begin{proof}
+	When $T = \diag(T_{11},T_{22},T_{33})$ and the diagonal values are small enough, the singular value decomposition of $S+T$ is $I_{3\times 3} \diag(s_1+T_{11}, s_2+T_{22}, s_3+T_{33}) I_{3\times 3}$, so $\partial s'_\alpha / \partial T_{ii} = \delta_i^\alpha$.
+	And the higher order derivatives vanish because $\delta_i^\alpha$ is a constant function of $T$.
+	Substitute these into \eqref{eqn:MF-moment-dcdTExpand}, then \eqref{eqn:MF-moment-EQii} is proved when $s_1 \neq s_2 \neq |s_3|$.
+	When $s_1, s_2, |s_3|$ have repeated values, \eqref{eqn:MF-moment-EQii} still holds by the continuity argument in Corollary \ref{cor:MF-moment-zero}.
+\end{proof}
+
+Next, a recursive calculation for $\partial^n c(S) / (\partial s_{i_1} \cdots \partial s_{i_n})$ is presented in the following theorem.
+
+\begin{theorem} \label{thm:MF-moment-dcds}
+	$\partial^n c(S) / (\partial s_{i_1} \cdots \partial s_{i_n})$ can be calculated as follows: (i) if $i_1 = i_2$,
+	\begin{equation} \label{eqn:MF-moment-dcdsisi}
+		\frac{\partial^n c(S)}{\partial s_{i_1}^2 \partial s_{i_3} \cdots \partial s_{i_n}} = \frac{\partial^{n-2} c(S)}{\partial s_{i_3} \cdots \partial s_{i_n}} - \left. \frac{\partial^n c(S+T)}{\partial T_{i_1j_1}^2 \partial T_{i_3i_3} \cdots \partial T_{i_ni_n}} \right|_{T=0} - \left. \frac{\partial^n c(S+T)}{\partial T_{i_1k_1}^2 \partial T_{i_3i_3} \cdots \partial T_{i_ni_n}} \right|_{T=0},
+	\end{equation}
+	where $i_1,j_1,k_1 \in \{1,2,3\}$, $i_1 \neq j_1 \neq k_1$, and (ii) if $i_1 \neq i_2$
+	\begin{equation}\label{eqn:MF-moment-dcdsi1si2}
+		\frac{\partial^n c(S)}{\partial s_{i_1} \partial s_{i_2} \cdots \partial s_{i_n}} = \left. \frac{\partial^{n-1} c(S+T)}{\partial T_{k_1k_1} \partial T_{i_3i_3} \cdots \partial T_{i_ni_n}} \right|_{T=0} + \left. \frac{\partial^n c(S+T)}{\partial T_{i_1i_2} \partial T_{i_2i_1} \partial T_{i_3i_3} \cdots \partial T_{i_ni_n}} \right|_{T=0},
+	\end{equation}
+	where $i_1,i_2,k_1 \in \{1,2,3\}$, $i_1\neq i_2\neq k_1$.
+\end{theorem}
+\begin{proof}
+	Suppose $i_1=i_2$. 
+	As $Q\in\SO{3}$, $Q_{i_1i_1}^2 = 1 - Q_{i_1j_1}^2 - Q_{i_1k_1}^2$ because $Q^TQ=I_{3\times 3}$.
+	Thus $\expect{Q_{i_1i_1}^2Q_{i_3i_3} \cdots Q_{i_ni_n}} = \expect{Q_{i_3i_3} \cdots Q_{i_ni_n}} - \expect{Q_{i_1j_1}^2Q_{i_3i_3} \cdots Q_{i_ni_n}} - \expect{Q_{i_1k_1}^2Q_{i_3i_3} \cdots Q_{i_ni_n}}$, and \eqref{eqn:MF-moment-dcdsisi} follows from \eqref{eqn:MF-moment-dcdT} and Lemma \ref{lemma:MF-moment-EQii}.
+	The crucial observation is that the right hand side of \eqref{eqn:MF-moment-dcdsisi} only involves derivatives of $c(S)$ that have lower order than $n$, which is straightforward from \eqref{eqn:MF-moment-dcdTExpand} and $\left.\partial s_\alpha / \partial T_{i_1j_1}\right|_{T=0} = \left.\partial s_\alpha / \partial T_{i_1k_1}\right|_{T=0} = 0$ since $i_1 \neq j_1$ and $i_1 \neq k_1$.
+	Thus, \eqref{eqn:MF-moment-dcdsisi} defines a recursion which terminates in finite steps when $n$ hits 1.
+	
+	Next suppose $i_1\neq i_2$.
+	Note $Q_{k_1k_1} = Q_{i_1i_1}Q_{i_2i_2}-Q_{i_1i_2}Q_{i_2i_1}$ by \eqref{eqn:SO3-Rkk}, from which \eqref{eqn:MF-moment-dcdsi1si2} can be shown similarly as the case (i).
+\end{proof}
+
+When $n=1$, $\partial c(S)/\partial s_i$ can be calculated using the one dimensional integration formula in \eqref{eqn:MF-S2D-1dint}, as the terminating step for the above recursion.
+Also, in 
+
+\subsection{Numerical Verification}
+
+The presented algorithm numerically is validated numerically with 32 different $S$, where $10 \leq s_1 \leq 50$, $10 \leq s_2 \leq s_1$, $-s_2 \leq s_3 \leq s_2$, and $|s_i|-|s_j| \geq 5$ for any $i\neq j\in\{1,2,3\}$.
+A hundred million random samples are drawn from the corresponding matrix Fisher distributions using the method in \cite{kent2013new}.
+All of central moments up to the fourth order, a fifth order $\expect{Q_{23}Q_{32}Q_{12}Q_{23}Q_{31}}$, and a sixth order $\expect{Q_{11}Q_{23}Q_{32}Q_{12}Q_{23}Q_{31}}$ are calculated numerically from the random samples and they are compared with the proposed recursive method.
+The differences between zero moments specified by Corollary \ref{cor:MF-moment-zero} are at most $7.08\times 10^{-5}$ for the two methods, and the percentage differences between non-zero moments are less than 5.6\%.
+Two specific examples are listed in Table \ref{tab:MF-moment-result}.
+The computation time for the sixth order moment is about 2 minutes, and for a fourth order moment is about 0.2 seconds, using a typical desktop CPU.
+A Matlab implementation of the presented algorithm can be found in \cite{MFMomentCode}.
+
+\begin{table}
+	\centering
+	\caption{Maximum difference of moments between Monte Carlo method and the proposed recursive algorithm \label{tab:MF-moment-result}}
+	\begin{tabular}{l|ccc|ccc|c|c}
+		\hline
+		Zero or nonzero & \multicolumn{3}{c|}{zero ($\times 10^{-5}$)} & \multicolumn{3}{c|}{nonzero (\%)} & \multirow{2}{*}{$\expect{Q5}$*} & \multirow{2}{*}{$\expect{Q6}$*} \\ 
+		Order & 2nd & 3rd & 4th & 2nd & 3rd & 4th & \\ \hline
+		$S = \diag(25,10,5)$ & 3.21 & 3.06 & 2.92 & 0.04 & 0.42 & 0.47 & 0.06\% & 0.06\% \\
+		$S = \diag(25,10,-5)$ & 6.69 & 6.33 & 6.00 & 0.03 & 0.22 & 0.37 & 0.002\% & 0.004\% \\ \hline
+		\multicolumn{9}{l}{\footnotesize * $\expect{Q5}$ and $\expect{Q6}$ denote $\expect{Q_{23}Q_{32}Q_{12}Q_{23}Q_{31}}$ and $\expect{Q_{11}Q_{23}Q_{32}Q_{12}Q_{23}Q_{31}}$ respectively.}
+	\end{tabular}
+\end{table}
+
+When $|s_i|=|s_j|$, the linear system in \eqref{eqn:dsvd-OmegaUV} and \eqref{eqn:MF-moment-dOmegadT} is singular, so this poses a challenge for floating-point arithmetic when $|s_i|$ and $|s_j|$ are very close.
+In Figure \ref{fig:MF-moment-error-degenerate}, the moments when $s_1=25$, $s_2=10$, and $s_3$ approaching to $s_2$ are compared between Monte Carlo method and the proposed recursive calculation.
+It is seen that the first and second order moments remain accurate for all tested $S$, whereas the third order moments start to deviate from the sample moments when $s_2-s_3$ is on the level of $10^{-6}$, and the fourth to sixth order moments start to deviate when $s_2-s_3$ is on the level of $10^{-4}$.
+Methods to eliminate this numerical inaccuracy remains to be investigated in future work.
+
+\begin{figure}
+	\centering
+	\includegraphics{figures/MF-moment-error-degenerate}
+	\caption{Maximum difference between Monte Carlo method and the proposed recursive calculation when $s_2$ is close to $s_3$, with $s_1=25$, $s_2=10$.
+	Double precision floating-point format is used in the recursive calculation. \label{fig:MF-moment-error-degenerate}}
+\end{figure}
+
+\section{Highly Concentrated Approximations of Matrix Fisher Distribution} \label{section:MF-approx}
+
+The normalizing constant of the matrix Fisher distribution and its derivatives can be evaluated using the one dimensional integration formulae given in \eqref{eqn:MF-normalizing-1dInt} and $\eqref{eqn:MF-S2D-1dint}$, or using the saddle point approximation as discussed in \cite{gilitschenski2014efficient}.
+However, these approaches are very computationally demanding.
+Also, to inference the parameters $F$ from random samples, one must solve the partial differential equation in \eqref{eqn:MF-S2D}.
+Because $d_i+d_j$ monotonically increases with $s_i+s_j$ for $i\neq j \in \{1,2,3\}$, and $d_i+d_j$ is upper bounded by 2, the average rate of change of $D$ with respect to $S$ becomes very small when $S$ is very large.
+This makes \eqref{eqn:MF-S2D} extremely difficult to solve when $S$ has very large values.
+
+However, large $S$ means the matrix Fisher distribution is highly concentrated.
+As an analog of Gaussian distribution on $\SO{3}$, it can actually be approximated by a Gaussian distribution when $S$ is large.
+This is similar to the von Mises and von Mises Fisher distributions on $\Sph^n$ \cite{mardia2009directional}.
+Nevertheless, since $\SO{3}$ has three degrees of freedom, it must be specified first the number of degrees of freedom in which the distribution is highly concentrated.
+In the subsequent three subsections, the cases when the matrix Fisher distribution is highly concentrated in all three, two, and one degrees of freedom are discussed.
+
+\subsection{Highly Concentrated in Three Degrees of Freedom}
+
+As shown in \eqref{eqn:MF-density-principal}, the concentration of a matrix Fisher distribution along the $i$-th principal axis is controlled by $s_j+s_k$ for $i\neq j\neq k$.
+Since $s_1+s_2 \geq s_1+s_3 \geq s_2+s_3$, $s_2+s_3 \gg 0$ implies the distribution is highly concentrated in all three degrees of freedom.
+The Gaussian approximation for this case has been studied in \cite{lee2018bayesian-b}, and is reviewed in this subsection.
+
+\begin{theorem}[\cite{lee2018bayesian-b}] \label{thm:MF-approx-1d}
+	Let $R\sim\mathcal{M}(F)$, where $F=USV^T$ is the pSVD of $F$.
+	Suppose $s_2+s_3\gg 0$.
+	Let $Q = U^TRV = \exp\left(\hat{\eta}\right)$, then $\eta \approxsim \mathcal{N}\big( 0,\allowbreak (\tr{S}I_{3\times 3}-S)^{-1} \big)$, where $\approxsim$ denotes ``approximately follows''.
+\end{theorem}
+\begin{proof}
+	Let $\Sigma = (\tr{S}I_{3 \times 3}-S)^{-1} = \diag\left(\frac{1}{s_2+s_3},\frac{1}{s_1+s_3},\frac{1}{s_1+s_2}\right) \in\mathbb{R}^{3\times 3}$, and let $\xi\in\mathbb{R}^3$ be defined as $\sqrt{\Sigma}\xi = \eta$.
+	Then the density \eqref{eqn:MF-density} for $R$ can be written as
+	\begin{align*}
+		&\etr{FR^T} = \etr{S\exp\left( (\sqrt{\Sigma}\xi)^\wedge \right)} \\
+		=\; &\etr{S \Big( I_{3\times 3} + (\sqrt{\Sigma}\xi)^\wedge + \tfrac{1}{2} \big((\sqrt{\Sigma}\xi)^\wedge\big)^2 + O(\sqrt{\Sigma}) \Big)} \\
+		=\; &\etr{\tfrac{1}{2}S\big((\sqrt{\Sigma}\xi)^\wedge\big)^2 + O(\sqrt{\Sigma})} \\
+		\approx\; &\etr{S} \exp\left(-\tfrac{1}{2}\eta^T\Sigma^{-1}\eta\right).
+	\end{align*}
+	This finishes the proof.
+\end{proof}
+
+Theorem \ref{thm:MF-approx-1d} gives the following approximation of the normalizing constant.
+\begin{corollary}[\cite{lee2018bayesian-b}]
+	If $s_2+s_3\gg 0$, then
+	\begin{align}
+		c(S) &\approx \frac{\etr{S}}{\sqrt{8\pi(s_1+s_2)(s_1+s_3)(s_2+s_3)}} \label{eqn:MF-normalizing-approx1} \\
+		\frac{1}{c(S)} \frac{\partial c(S)}{\partial s_i} &\approx 1 - \frac{1}{2}\left( \frac{1}{s_i+s_j} + \frac{1}{s_i+s_k} \right), \label{eqn:MF-S2D-approx1}
+	\end{align}
+	for $i,j,k\in\{1,2,3\}$ and $i\neq j\neq k$.
+\end{corollary}
+\begin{proof}
+	According to \cite[Chapter 12.1.2]{chirikjian2011stochastic}, \eqref{eqn:MF-normalizing} can be written as
+	\begin{align*}
+		c(S) = \int_{\norm{\eta}<\pi} \etr{S\exp(\hat{\eta})} \frac{1-\cos\norm{\eta}}{4\pi^2\norm{\eta}^2} \diff\eta,
+	\end{align*}
+	where $\diff\eta$ is the Lebesgue measure on $\mathbb{R}^3$.
+	Using the calculation in Theorem \ref{thm:MF-approx-1d}, and the Taylor expansion of $1-\cos x$, it can further be calculated as
+	\begin{align*}
+		c(S) &= \etr{S} \int_{\norm{\eta}<\pi} \expb{-\tfrac{1}{2} \eta^T \Sigma^{-1} \eta + O(\sqrt{\Sigma})} (1+O(\Sigma)) \tfrac{1}{8\pi^2} \diff\eta \\
+		&\approx \int_{\mathbb{R}^3} \expb{-\tfrac{1}{2} \eta^T \Sigma^{-1} \eta}  \tfrac{1}{8\pi^2} \diff\eta.
+	\end{align*}
+	Then \eqref{eqn:MF-normalizing-approx1} can be obtained using the normalizing constant of $\mathcal{N}(0,\Sigma)$, and its derivation can also be calculated directly as \eqref{eqn:MF-S2D-approx1}.
+\end{proof}
+
+\subsection{Highly Concentrated in Two Degrees of Freedom}
+
+In this subsection, the case when $s_1+s_3\gg 0$ is considered, i.e., the matrix Fisher distribution is highly concentrated along the second and third principal axes, but may have large dispersion along the first axis.
+Note that because $s_1 \geq s_2 \geq |s_3| \geq 0$, $s_1+s_3\gg 0$ is equivalent to $s_1 \gg s_2$.
+It is proved in this case, the matrix Fisher distribution can be approximated by a combination of a two dimensional Gaussian distribution in $\mathbb{R}^2$, and a one dimensional von Mises distribution on $\Sph^1$.
+
+\begin{theorem} \label{thm:MF-approx-2d}
+	Let $R\sim\mathcal{M}(F)$, where $F=USV^T$ is the pSVD of $F$.
+	Suppose $s_1+s_3\gg 0$.
+	Let $Q = U^TRV = \exp\left(\hat{\eta}\right) \exp\left(\hat{\eta}'\right)$, where $\eta = [0, \eta_2, \eta_3]^T$, and $\eta' = [\eta_1, 0, 0]^T$.
+	Then $\eta_3 \approxsim \mathcal{VM}(0,s_2+s_3)$, and $ [\eta_2, \eta_3]^T  \approxsim \mathcal{N}\left( 0, \diag\left( \tfrac{1}{s_1+s_3}, \tfrac{1}{s_1+s_2} \right) \right)$, and they are approximately independent.
+\end{theorem}
+\begin{proof}
+	let $\Sigma = \diag\left( 0, \tfrac{1}{s_1+s_3}, \tfrac{1}{s_1+s_2} \right)$, and $\eta = \sqrt{\Sigma} \xi$.
+	Then $\exp\left(\hat{\eta}\right)$ can be written as
+	\begin{align*}
+		\exp\left(\hat{\eta}\right) = I_{3\times 3} + \sqrt{\Sigma}\hat{\xi} + \tfrac{1}{2} \left( \sqrt{\Sigma}\hat{\xi} \right)^2 + O\big(s_1^{-3/2}\big).
+	\end{align*}
+	Also, $\exp\left(\hat{\eta}'\right)$ can be explicitly calculated as
+	\begin{align*}
+		\exp\left(\hat{\eta}'\right) = \begin{bmatrix}
+			1 & 0 & 0 \\
+			0 & \cos\eta_1 & -\sin\eta_1 \\
+			0 & \sin\eta_1 & \cos\eta_1
+		\end{bmatrix}.
+	\end{align*}
+	Combining the above two equations, the density function for $R$ becomes
+	\begin{align*}
+		\etr{FR^T} &= \etr{S\exp(\hat{\eta})\exp(\hat{\eta}')} \\
+		&= \exp(s_1) \cdot \exp((s_2+s_3)\cos\eta_1) \cdot \expb{-\tfrac{1}{2} \left( (s_1+s_3)\eta_2^2 + (s_1+s_2)\eta_3^2 \right)} \\
+		&\quad \cdot \expb{-\tfrac{1}{2}\left( (s_2\eta_3^2 + s_3\eta_2^2)(\cos\eta_1-1) + (s_3-s_2)\eta_2\eta_3\sin\eta_1 \right) + O\big(s_1^{-1/2}\big)}.
+	\end{align*}
+	Note that the last exponential term can be simplified as
+	\begin{align*}
+		&(s_2\eta_3^2 + s_3\eta_2^2)(\cos\eta_1-1) + (s_3-s_2)\eta_2\eta_3\sin\eta_1 \\
+		= &\left( \tfrac{s_2}{s_1+s_2}\xi_3^2 + \tfrac{s_3}{s_1+s_3}\xi_2^2 \right)(\cos\eta_1-1) + \tfrac{s_3-s_2}{\sqrt{s_1+s_3} \sqrt{s_1+s_2}} \xi_2\xi_3 \sin\eta_1 \\
+		= & O\big(s_1^{-1}\big).
+	\end{align*}
+	So the density function for $R$ can be approximated by
+	\begin{align*}
+		\etr{FR^T} \approx \exp(s_1) \cdot \exp((s_2+s_3)\cos\eta_1) \cdot \expb{-\tfrac{1}{2} \left( (s_1+s_3)\eta_2^2 + (s_1+s_2)\eta_3^2 \right)},
+	\end{align*}
+	and the desired result is proved.
+\end{proof}
+
+Before looking into how this approximation can be applied to calculating the normalizing constant $c(S)$, a decomposition of the Haar measure $\diff Q$ on $\SO{3}$ needs to be introduced first \cite[Chapter 4]{dym1972fourier}.
+Let $\mathbf{K} = \{\expb{\theta\hat{e}_1} \,|\, 0\leq \theta < 2\pi\}$ be a subgroup of $\SO{3}$, it is clear that $\mathbf{K}$ is isomorphic to $\SO{3} \cong \Sph^1$.
+The quotient group of $\mathbf{K}$ is $\SO{3}/\mathbf{K} = \{ T\in\SO{3} \,|\, T\mathbf{K} \}$, which is isomorphic to $\Sph^2$ under the map
+\begin{align} \label{eqn:SO3-SO3/K}
+	j:\, \SO{3}/\mathbf{K} \to \Sph^2, \qquad T\mathbf{K} \mapsto Te_1.
+\end{align}
+Therefore, for any $Q\in\SO{3} = \SO{3}/\mathbf{K} \times \mathbf{K} \cong \Sph^2\times \Sph^1$, it can be decomposed as $Q = T \expb{\theta\hat{e}_1}$,
+for $x\in\Sph^2$ and $0\leq \theta< 2\pi$, where $T\mathbf{K} = j^{-1}(x)$.
+And the Haar measure $\diff{Q}$ can be decomposed as $\tfrac{1}{8\pi^2} \diff \theta \diff \sigma(x)$, where $\diff \sigma(x)$ is the surface area measure on $\Sph^2$.
+This decomposition can be used to obtain an approximation of the normalizing constant given in the next Corollary.
+
+\begin{corollary}
+	If $s_1+s_3 \gg 0$, then
+	\begin{align}
+		c(S) &\approx \frac{\exp(s_1)I_0(s_2+s_3)}{2\sqrt{(s_1+s_2)(s_1+s_3)}}, \label{eqn:MF-normalizing-approx2} \\
+		\frac{1}{c(S)}\frac{\partial c(S)}{\partial s_1} &\approx 1 - \frac{1}{2}\left( \frac{1}{s_1+s_2} + \frac{1}{s_1+s_3} \right), \label{eqn:MF-S2D-approx2-1} \\
+		\frac{1}{c(S)}\frac{\partial c(S)}{\partial s_j} &\approx \frac{I_1(s_2+s_3)}{I_0(s_2+s_3)} - \frac{1}{2}\frac{1}{s_1+s_j}, \label{eqn:MF-S2D-approx2-2}
+	\end{align}
+	for $j\in\{2,3\}$.
+\end{corollary}
+\begin{proof}
+	As shown in Theorem \ref{thm:MF-approx-2d}, $c(S)$ can be calculated as
+	\begin{align*}
+		c(S) \approx \exp(s_1) \int_{Q\in\SO{3}} \exp((s_2+s_3)\cos\eta_1) \cdot \expb{-\tfrac{1}{2} \left( (s_1+s_3)\eta_2^2 + (s_1+s_2)\eta_3^2 \right)} \diff Q
+	\end{align*}
+	Let $x = [\cos\alpha, \sin\alpha\cos\beta, \sin\alpha\sin\beta]^T \in \Sph^2$ be written in spherical coordinates, then using \eqref{eqn:SO3-SO3/K}, it can be shown that $j^{-1}(x) = \expb{\hat{\eta}} \mathbf{K}$, if $\eta$ is re-parameterized in polar coordinates as $\eta_2 = -\alpha\sin\beta$, $\eta_3 = \alpha\cos\beta$.
+	Thus, $c(S)$ can be written as
+	\begin{align*}
+		c(S) &\approx \exp(s_1) \int_{0}^{2\pi} \exp((s_2+s_3)\cos\eta_1) \frac{1}{2\pi} \diff \eta_1 \\
+		&\qquad \cdot \int_{0}^\pi \int_{0}^{2\pi} \expb{-\tfrac{1}{2} \left( (s_1+s_3)\eta_2^2 + (s_1+s_2)\eta_3^2 \right)} \frac{1}{4\pi} \sin\alpha \diff\beta \diff\alpha,
+	\end{align*}
+	where the first integral term is the normalizing constant of the von Mises distribution \cite[Chapter 3]{mardia2009directional}, given by $I_0(s_2+s_3)$.
+	Note that $\eta_2 = \tfrac{\xi_2}{\sqrt{s_1+s_3}}$, and $\eta_3 = \tfrac{\xi_3}{\sqrt{s_1+s_2}}$, so $\sin\alpha = \alpha + O(s_1^{-3/2})$. Also, the integration for $\expb{-\tfrac{1}{2} \left( (s_1+s_3)\eta_2^2 + (s_1+s_2)\eta_3^2 \right)}$ becomes very small for $\alpha > \pi$ as $s_1+s_3 \gg 0$.
+	Therefore, the second integral can be approximated by
+	\begin{align*}
+		&\int_0^\infty \int_{0}^{2\pi} \expb{-\tfrac{1}{2} \left( (s_1+s_3)\eta_2^2 + (s_1+s_2)\eta_3^2 \right)} \frac{1}{4\pi} \alpha \diff\beta \diff\alpha \\
+		= &\int_{-\infty}^\infty \int_{-\infty}^\infty \expb{-\tfrac{1}{2} \left( (s_1+s_3)\eta_2^2 + (s_1+s_2)\eta_3^2 \right)} \frac{1}{4\pi} \diff\eta_2 \diff\eta_3,
+	\end{align*}
+	which is the normalizing constant of the Gaussian distribution.
+	And \eqref{eqn:MF-normalizing-approx2} follows after combining the two integral terms.
+	The derivatives \eqref{eqn:MF-S2D-approx2-1} and \eqref{eqn:MF-S2D-approx2-2} can be directly calculated by differentiating \eqref{eqn:MF-normalizing-approx2}.
+\end{proof}
+
+\subsection{Highly Concentrated in One Degree of Freedom}
+
+Finally, this subsection studies the case when $s_1+s_2\gg 0$, i.e., the matrix Fisher distribution is only highly concentrated along the third principal axis, but may have large dispersion along the first and second principal axes.

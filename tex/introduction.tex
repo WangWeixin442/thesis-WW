@@ -1,0 +1,48 @@
+% !TEX root = ../thesis-WW.tex
+
+\chapter{Introduction} \label{chap:introduction}
+
+The 3D attitude of a rigid body is a key concept in modeling our physical world.
+It can be defined as the directions of the three axes of an orthogonal frame fixed to the rigid body in the inertial frame, and therefore describes the orientation of the rigid body.
+The attitude is a state involved with rigid body mechanics, and is usually controlled in a robotic system through actuators to achieve the goal of alignment or moving to a specific position.
+As a feedback controller also needs estimation of the state, a number of sensors are usually used to determine the attitude of the rigid body.
+These sensors can usually be classified into the following categories:
+(i) infrastructures that measure the attitude directly, for example an optical motion capture system;
+(ii) a gyroscope that measures the angular velocity;
+(iii) direction sensors that measure reference directions in the inertial frame, such as magnetometers, star trackers, etc;
+(iv) sensors that measure the surrounding environment, such as various cameras, lidars, etc.
+
+These sensors provide either direct or indirect information of the attitude of a rigid body.
+But one common feature is that they are all subject to measurement noises.
+The noise characteristics of different types of measurement are also different.
+For example, the attitude integrated from angular velocity measured by a gyroscope suffers from accumulated integration of bias, and therefore is only accurate within a short period of time.
+It is similar for a visual odometry algorithm that estimates the attitude by capturing surrounding visual features using cameras.
+On the other hand, the attitude inferred from measurements of reference directions may be affected by instantaneous disturbances, but the average noise remains low for a long period of time.
+Thus, it is common that different sensors are combined to get a robust attitude estimate, by leveraging their different noise characteristics.
+
+This motivates the need to model the uncertainty of the attitude.
+As when combining the estimates from two or more different measurement sources, one must decide on how much confidence should be placed on each individual source.
+As a rule of thumb, the measurement with more uncertainty should play a less important role in determining the final estimation.
+Consequently, a metric that describes the uncertainty for the estimated attitude is needed to weigh the measurements.
+From another point of view, uncertainty of the final estimation can play an important role in decision making for a robotic system.
+For example, if the uncertainty for attitude is too large, a robot may take some safety measures like slowing down, to avoid possible collisions.
+
+This dissertation focuses on modeling the uncertainty of the rigid body attitude in a geometric awaring and global way.
+More specifically, the uncertainty is formulated on the curved and compact manifold where the attitude naturally resides in a global fashion.
+Furthermore, a model for the correlation between attitude and other Euclidean quantities, for example the 3D location, is proposed.
+Based on these, three typical estimation problems in aerospace and robotics engineering are investigated: (i) attitude estimation with a gyroscope and direction sensors, (ii) loosely coupled IMU-GNSS integration for navigation, and (iii) visual-inertial odometry with a RGB-D camera. 
+
+\section{Motivation and Goal}
+
+\section{Literature Review}
+
+\section{Outline of Dissertation}
+
+\section{Summary of Contributions}
+
+
+
+
+
+
+

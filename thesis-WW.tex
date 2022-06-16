@@ -1,0 +1,65 @@
+\documentclass[thesis]{thesis-gwu}[2018/05/21]
+
+\newcommand{\SO}[1]{\ensuremath{\mathrm{SO}(#1)}}
+\newcommand{\SE}[1]{\ensuremath{\mathrm{SE}(#1)}}
+\renewcommand{\so}[1]{\ensuremath{\mathfrak{so}(#1)}}
+\newcommand{\Sph}{\ensuremath{\mathbb{S}}}
+\newcommand{\norm}[1]{\ensuremath{\left\| #1 \right\|}}
+\newcommand{\tr}[1]{\ensuremath{\mathrm{tr}\left( #1 \right)}}
+\newcommand{\etr}[1]{\ensuremath{\mathrm{etr}\left( #1 \right)}}
+\newcommand{\expect}[1]{\ensuremath{\mathrm{E}\left[ #1 \right]}}
+\newcommand{\expectbar}[1]{\ensuremath{\bar{\mathrm{E}}\left[ #1 \right]}}
+\newcommand{\cov}[2]{\ensuremath{\mathrm{cov}\left( #1, #2 \right)}}
+\newcommand{\covbar}[2]{\ensuremath{\overline{\mathrm{cov}}\left( #1, #2 \right)}}
+\newcommand{\expb}[1]{\ensuremath{\exp\left\{ #1 \right\}}}
+\newcommand{\diff}{\ensuremath{\mathrm{d}}}
+\newcommand{\diag}{\ensuremath{\mathrm{diag}}}
+
+\newtheorem{definition}{Definition}[chapter]
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}{Lemma}[chapter]
+\newtheorem{corollary}{Corollary}[chapter]
+
+\DeclareMathAlphabet{\mathcal}{OMS}{cmsy}{m}{n}
+
+\makeatletter
+\newcommand\approxsim{\mathpalette\@approxsim\relax}
+\newcommand\@approxsim[2]{%
+	\mathrel{%
+		\ooalign{%
+			$\m@th#1\sim$\cr
+			\hidewidth$\m@th#1:$\hidewidth\cr
+		}%
+	}%
+}
+\makeatother
+
+% this package is only used to generate some random text. 
+% it is not needed in a true document
+\usepackage{lipsum}
+
+\input{tex/frontmatter}
+
+% this will speed up your tikz figures by building them once to another directory
+\usepackage{pgfplots}
+\usepgfplotslibrary{external}
+\tikzexternalize
+\tikzsetexternalprefix{cache/}
+
+\usepackage{multirow}
+\usepackage{siunitx}
+
+%% DOCUMENT AREA
+\begin{document}
+
+\include{tex/introduction}
+\include{tex/MF}
+\include{tex/MFG}
+\include{tex/estimation}
+
+\bibliographystyle{plain}
+\bibliography{thesis-bib}
+
+% appendices must appear after
+\include{tex/appendix}
+\end{document}

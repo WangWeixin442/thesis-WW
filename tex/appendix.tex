@@ -1,0 +1,223 @@
+% !TEX root = ../thesis-WW.tex
+\appendix
+\doublespacing
+
+\chapter{A Special Case in Theorem \ref{thm:MF-moment-dsdT}} \label{app:MF-moment-specialRecursion}
+
+In this supplementary material, a special case which is embedded in the recursion of Theorem \eqref{thm:MF-moment-dsdT} is untwisted into a non-recursive formula except for an integer coefficient.
+
+\begin{theorem} \label{thm:MF-moment-specialRecursion}
+	If $s_1 \neq s_2 \neq |s_3|$ and $i \neq j$, then
+	\begin{align} \label{eqn:dsisjdT}
+		\left.\left( \frac{\partial^{2n}s'_i}{\partial T_{ij}^{2n}} + \frac{\partial^{2n}s'_j}{\partial T_{ij}^{2n}} \right)\right|_{T=0} &= \frac{a(n)}{(s_i+s_j)^{2n-1}}, \nonumber \\
+		\left.\left( \frac{\partial^{2n}s'_i}{\partial T_{ij}^{2n}} - \frac{\partial^{2n}s'_j}{\partial T_{ij}^{2n}} \right)\right|_{T=0} &= \frac{a(n)}{(s_i-s_j)^{2n-1}},
+	\end{align}
+	where $a(n)$ is an integer-valued function of $n$.
+\end{theorem}
+
+Before proving this theorem, a lemma for differentiating $U'$ and $V'$ is needed.
+\begin{lemma} \label{lemma:MF-moment-dUVdT-zero}
+	Under the conditions of Theorem \ref{thm:MF-moment-dsdT}, if any of $k$ or $l$ is distinct from $i$ or $j$, then
+	\begin{equation}
+		\left. \frac{\partial^n U'_{kl}}{\partial T_{ij}^n} \right|_{T=0} = 0, \qquad
+		\left. \frac{\partial^n V'_{kl}}{\partial T_{ij}^n} \right|_{T=0} = 0,
+	\end{equation}
+	for all $n>0$.
+\end{lemma}
+\begin{proof}
+	Suppose $i=1,j=2$, and let $\begin{bmatrix} s_1 & T_{12} \\ 0 & s_2 \end{bmatrix} = \begin{bmatrix} U'_{11} & U'_{12} \\ U'_{21} & U'_{22} \end{bmatrix} \begin{bmatrix} s'_1 & 0 \\ 0 & s'_2 \end{bmatrix} \begin{bmatrix} V'_{11} & V'_{12} \\ V'_{21} & V'_{22} \end{bmatrix}^T$ be the singular value decomposition of the upper left 2-by-2 diagonal block of $S+T$.
+	Then by direct calculation, $S+T$ has singular value decomposition
+	\begin{equation*}
+		\begin{bmatrix}
+			s_1 & T_{12} & 0 \\
+			0 & s_2 & 0 \\
+			0 & 0 & s_3
+		\end{bmatrix} = \begin{bmatrix}
+			U'_{11} & U'_{12} & 0 \\
+			U'_{21} & U'_{22} & 0 \\
+			0 & 0 & 1
+		\end{bmatrix} \begin{bmatrix}
+			s'_1 & 0 & 0 \\
+			0 & s'_2 & 0 \\
+			0 & 0 & s_3
+		\end{bmatrix} \begin{bmatrix}
+			V'_{11} & V'_{12} & 0 \\
+			V'_{21} & V'_{22} & 0 \\
+			0 & 0 & 1
+		\end{bmatrix}^T.
+	\end{equation*}
+	This means if the subscripts of $U'$ or $V'$ contain $3$ which is different from $\{1,2\}$, the corresponding element of $U'$ or $V'$ is either zero or one, whose derivatives with respect to $T_{12}$ of any order evaluated at $T=0$ is zero.
+	Other cases can be shown similarly.
+\end{proof}
+
+Next, the proof for Theorem \ref{thm:MF-moment-specialRecursion} is provided.
+\begin{proof}
+	By direct calculation using \eqref{eqn:dsvd-dsdT}, is can be shown that
+	\begin{align*}
+		\frac{\partial (s'_i+s'_j)}{\partial T_{ij}} &= U'_{ii}V'_{ji} + U'_{ij}V'_{jj} \triangleq X_1, \\
+		\frac{\partial (s'_i-s'_j)}{\partial T_{ij}} &= U'_{ii}V'_{ji} - U'_{ij}V'_{jj} \triangleq X_2,
+	\end{align*}
+	for $X_1,X_2\in\mathbb{R}$.
+	Next, the second order differentiation is calculated using \eqref{eqn:dsvd-dUVdT} as
+	\begin{align*}
+		\frac{\partial X_1}{\partial T_{ij}}
+		&= (U'_{ii}V'_{jj}-U'_{ij}V'_{ji})(\Omega_{U_{ij}}^{ij}+\Omega_{V_{ij}}^{ij}) + U'_{ik}V'_{ji}\Omega_{U_{ki}}^{ij} - U'_{ii}V'_{jk}\Omega_{V_{ki}}^{ij} + U'_{ik}V'_{jj}\Omega_{U_{kj}}^{ij} - U'_{ij}V'_{jk}\Omega_{V_{kj}}^{ij}, \\
+		\frac{\partial X_2}{\partial T_{ij}} &= (U'_{ii}V'_{jj}+U'_{ij}V'_{ji})(\Omega_{V_{ij}}^{ij}-\Omega_{U_{ij}}^{ij}) + U'_{ik}V'_{ji}\Omega_{U_{ki}}^{ij} - U'_{ii}V'_{jk}\Omega_{V_{ki}}^{ij} - U'_{ik}V'_{jj}\Omega_{U_{kj}}^{ij} + U'_{ij}V'_{jk}\Omega_{V_{kj}}^{ij},
+	\end{align*}
+	where $k\in\{1,2,3\}$ and $i\neq j\neq k$.
+	The crucial observation is that if we further differentiate the above two equations with respect to $T_{ij}$ and evaluate at $T=0$, then the last four terms in each subequation yield terms involving either $U'_{ik}$, $V'_{jk}$, or their derivatives with respect to $T_{ij}$.
+	However, Lemma \ref{lemma:MF-moment-dUVdT-zero} indicates that all these terms vanish after evaluated at $T=0$.
+	This means when calculating \eqref{eqn:dsisjdT}, the last four terms in each of the above subequations can be simply omitted.
+	Therefore, by \eqref{eqn:dsvd-OmegaUV} is can be shown that
+	\begin{align*}
+		\frac{\partial X_1}{\partial T_{ij}} &= (U'_{ii}V'_{jj}-U'_{ij}V'_{ji})(\Omega_{U_{ij}}^{ij}+\Omega_{V_{ij}}^{ij}) = \frac{(U'_{ii}V'_{jj}-U'_{ij}V'_{ji})^2}{s'_i+s'_j} \triangleq \frac{Y_1^2}{s'_i+s'_j}, \\
+		\frac{\partial X_2}{\partial T_{ij}} &= (U'_{ii}V'_{jj}+U'_{ij}V'_{ji})(-\Omega_{U_{ij}}^{ij}+\Omega_{V_{ij}}^{ij}) = \frac{(U'_{ii}V'_{jj}+U'_{ij}V'_{ji})^2}{s'_i-s'_j} \triangleq \frac{Y_2^2}{s'_i-s'_j}.
+	\end{align*}
+	If the above two equations are differentiated with respect to $T_{ij}$ again, we obtain the derivatives of $s_i \pm s_j$ which have been calculated, and the derivatives of $Y_1$, $Y_2$ which are calculated as follows.
+	\begin{align*}
+		\frac{\partial Y_1}{\partial T_{ij}} &= -\frac{(V'_{ii}V'_{ji}+U'_{ij}V'_{jj})(U'_{ii}V'_{jj}-U'_{ij}V'_{ji})}{s'_i+s'_j} = -\frac{X_1Y_1}{s'_i+s'_j}, \\
+		\frac{\partial Y_2}{\partial T_{ij}} &= -\frac{(U'_{ii}V'_{ji}-U'_{ij}V'_{ji})(U'_{ii}V'_{jj}+U'_{ij}V'_{ji})}{s'_i-s'_j} = -\frac{X_2Y_2}{s'_i-s'_j},
+	\end{align*}
+	where any term having the subscript $k$ has been omitted. 
+	
+	Now, a very special branch of smaller recursion is distilled from the large recursion stated in Theorem \ref{thm:MF-moment-dsdT}, which reads
+	\begin{align} \label{eqn:smallRecursion}
+		\frac{\partial (s'_i+s'_j)}{\partial T_{ij}} &= X_1, \qquad \frac{\partial X_1}{\partial T_{ij}} = \frac{Y_1^2}{s'_i+s'_j}, \qquad \frac{\partial Y_1}{\partial T_{ij}} = -\frac{X_1Y_1}{s'_i+s'_j}, \nonumber \\
+		\frac{\partial (s'_i-s'_j)}{\partial T_{ij}} &= X_2, \qquad \frac{\partial X_2}{\partial T_{ij}} = \frac{Y_2^2}{s'_i-s'_j}, \qquad \frac{\partial Y_2}{\partial T_{ij}} = -\frac{X_2Y_2}{s'_i-s'_j}.
+	\end{align}
+	Since the recursive structure for $s'_i+s'_j$ and $s'_i-s'_j$ are the same, they can be written in the same form as
+	\begin{equation*}
+		\frac{\partial s'_{ij}}{\partial T_{ij}} = X; \qquad \frac{\partial X}{\partial T_{ij}} = \frac{Y^2}{s'_{ij}}; \qquad \frac{\partial Y}{\partial T_{ij}} = -\frac{XY}{s'_{ij}},
+	\end{equation*}
+	where $s'_{ij}$ denotes either $s'_i+s'_j$ or $s'_i-s'_j$.
+	Finally, to prove the theorem, it is claimed that
+	\begin{equation*}
+		\frac{\partial^{2n} s'_{ij}}{\partial T_{ij}^{2n}} = \frac{a_0Y^{2n} + a_1Y^{2n-2}X^2 + \cdots + a_{n-1}Y^2X^{2n-2}}{{s'_{ij}}^{2n-1}},
+	\end{equation*}
+	where $a_m$ is an integer coefficient for $m=0,\ldots,n-1$.
+	This claim is proved by induction.
+	When $n=1$, it is clearly seen from \eqref{eqn:smallRecursion}.
+	Suppose for case $n$ it is true, then differentiate $T_{ij}$ one more time, and after some rearrangement, it is shown that
+	\begin{equation*}
+		\frac{\partial^{2n+1} s'_{ij}}{\partial T_{ij}^{2n+1}} = \frac{a'_0Y^{2n}X + a'_1Y^{2n-2}X^3 + \cdots + a'_{n-1}Y^2X^{2n-1}}{\partial {s'_{ij}}^{2n}},
+	\end{equation*}
+	where $a'_m = (-4n+2m+1)a_m + 2(m+1)a_{m+1}$ for $m=0,\ldots,n-2$, and $a'_{n-1} = (-2n-1)a_{n-1}$.
+	Then, differentiate $T_{ij}$ once again, it is shown that
+	\begin{align*}
+		\frac{\partial^{2n+2} s'_{ij}}{\partial T_{ij}^{2n+2}} = \frac{a''_0Y^{2n+2} + a''_1Y^{2n}X^2 + \cdots + a''_{n}Y^2X^{2n}}{{s'_{ij}}^{2n+1}},
+	\end{align*}
+	where $a''_0 = a'_0$, $a''_m = (-4n+2m-2)a'_{m-1} + (2m+1)a'_m$ for $m=1,\ldots,n-1$, and $a''_n = (-2n-2)a'_{n-1}$.
+	This finishes the proof for the claim.
+	Now, note that when evaluated at $T=0$, we have $Y=1$, $X=0$.
+	Thus $\left. \partial^{2n}s'_{ij} / \partial T_{ij}^{2n} \right|_{T=0} = a_0 / s_{ij}^{2n-1}$, which finishes the proof for Theorem \ref{thm:MF-moment-specialRecursion} by noting that $a_0$ is an integer function of $n$.
+\end{proof}
+
+It should be noted that the idea in the proof of Theorem \ref{thm:MF-moment-specialRecursion} cannot be generalized to the large recursion stated in Theorem \ref{thm:MF-moment-dsdT}, due to the omitted terms in the derivatives of $X$ and $Y$.
+Even in this simpler case, giving a non-recursive expression for $a(n)$ is complicated, as seen from the recursive formula given for $a_m(n)$ in the proof.
+
+\chapter{The Second and Third Order Moment of Matrix Fisher Distribution} \label{app:MF-moment-second-third}
+
+In this Appendix, non-recursive expressions of the second and third order moments are provided based on the development in Chapter \ref{section:MF-moments}.
+
+\section{The Second Order Moments}
+
+Based on Lemma \ref{lemma:MF-moment-EQii}, the second order moment of the form $\expect{Q_{ii}Q_{jj}}$ can be calculated as
+\begin{align} \label{eqn:MF-moment-EQiijj}
+	\expect{Q_{ii}Q_{jj}} = \frac{1}{c(S)} \frac{\partial^2 c(S)}{\partial s_i \partial s_j},
+\end{align}
+for any $i,j\in\{1,2,3\}$.
+Next, using the recursion developed in Theorem \ref{thm:MF-moment-dsdT}, the second order moment of the forms $\expect{Q_{ij}Q_{ij}}$ and $\expect{Q_{ij}Q_{ji}}$ can be calculated as
+\begin{subequations} \label{eqn:MF-moment-EQijij-EQijji}
+	\begin{align}
+		\expect{Q_{ij}Q_{ij}} &= \frac{1}{c(S)}\left(-\frac{\partial c(S)}{\partial s_i}\frac{s_i}{s_j^2-s_i^2}+\frac{\partial c(S)}{\partial s_j}\frac{s_j}{s_j^2-s_i^2}\right), \\
+		\expect{Q_{ij}Q_{ji}} &= \frac{1}{c(S)}\left(-\frac{\partial c(S)}{\partial s_i}\frac{s_j}{s_j^2-s_i^2}+\frac{\partial c(S)}{\partial s_j}\frac{s_i}{s_j^2-s_i^2}\right),
+	\end{align}
+\end{subequations}
+for any $i\neq j \in \{1,2,3\}$, and $|s_i|\neq |s_j|$.
+
+If $s_i = s_j \neq 0$, \eqref{eqn:MF-moment-EQijij-EQijji} can be evaluated by taking the limit $s_j\to s_i$, and their explicit expressions are
+\begin{subequations} \label{eqn:MF-moment-EQijij-EQijji-degenerate1}
+	\begin{align}
+		\expect{Q_{ij}Q_{ij}} &= \frac{1}{c(S)}\frac{1}{2s_i} \left( \frac{\partial c(S)}{\partial s_i} + s_i\left( \frac{\partial^2 c(S)}{\partial s_i^2} - \frac{\partial^2 c(S)}{\partial s_i \partial s_j} \right) \right), \\
+		\expect{Q_{ij}Q_{ji}} &= \frac{1}{c(S)}\frac{1}{2s_i}\left( -\frac{\partial c(S)}{s_i} + s_i\left( \frac{\partial^2 c(S)}{\partial s_i^2} - \frac{\partial^2 c(S)}{\partial s_i \partial s_j} \right) \right).
+	\end{align}
+\end{subequations}
+Similarly, if $s_i = -s_j \neq 0$, their expressions become
+\begin{subequations}
+	\begin{align}
+		\expect{Q_{ij}Q_{ij}} &= \frac{1}{c(S)} \frac{1}{2s_i} \left( \frac{\partial c(S)}{\partial s_i}  + s_i\left( \frac{\partial^2 c(S)}{\partial s_i^2} + \frac{\partial^2 c(S)}{\partial s_i \partial s_j} \right) \right), \\
+		\expect{Q_{ij}Q_{ji}} &= \frac{1}{c(S)} \frac{1}{2s_i} \left( \frac{\partial c(S)}{\partial s_i} - s_i\left( \frac{\partial^2 c(S)}{\partial s_i^2} + \frac{\partial^2 c(S)}{\partial s_i \partial s_j} \right) \right).
+	\end{align}
+\end{subequations}
+If $s_i = s_j = 0$, the above equations can also be evaluated by taking the limit $s_i\to 0$, as
+\begin{subequations} \label{eqn:MF-moment-EQijij-EQijji-degenerate3}
+	\begin{align}
+		\expect{Q_{ij}Q_{ij}} &= \frac{1}{c(S)} \frac{\partial^2 c(S)}{\partial s_i^2}, \\
+		\expect{Q_{ij}Q_{ji}} &= -\frac{1}{c(S)} \frac{\partial^2 c(S)}{\partial s_i \partial s_j}.
+	\end{align}
+\end{subequations}
+
+Given these results and Theorem \ref{thm:MF-moment-dcds}, the second order derivatives of the normalizing constant can be easily evaluated by solving a linear system using the first order derivatives.
+This result is summarized in the following theorem.
+\begin{theorem} \label{thm:MF-moment-dcds-second}
+	Let $\partial^2 c(S) \in \mathbb{R}^{3\times 3}$ be a matrix whose elements are the second order derivatives $\partial^2 c(S)/\partial s_i \partial s_j$, $i,j\in\{1,2,3\}$.
+	Then $\partial^2 c(S)$ satisfies a linear system $A \cdot \mathrm{vec}(\partial^2 c(S)) = b$, where $A\in\mathbb{R}^{9\times 9}$ is constant, and $b\in\mathbb{R}^9$ only involves $S$, $c(S)$, and the first order derivatives of $c(S)$.
+\end{theorem}
+\begin{proof}
+	According to \eqref{eqn:MF-moment-EQiijj}, it can be shown that
+	\begin{align*}
+		\frac{\partial^2 c(S)}{\partial s_i^2} = c(S)\expect{Q_{ii}^2} = c(S)\left(1-\expect{Q_{ij}^2}-\expect{Q_{ik}^2}\right),
+	\end{align*}
+	where $i\neq j\neq k$.
+	If $s_j\neq s_k$, then by \eqref{eqn:MF-moment-EQijij-EQijji} and the above equation, $\partial^2 c(S)/\partial s_i^2$ can be written as an expression involved with $S$, $c(S)$, and the first order derivatives of $c(S)$.
+	If $s_j=s_k\neq 0$, or $s_j=-s_k\neq 0$, or $s_j=s_k=0$, substitute \eqref{eqn:MF-moment-EQijij-EQijji-degenerate1} to \eqref{eqn:MF-moment-EQijij-EQijji-degenerate3} into the above equation.
+	Then the coefficient of $\partial^2 c(S)/\partial s_i^2$, $\partial^2 c(S)/\partial s_i \partial s_j$, and $\partial^2 c(S)/\partial s_i \partial s_k$ on the right hand side are constants.
+	After moving them to the left hand side, the right hand side only has $S$, $c(S)$, and the first order derivatives of $c(S)$.
+	These provides three equations in total.
+	
+	Next, by \eqref{eqn:MF-moment-EQiijj} and \eqref{eqn:SO3-Rkk}, it can be shown that
+	\begin{align*}
+		\frac{\partial^2 c(S)}{\partial s_i \partial s_j} = c(S)\expect{Q_{ii}Q_{kk}} = c(S)\left(\expect{Q_{kk}}+\expect{Q_{ij}Q_{ji}}\right),
+	\end{align*}
+	for $i\neq j\neq k$.
+	Substitute \eqref{eqn:MF-S2D} and one from \eqref{eqn:MF-moment-EQijij-EQijji} to \eqref{eqn:MF-moment-EQijij-EQijji-degenerate3} into the above equation, and move $\partial^2 c(S)/\partial s_i^2$, $\partial^2 c(S)/\partial s_i \partial s_j$ from the right had side to the left hand side, the remaining six equations are obtained.
+\end{proof}
+
+\section{The Third Order Moments}
+
+Based on Lemma \ref{lemma:MF-moment-EQii}, the third order moments of the form
+$\expect{Q_{ii}Q_{jj}Q_{kk}}$ are
+\begin{align}
+	\expect{Q_{ii}Q_{jj}Q_{kk}} = \frac{1}{c(S)} \frac{\partial^3 c(S)}{\partial s_i \partial s_j \partial s_k},
+\end{align}
+for $i,j,k\in\{1,2,3\}$.
+Next, moments of the form $\expect{Q_{ii}Q_{jk}Q_{kj}}$ are
+\begin{subequations}
+	\begin{align}
+		\expect{Q_{ii}Q_{jk}Q_{jk}} &= \frac{1}{c(S)} \left( \frac{\partial^2 c(S)}{\partial s_i \partial s_k} \frac{s_k}{s_k^2-s_j^2} - \frac{\partial^2 c(S)}{\partial s_i \partial s_j} \frac{s_j}{s_k^2-s_j^2} \right), \\
+		\expect{Q_{ii}Q_{jk}Q_{kj}} &= \frac{1}{c(S)} \left( \frac{\partial^2 c(S)}{\partial s_i \partial s_k} \frac{s_j}{s_k^2-s_j^2} - \frac{\partial^2 c(S)}{\partial s_i \partial s_j} \frac{s_k}{s_k^2-s_j^2} \right),
+	\end{align}
+\end{subequations}
+for $i\neq j\neq k$ and $|s_j|\neq |s_k|$.
+Moments of the form $\expect{Q_{jj}Q_{jk}Q_{jk}}$ are
+\begin{subequations}
+	\begin{align}
+		\expect{Q_{jj}Q_{jk}Q_{jk}} &= \frac{1}{c(S)} \left( \frac{\partial^2 c(S)}{\partial s_j \partial s_k} \frac{s_k}{s_k^2-s_j^2} - \frac{\partial^2 c(S)}{\partial s_j^2} \frac{s_j}{s_k^2-s_j^2} \right. \nonumber \\
+		&\qquad\qquad \left. - \frac{\partial c(S)}{\partial s_j} \frac{s_j^2+s_k^2}{(s_j^2-s_k^2)^2} + \frac{\partial c(S)}{\partial s_k} \frac{2s_js_k}{(s_j^2-s_k^2)^2} \right), \\
+		\expect{Q_{jj}Q_{jk}Q_{kj}} &= \frac{1}{c(S)} \left( \frac{\partial^2 c(S)}{\partial s_j \partial s_k} \frac{s_j}{s_k^2-s_j^2} - \frac{\partial^2 c(S)}{\partial s_j^2} \frac{s_k}{s_k^2-s_j^2} \right. \nonumber \\
+		&\qquad\qquad \left. - \frac{\partial c(S)}{\partial s_j} \frac{2s_js_k}{(s_j^2-s_k^2)^2} + \frac{\partial c(S)}{\partial s_k} \frac{s_j^2+s_k^2}{(s_j^2-s_k^2)^2} \right),
+	\end{align}
+\end{subequations}
+for $j\neq k$ and $|s_j|\neq |s_k|$.
+Finally, moments of the form $\expect{Q_{ij}Q_{jk}Q_{ki}}$ are
+\begin{subequations}
+	\begin{align}
+		\expect{Q_{ij}Q_{jk}Q_{ki}} &= \frac{1}{c(S)}\left( \frac{\partial c(S)}{\partial s_i} \frac{s_js_k}{(s_i^2-s_j^2)(s_i^2-s_k^2)} \right. \nonumber \\
+		&\qquad\qquad \left. + \frac{\partial c(S)}{\partial s_j} \frac{s_is_k}{(s_j^2-s_i^2)(s_j^2-s_k^2)} + \frac{\partial c(S)}{\partial s_k} \frac{s_is_j}{(s_k^2-s_i^2)(s_k^2-s_j^2)} \right), \\
+		\expect{Q_{ij}Q_{jk}Q_{ik}} &= \frac{1}{c(S)}\left( \frac{\partial c(S)}{\partial s_i} \frac{s_is_j}{(s_j^2-s_i^2)(s_k^2-s_i^2)} \right. \nonumber \\
+		&\qquad\qquad \left. + \frac{\partial c(S)}{\partial s_j} \frac{s_j^2}{(s_i^2-s_j^2)(s_k^2-s_j^2)} + \frac{\partial c(S)}{\partial s_k} \frac{s_js_k}{(s_j^2-s_k^2)(s_i^2-s_k^2)} \right),
+	\end{align}
+\end{subequations}
+for $i\neq j\neq k$ and $|s_i|\neq |s_j| \neq |s_k|$.
+
+
