@@ -220,4 +220,120 @@ Finally, moments of the form $\expect{Q_{ij}Q_{jk}Q_{ki}}$ are
 \end{subequations}
 for $i\neq j\neq k$ and $|s_i|\neq |s_j| \neq |s_k|$.
 
+\chapter{Non-uniqueness Parameters of MFG} \label{app:MFG-unique}
+
+In this appendix, it is shown that how the MFG can be parameterized differently if $S$ has repeated values.
+First, Definition \ref{def:psvd} is augmented by the following uniqueness condition:
+\textit{the first nonzero element of each column of $U'$ is positive} \cite{khatri1977mises}.
+This condition ensures that the columns of $U$ and $V$ cannot undergo simultaneous sign changes.
+Then the equivalence of MFG parameterizations is given in the following theorem.
+\begin{theorem} \label{thm:MFG-equivalent}
+	Suppose $F=USV$, $\tilde{F}=\tilde{U}\tilde{S}\tilde{V}^T$ are the proper SVD of $F$ and $\tilde{F}$ with the augmented uniqueness condition.
+	Then  $\mathcal{MG}(\mu,\allowbreak \Sigma,\allowbreak P,\allowbreak U,\allowbreak S,\allowbreak V)$ and $\mathcal{MG}(\tilde{\mu},\allowbreak \tilde{\Sigma},\allowbreak \tilde{P},\allowbreak \tilde{U},\allowbreak \tilde{S},\allowbreak \tilde{V})$ are equivalent if and only if $\mu=\tilde{\mu}$, $S=\tilde{S}$, and one of the following conditions is satisfied:
+	\begin{enumerate}
+		\item if $s_1=s_2=s_3=0$, then $\Sigma = \tilde{\Sigma}$. \label{case:s1=s2=s3=0}
+		\item if $s_1 \neq s_2=s_3=0$, then \label{case:s1 neq s2=s3=0}
+		\begin{enumerate}
+			\item [2I.] $\exists \theta_1, \theta_2 \in \mathbb{R}$ such that $\tilde{U}=UT_1$, $\tilde{V}=VT_2$ where $T_1 = \exp(\theta_1\hat{e}_1)$ and $T_2 = \exp(\theta_2\hat{e}_1)$, $[\tilde{P}_{:,2},\tilde{P}_{:,3}] = [P_{:,2},P_{:,3}]\begin{bmatrix} \cos\theta_1 & -\sin\theta_1 \\ \sin\theta_1 & \cos\theta_1\end{bmatrix}$ where $P_{:,i}$ is the $i$-th column of $P$, and $\Sigma = \tilde{\Sigma}$.
+			\item [2B.] $\exists \theta_1, \theta_2 \in \mathbb{R}$ such that $\tilde{U}=UT_1$, $\tilde{V}=VT_2$ where $T_1 = \exp(\theta_1\hat{e}_1)$ and $T_2 = \exp(\theta_2\hat{e}_1)$, $[\tilde{P}_{:,2},\tilde{P}_{:,3}] = [P_{:,2},P_{:,3}]\begin{bmatrix} \cos\theta_2 & -\sin\theta_2 \\ \sin\theta_2 & \cos\theta_2\end{bmatrix}$ where $P_{:,i}$ is the $i$-th column of $P$, and $\Sigma = \tilde{\Sigma}$.
+		\end{enumerate} 
+		\item if $s_1=s_2=s_3 \neq 0$, then $\exists T\in\SO{3}$ such that $\tilde{U}=UT$, $\tilde{V}=VT$, $\tilde{P}=PT$ and $\Sigma=\tilde{\Sigma}$.\label{case:s1=s2=s3 neq 0}
+		\item if $s_1 \neq s_2=s_3 \neq 0$, then $\exists \theta\in\mathbb{R}$ such that $\tilde{U}=UT$, $\tilde{V}=VT$, $\tilde{P}=PT$, where $T=\exp(\theta\hat{e}_1)$, and $\Sigma=\tilde{\Sigma}$.\label{case:s1 neq s2=s3 neq 0}
+		\item if $s_1=s_2 \neq |s_3|$, then $\exists \theta\in\mathbb{R}$ such that $\tilde{U}=UT$, $\tilde{V}=VT$, $\tilde{P}=PT$, where $T=\exp(\theta\hat{e}_3)$, and $\Sigma=\tilde{\Sigma}$.\label{case:s1=s2 neq |s3|}
+		\item if $s_1 \neq s_2 \neq |s_3|$, then $U=\tilde{U}$, $V=\tilde{V}$, $P=\tilde{P}$, and $\Sigma=\tilde{\Sigma}$. \label{case:s1 neq s2 neq |s3|}
+		\item if $s_1=s_2=-s_3 \neq 0$, let $L = \diag(1,1,-1)$, then \label{case:s1=s2=-s3 neq 0}
+		\begin{enumerate}
+			\item [7I.] $\exists T\in\SO{3}$ such that $\tilde{U}=UT$, $\tilde{V}=VLTL$, $\tilde{P}=PT$, and \linebreak $\tilde{\Sigma} = \Sigma + P\big[T(\tr{S}I_{3\times 3}-S)T^T - (\tr{S}I_{3\times 3}-S)\big]P^T$.
+			\item [7B.] $\exists T\in\SO{3}$ such that  $\tilde{U}=ULTL$, $\tilde{V}=VT$, $\tilde{P}=PT$, and \linebreak $\tilde{\Sigma} = \Sigma + P\big[ T(\tr{S}I_{3\times 3}-S)T^T - (\tr{S}I_{3\times 3}-S) \big]P^T$.
+		\end{enumerate}
+		\item if $s_1 \neq s_2=-s_3 \neq 0$, then \label{case:s1 neq s2=-s3 neq 0}
+		\begin{enumerate}
+			\item [8I.] $\exists \theta\in\mathbb{R}$ such that $\tilde{U}=UT$, $\tilde{V}=VT^T$, $\tilde{P}=PT$, and $\tilde{\Sigma} = \Sigma + P\big[ T(\tr{S}I_{3\times 3}-S)T^T - (\tr{S}I_{3\times 3}-S) \big]P^T$, where $T=\exp(\theta\hat{e}_1)$.
+			\item [8B.] $\exists \theta\in\mathbb{R}$ such that $\tilde{U}=UT^T$, $\tilde{V}=VT$, $\tilde{P}=PT$, and $\tilde{\Sigma} = \Sigma + P\big[ T(\tr{S}I_{3\times 3}-S)T^T - (\tr{S}I_{3\times 3}-S) \big]P^T$, where $T=\exp(\theta\hat{e}_1)$.
+		\end{enumerate}
+	\end{enumerate}
+	For cases \ref{case:s1 neq s2=s3=0}), \ref{case:s1=s2=s3 neq 0}) and \ref{case:s1 neq s2=-s3 neq 0}), ``$I$'' means the condition holds for MFGI, and ``$B$'' means the condition holds for MFGB.
+\end{theorem}
+\begin{proof}
+	By Lemma \ref{lemma:MFG-equivalent-intermediate}, the two MFGs are equivalent if and only if $F=\tilde{F}$, $\mu_c=\tilde{\mu}_c$ for all $R\in\SO{3}$, and $\Sigma=\tilde{\Sigma}_c$.
+	
+	The conditions provided in the theorem begin with $S=\tilde {S}$. 
+	We first consider additional conditions to make them equivalent to $F=\tilde{F}$.
+	Since a matrix cannot have two sets of different singular values, $F=\tilde{F}$ implies $S=\tilde{S}$.
+	For case \ref{case:s1=s2=s3=0}), $S=\tilde{S}$ trivially implies $F=\tilde {F}$ as they are all zeros.
+	For case \ref{case:s1 neq s2 neq |s3|}), $F=\tilde{F}$ if and only if their proper SVDs are the same, due to the augmented uniqueness condition for SVD when the singular values are different.
+	In short, $F=\tilde{F}$ if and only if $S=\tilde{S}$ for cases 1) and 6).
+	However, when $F$ has repeated singular values, $U$ and $V$ are only unique up to a rotation.
+	We consider three possibilities regarding the multiplicity of $S$.
+	
+	(i) If $s_1 \neq s_2=s_3=0$, corresponding to case \ref{case:s1 neq s2=s3=0}) in the theorem, then $F=\tilde{F}$ if and only if $U\diag(s_1,0,0)V^T = \tilde{U}\diag(s_1,0,0)\tilde{V}^T$.
+	This means the first column of $U$ and $V$ is unique, while other columns can be arbitrarily chosen as long as $U,V\in\SO{3}$, which is the same as the conditions on $U,V$ in case \ref{case:s1 neq s2=s3=0}).
+	
+	(ii) If $s_1=s_2$ and(or) $s_2=s_3 \neq 0$, which corresponds to case \ref{case:s1=s2=s3 neq 0}) to \ref{case:s1=s2 neq |s3|}) in the theorem, then the left and right singular vectors (columns of $U$ and $V$) w.r.t the repeated singular value form subspaces of $\mathbb{R}^3$.
+	And $F=\tilde{F}$ if and only if the left and right singular vectors w.r.t the repeated singular value are rotated by the same rotation matrix, while the singular vectors w.r.t the non-repeated singular value are the same.
+	The above condition on $U,V$ is the same as those given in case \ref{case:s1=s2=s3 neq 0}) to \ref{case:s1=s2 neq |s3|}).
+	
+	(iii) If $s_2=-s_3 \neq 0$, corresponding to cases \ref{case:s1=s2=-s3 neq 0}) and \ref{case:s1 neq s2=-s3 neq 0}) in the theorem.
+	Let $S' = SL \triangleq \diag(s'_1,s'_2,s'_3)$, then $USV^T = US'LV^T = ULS'V^T$.
+	Since $s'_2=s'_3$, for all $\theta\in\mathbb{R}$ and $T=\exp(\theta\hat{e}_1)$, it can be proved for MFGI that
+	\begin{align*}
+		US'LV^T = UTS'T^TLV^T = UTS'LLT^TLV^T = UTS(VLTL)^T = UTS(VT^T)^T,
+	\end{align*}
+	and for MFGB that
+	\begin{align*}
+		ULS'V^T = ULTS'T^TV^T = ULTLLS'T^TV^T = (ULTL)S(VT)^T = UT^TS(VT)^T,
+	\end{align*}
+	This shows the sufficiency and necessity for the conditions on $U,V$ in case \ref{case:s1 neq s2=-s3 neq 0}).
+	For case \ref{case:s1=s2=-s3 neq 0}), $T$ can be arbitrarily chosen from $\SO{3}$, but in general $LTL \neq T^T$.
+	
+	Next, we consider the equivalent conditions for $\mu_c=\tilde{\mu}_c$ and $\Sigma_c=\tilde{\Sigma}_c$.
+	For case \ref{case:s1=s2=s3=0}), the matrix Fisher density parts reduce to one, $\mu_c = \mu$, and $\Sigma_c=\Sigma$, so the remaining Gaussian density parts are equivalent if and only if their means and covariance matrices are the same, as shown in Lemma \ref{lemma:MFG-equivalent-intermediate}.
+	Next, the three possibilities regarding the multiplicity of $S$ are considered individually as follows.
+	
+	For (i), let $Q=U^TRV$, since $\tilde{U}=UT_1$, $\tilde{V}=VT_2$ and $S=\tilde{S}$, it can be proved for MFGI that
+	\begin{align} \label{eqn:MFG-equivalent-Miuc-MFGI}
+		\tilde{\mu}_c &= \tilde{\mu} + \tilde{P}(T_1^TU^TRVT_2S-ST_2^TV^TR^TUT_1)^\vee \nonumber \\
+		&= \tilde{\mu} + \tilde{P}T_1^T(U^TRVT_2ST_1^T-T_1ST_2^TV^TR^TU)^\vee \nonumber \\
+		&= \tilde{\mu} + \tilde{P}T_1^T(QS-SQ^T)^\vee \nonumber \\
+		&= \tilde{\mu} + \tilde{P}T_1^T[0, -s_1Q_{31}, s_1Q_{21}]^T.
+	\end{align}
+	And similarly, for MFGB, the above equation becomes
+	\begin{align} \label{eqn:MFG-equivalent-Miuc-MFGB}
+		\tilde{\mu}_c &= \tilde{\mu} + \tilde{P}(ST_1^TU^TRVT_2-T_2^TV^TR^TUT_1S)^\vee \nonumber \\
+		&= \tilde{\mu} + \tilde{P}T_2^T(T_2ST_1^TU^TRV-V^TR^TUT_1ST_2^T)^\vee \nonumber \\
+		&= \tilde{\mu} + \tilde{P}T_2^T(SQ-Q^TS)^\vee \nonumber \\
+		&= \tilde{\mu} + \tilde{P}T_2^T[0, s_1Q_{13}, -s_1Q_{12}]^T.
+	\end{align}
+	Note that $Q$ and $R$ have a one-to-one correspondence, so $\mu_c = \tilde{\mu}_c$ for all $R\in\SO{3}$ is equivalent to $\mu_c = \tilde{\mu}_c$ for all $Q\in\SO{3}$.
+	It is clear the conditions on $\mu$ and $P$ in case \ref{case:s1 neq s2=s3=0}) are sufficient for this.
+	On the other hand, if $\mu_c = \tilde{\mu}_c$ for all $Q\in\SO{3}$, substituting $Q=I_{3 \times 3}$ into \eqref{eqn:MFG-equivalent-Miuc-MFGI} and \eqref{eqn:MFG-equivalent-Miuc-MFGB} proves $\mu=\tilde{\mu}$; substituting $Q = \expb{\tfrac{\pi}{2}e_2}$ and $Q = \expb{\tfrac{\pi}{2}e_3}$ into \eqref{eqn:MFG-equivalent-Miuc-MFGI} and \eqref{eqn:MFG-equivalent-Miuc-MFGB} proves $[\tilde{P}_{:,2},\tilde{P}_{:,3}] = [P_{:,2},P_{:,3}]\begin{bmatrix} \cos\theta_1 & -\sin\theta_1 \\ \sin\theta_1 & \cos\theta_1\end{bmatrix}$.
+	Finally, denote $T'$ as either $\begin{bmatrix} \cos\theta_1 & -\sin\theta_1 \\ \sin\theta_1 & \cos\theta_1\end{bmatrix}$ or $\begin{bmatrix} \cos\theta_2 & -\sin\theta_2 \\ \sin\theta_2 & \cos\theta_2\end{bmatrix}$ then
+	\begin{align}
+		\tilde{P}(\tr{S}I_{3 \times 3}-S)(\tilde{P})^T = s_1 \begin{bmatrix} P_{:,2} & P_{:,3} \end{bmatrix}  T'(T')^T \begin{bmatrix} P_{:,2}^T \\  P_{:,3}^T \end{bmatrix} = P(\tr{S}I_{3 \times 3}-S)P^T.
+	\end{align}
+	so $\Sigma_c = \tilde{\Sigma}_c$ if and only if $\Sigma = \tilde{\Sigma}$.
+	
+	For (ii), a similar calculation as in \eqref{eqn:MFG-equivalent-Miuc-MFGI} and \eqref{eqn:MFG-equivalent-Miuc-MFGB} shows $\tilde{\mu}_c = \tilde{\mu} + \tilde{P}T^T \nu_R$.
+	The sufficiency of the conditions on $\mu$ and $P$ in case \ref{case:s1=s2=s3 neq 0}) to \ref{case:s1=s2 neq |s3|}) follows immediately.
+	For the necessary direction, substituting $Q = I_{3 \times 3}$ into the above equation proves $\mu = \tilde{\mu}$;
+	substituting $Q = \expb{\tfrac{\pi}{2}\hat{e}_1}$, $Q = \expb{\tfrac{\pi}{2}\hat{e}_2}$ and $Q = \expb{\tfrac{\pi}{2}\hat{e}_3}$ proves $\tilde{P} = PT$ since $s_i+s_j>0$ for any $i \neq j$ in case \ref{case:s1=s2=s3 neq 0}) to \ref{case:s1=s2 neq |s3|}).
+	Finally, note that the repeated diagonal entries of $S$ and $\tr{S}I_{3 \times 3}-S$ share the same indices, thus $T(\tr{S}I_{3 \times 3}-S)T^T = \tr{S}I_{3 \times 3}-S$.
+	This proves $\Sigma_c = \tilde{\Sigma}_c$ if and only if $\Sigma = \tilde{\Sigma}$.
+	The same argument in this paragraph also proves case \ref{case:s1 neq s2 neq |s3|}) in the theorem by letting $T = I_{3 \times 3}$.
+	
+	For (iii), a similar calculation as in \eqref{eqn:MFG-equivalent-Miuc-MFGI} and \eqref{eqn:MFG-equivalent-Miuc-MFGB} shows $\tilde{\mu}_c = \tilde{\mu} + \tilde{P}T^T \nu_R$.
+	The sufficiency of the conditions on $\mu$ and $P$ in case \ref{case:s1=s2=-s3 neq 0}) and \ref{case:s1 neq s2=-s3 neq 0}) is clear.
+	For necessity, substituting $Q=I_{3\times 3}$ proves $\mu=\tilde{\mu}$; substituting $Q=\begin{bmatrix} -1 & 0 & 0 \\ 0 & 0 & 1 \\ 0 & 1 & 0 \end{bmatrix}$, $Q=\begin{bmatrix} 0 & 0 & 1 \\ 0 & -1 & 0 \\ 1 & 0 & 0 \end{bmatrix}$, and $Q=\expb{\tfrac{\pi}{2}\hat{e}_3}$ proves $\tilde{P} = PT$, because $s_2-s_3>0$, $s_1-s_3>0$, and $s_1+s_2>0$ in these two cases.
+	Finally, $\tilde{\Sigma}_c$ is
+	\begin{equation}
+		\tilde{\Sigma}_c = \tilde{\Sigma} + PT(\tr{S}I-S)T^TP^T.
+	\end{equation}
+	However, different from (ii), $T(\tr{S}I_{3 \times 3}-S)T^T \neq \tr{S}I_{3 \times 3}-S$.
+	And as a result, $\Sigma_c = \tilde{\Sigma}_c$ if and only if $\tilde{\Sigma} = \Sigma + P\left[ T(\tr{S}I-S)T^T - (\tr{S}I-S) \right]P^T$.
+\end{proof}
+
+In other words, Theorem \ref{thm:MFG-equivalent} states that if $F$ has repeated singular values and $s_3\geq 0$, then MFG can be parameterized differently by rotating $U$, $V$, and $P$ in a consistent way.
+This is intuitively straightforward by looking at how the correlation $P$ is constructed in Theorem \ref{thm:MFG-construction}.
+When $s_3<0$, it is noticeable that $\Sigma$ and $\tilde{\Sigma}$ are also different as indicated in case \ref{case:s1=s2=-s3 neq 0}) and \ref{case:s1 neq s2=-s3 neq 0}).
+The reason for this is when $s_2=-s_3$, $T(\tr{S}I_{3\times 3}-S)T^T \neq \tr{S}I_{3\times 3}-S$.
 

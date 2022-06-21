@@ -15,6 +15,9 @@
 \newcommand{\diff}{\ensuremath{\mathrm{d}}}
 \newcommand{\diag}{\ensuremath{\mathrm{diag}}}
 
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
 \newtheorem{definition}{Definition}[chapter]
 \newtheorem{theorem}{Theorem}[chapter]
 \newtheorem{lemma}{Lemma}[chapter]
@@ -34,6 +37,14 @@
 }
 \makeatother
 
+\newcommand\StepSubequations{
+	\stepcounter{parentequation}
+	\gdef\theparentequation{\thechapter.\arabic{parentequation}}
+	\setcounter{equation}{0}
+}
+
+\newcommand{\algrule}[1][.2pt]{\par\vskip.2\baselineskip\hrule height #1\par\vskip.2\baselineskip}
+
 % this package is only used to generate some random text. 
 % it is not needed in a true document
 \usepackage{lipsum}
@@ -43,11 +54,17 @@
 % this will speed up your tikz figures by building them once to another directory
 \usepackage{pgfplots}
 \usepgfplotslibrary{external}
-\tikzexternalize
+\tikzexternalize[prefix=extfig/]
 \tikzsetexternalprefix{cache/}
 
 \usepackage{multirow}
+\usepackage{diagbox}
 \usepackage{siunitx}
+\usepackage{algpseudocode}
+\usepackage{cases}
+\usepackage{booktabs}
+
+\usetikzlibrary{arrows.meta}
 
 %% DOCUMENT AREA
 \begin{document}

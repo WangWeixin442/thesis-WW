@@ -101,7 +101,7 @@ for $i,j,k\in\{1,2,3\}$ and $i\neq j\neq k$, where the subscripts denote the row
 Also, for any $R\in\SO{3}$, $A\in\mathbb{R}^{3\times 3}$, and $x\in\mathbb{R}^{3}$, the following identities involving the hap and vee maps hold:
 \begin{gather}
 	\widehat{Rx} = R\hat{x}R^T, \\
-	\hat{x}^2 = xx^T - x^TxI_{3 \times 3}, \\
+	\hat{x}^2 = xx^T - x^TxI_{3 \times 3}, \label{eqn:SO3-hatx^2} \\
 	(\hat{x}A+A^T\hat{x})^\vee = (\tr{A}I_{3 \times 3}-A)x, \\
 	\tr{\hat x A} = x^T(A^T -A)^\vee. \label{eqn:SO3-trhatxA}
 \end{gather}
@@ -777,7 +777,7 @@ It is proved in this case, the matrix Fisher distribution can be approximated by
 \end{proof}
 
 Before looking into how this approximation can be applied to calculating the normalizing constant $c(S)$, a decomposition of the Haar measure $\diff Q$ on $\SO{3}$ needs to be introduced first \cite[Chapter 4]{dym1972fourier}.
-Let $\mathbf{K} = \{\expb{\theta\hat{e}_1} \,|\, 0\leq \theta < 2\pi\}$ be a subgroup of $\SO{3}$, it is clear that $\mathbf{K}$ is isomorphic to $\SO{3} \cong \Sph^1$.
+Let $\mathbf{K} = \{\expb{\theta\hat{e}_1} \,|\, 0\leq \theta < 2\pi\}$ be a subgroup of $\SO{3}$, it is clear that $\mathbf{K}$ is isomorphic to $\SO{2} \cong \Sph^1$.
 The quotient group of $\mathbf{K}$ is $\SO{3}/\mathbf{K} = \{ T\in\SO{3} \,|\, T\mathbf{K} \}$, which is isomorphic to $\Sph^2$ under the map
 \begin{align} \label{eqn:SO3-SO3/K}
 	j:\, \SO{3}/\mathbf{K} \to \Sph^2, \qquad T\mathbf{K} \mapsto Te_1.
