@@ -160,9 +160,63 @@ This corresponds to the von Mises distribution for $\theta$ defined on the unit 
 An interesting property is that when $s_j+s_k$ is sufficiently large, it is approximated by the Gaussian density with the zero mean and variance $1/(s_j+s_k)$.
 This implies that the distribution of $R$ can be approximated by a three-dimensional Gaussian distribution when $R$ is concentrated around its mean attitude, which will be discussed in detail in Chapter \ref{section:MF-approx}.
 
-To inference a matrix Fisher distribution from random samples, the maximum likelihood estimation (MLE) of the parameter $F$ is needed.
-Given the expectation $\expect{R}$, let its pSVD be given in \eqref{eqn:MF-ER}, and let $S = \diag(s_1,s_2,s_3)$ be solved from $D$ using \eqref{eqn:MF-S2D},
-then the MLE of $F$ is given by $F=USV^T$ \cite{khatri1977mises,lee2018bayesian}.
+Given the relationship \eqref{eqn:MF-S2D}, it can be shown that $d_i+d_j$ and $s_i+s_j$ have the following relationship, which will be used in Chapter \ref{section:observability}.
+\begin{lemma} \label{lemma:MF-SD}
+	Suppose $S = \diag(s_1,s_2,s_3)$ with $s_1\geq s_2 \geq |s_3|\geq 0$, and $D = \diag(d_1,d_2,d_3)$ is given as \eqref{eqn:MF-S2D}.
+	Then, the following properties hold:
+	\begin{enumerate}
+		\item $s_i+s_j=0$ if and only if $d_i+d_j=0$; 
+		\item $s_i=s_j=0$ if and only if $d_i=d_j=0$;
+		\item $d_i+d_j$ is monotonically increasing with $s_i+s_j$, 
+	\end{enumerate}
+	for any $(i,j,k)\in\{(1,2,3),(2,3,1),(3,1,2)\}$.
+\end{lemma}
+\begin{proof}
+	Using the one dimensional integral formula in \eqref{eqn:MF-S2D-1dint}, it can be shown that
+	\begin{align}
+		&\frac{\partial c(S)}{\partial s_i} + \frac{\partial c(S)}{\partial s_j} = \int_{-1}^{1} \frac{1}{2}(1+u)I_0\left[\frac{1}{2}(s_i-s_j)(1-u)\right] \nonumber \\
+		&\qquad \times I_1\left[\frac{1}{2}(s_i+s_j)(1+u)\right] \exp(s_ku) \diff u \geq 0, \label{eqn:MF-dcdsi+j}
+	\end{align}
+	Note that $I_0(x) \geq 1$ for any $x$, and $I_1(x)=0$ if and only if $x=0$.
+	Also $I_1(x) >0$ if $x>0$.
+	
+	First, if $s_i+s_j=0$, then $I_1\left[\frac{1}{2}(s_i+s_j)(1+u)\right] = 0$, and therefore $d_i+d_j = 0$.
+	On the other hand, if $s_i+s_j>0$, the integrand of \eqref{eqn:MF-dcdsi+j} is strictly positive for $u\in(-1,1]$.
+	Therefore, $d_i+d_j>0$.
+	As both of $d_i+d_j$ and $s_i+s_j$ are non-negative, it follows that $d_i+d_j =0$ implies $s_i+s_j=0$. 
+	Therefore, $s_i+s_j = 0$ if and only if $d_i+d_j=0$.
+	
+	Next, if $s_i=s_j=0$, then by (15a) and (15b) in \cite{lee2018bayesian}, $d_i=d_j=0$.
+	On the other hand, suppose at least one of $s_i$ or $s_j$ is nonzero. There are two sub-cases: (i) if $s_i+s_j\neq 0$, then $d_i+d_j\neq 0$ so $d_i$, $d_j$ cannot both be zeros;
+	(ii) if $s_i = -s_j \neq 0$, then
+	\begin{align*}
+		\frac{\partial c(S)}{\partial s_i} = \int_{-1}^1 \frac{1}{4}(1-u) I_1[s_i(1-u)]\exp(s_ku)du
+	\end{align*}
+	where the integrand has the same sign as $s_i$ over $u\in[-1,1)$.
+	So $d_i\neq 0$.
+	
+	Finally to prove the monotonicity, let $\alpha=s_i+s_j$ and $\beta = s_i-s_j$, which yield $s_i = \frac{1}{2}(\alpha+\beta)$ and $s_j = \frac{1}{2}(\alpha-\beta)$.
+	From the chain rule,
+	\begin{align} \label{eqn:MF-dij_sij}
+		\frac{\partial (d_i+d_j)}{\partial \alpha} = \frac{1}{2} \left\{ \frac{\partial d_i+d_j}{\partial s_i} + \frac{\partial d_i+d_j}{\partial s_j} \right\}.
+	\end{align}
+	Let $Q\sim\mathcal{M}(S)$, then according to \eqref{eqn:MF-ER} and \eqref{eqn:MF-S2D}, $d_i+d_j$ is
+	\begin{align*}
+		d_i + d_j  = \frac{1}{c(S)}\int_{Q\in\SO{3}}(Q_{ii}+Q_{jj}) \etr{SQ} dQ.
+	\end{align*}
+	Based on the above, \eqref{eqn:MF-dij_sij} becomes
+	\begin{align*}
+		\frac{\partial (d_i+d_j)}{\partial \alpha} & = \frac{1}{2} \left( \expect{(Q_{ii}+Q_{jj})^2} - \expect{Q_{ii}+Q_{jj}}^2 \right)
+	\end{align*}
+	which is positive by the Cauchy-Schwarz inequality, and the monotonicity follows.
+\end{proof}
+
+This lemma shows that $S$ and $D$ have a one-to-one correspondence, so for every $D$ , a unique $S$ can be solve from \eqref{eqn:MF-S2D}.
+Therefore, from \eqref{eqn:MF-ER}, it can be seen that $\expect{R}$ and $F$ carry the same information.
+In other words, $\expect{R}$ is a sufficient statistics for $F$.
+Given $\expect{R}$, let its pSVD be given in \eqref{eqn:MF-ER}, and let $S = \diag(s_1,s_2,s_3)$ be solved from $D$ using \eqref{eqn:MF-S2D},
+then the maximum likelihood estimation (MLE) of $F$ is given by $F=USV^T$ \cite{khatri1977mises,lee2018bayesian}.
+This can be used to inference a matrix Fisher distribution from random samples.
 
 \subsection{Construction}
 

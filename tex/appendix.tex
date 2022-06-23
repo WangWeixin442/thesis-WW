@@ -337,3 +337,52 @@ This is intuitively straightforward by looking at how the correlation $P$ is con
 When $s_3<0$, it is noticeable that $\Sigma$ and $\tilde{\Sigma}$ are also different as indicated in case \ref{case:s1=s2=-s3 neq 0}) and \ref{case:s1 neq s2=-s3 neq 0}).
 The reason for this is when $s_2=-s_3$, $T(\tr{S}I_{3\times 3}-S)T^T \neq \tr{S}I_{3\times 3}-S$.
 
+\chapter{Deterministic Attitude Observability} \label{app:obervability-deterministic}
+
+This appendix presents parallel results for Theorem \ref{thm:observability-nonobs} and Theorem \ref{thm:observability-obs} under deterministic settings.
+Specifically, the attitude kinematics \eqref{eqn:observability-kinematics-right} and \eqref{eqn:observability-kinematics-left} are formulated without noise as
+\begin{align}
+	\dot{R} &= \hat{\omega}(t) R, \label{eqn:observability-kinematics-right-deterministic} \\
+	\dot{R} &= R\hat{\Omega}(t). \label{eqn:observability-kinematics-left-deterministic}
+\end{align}
+Similarly, the single reference direction \eqref{eqn:observability-measurement-inertial} and \eqref{eqn:observability-measurement-body} are also measured without noise:
+\begin{align}
+	x &= R^Ta, \label{eqn:observability-measurement-inertial-deterministic} \\
+	y &= Rb. \label{eqn:observability-measurement-body-deterministic}
+\end{align}
+Then the discrete version of Theorem \ref{thm:observability-nonobs} and Theorem \ref{thm:observability-obs} is formulated as \cite{hermann1977nonlinear}:
+
+\begin{theorem}
+	The system \eqref{eqn:observability-kinematics-right-deterministic} and \eqref{eqn:observability-measurement-inertial-deterministic}, and the system \eqref{eqn:observability-kinematics-left-deterministic} and \eqref{eqn:observability-measurement-body-deterministic} are weakly locally observable.
+	Conversely, the system \eqref{eqn:observability-kinematics-right-deterministic} and \eqref{eqn:observability-measurement-body-deterministic}, and the system \eqref{eqn:observability-kinematics-left-deterministic} and \eqref{eqn:observability-measurement-inertial-deterministic} are unobservable.
+\end{theorem}
+\begin{proof}
+	The proof is based on the results of \cite{hermann1977nonlinear}, and we adopt notations therein without reintroducing them here for brevity.
+	Without loss of generality, we assume $a = b = e_1$.
+
+	For \eqref{eqn:observability-kinematics-right-deterministic}, $\mathcal{F}^0(R)$ is spanned by $\{\hat e_i R\}_{i=1}^3$.
+	For any $R\in\SO{3}$ and $\hat{\eta}\in\so{3}$, the Lie derivative of $x(R)$ along $\hat{\eta}R$ is
+	\begin{align*}
+		(L_{(\hat{\eta}R)}x)(R) = \frac{\diff}{\diff t} \Big\lvert_{t=0} 	R^T\exp(t\hat{\eta})^Ta = R^T\hat{\eta}^Ta.
+	\end{align*}
+	Let $\tilde{\mathcal{G}} = \{L_{(\hat{e}_2R)}x, L_{(\hat{e}_3R)}x\} \subset \mathcal{G}$.
+	For any $R_0\in\SO{3}$, define a local coordinate $\theta\in\mathbb{R}^3$ with $R(\theta) = \exp(\hat\theta)R_0$.
+	Then $\diff R = \widehat{\diff \theta}R_0$, and it can be shown that
+	\begin{align*}
+		\diff(L_{(\hat{e}_2R_0)}x)(R_0) &= R_0^T \widehat{\diff\theta}^T \hat e_2^T e_1 = R_0^T \hat e_3 \diff\theta, \\
+		\diff(L_{(\hat{e}_3R_0)}x)(R_0) &= R_0^T \widehat{\diff\theta}^T \hat e_3^T e_1  =-R_0^T \hat e_2 \diff\theta.
+	\end{align*}
+	Thus, $\diff \tilde{\mathcal{G}}(R_0) = R_0^T [\hat e_3, -\hat e_2]d\theta$.
+	Since $\mathrm{rank}[\hat e_3,-\hat e_2]=3$, it follows that the dimension of $\diff\mathcal{G}(R_0)$ is three.
+	Therefore, the system \eqref{eqn:observability-kinematics-right-deterministic} and \eqref{eqn:observability-measurement-inertial-deterministic} is weakly locally observable~\cite[Theorem 3.2]{hermann1977nonlinear}.
+
+	Next, for any $R\in\SO{3}$ and $\hat{\eta}_1, \hat{\eta}_2\in\so{3}$, it can be shown that
+	\begin{align*}
+		\diff \big(L_{(\hat{\eta}_1R)}(L_{(\hat{\eta}_2R)}y)\big)(R_0) = \hat{\eta}_1\hat{\eta}_2\widehat{\diff \theta}R_0b = -\hat{\eta}_1\hat{\eta}_2 \widehat{R_0b} \diff \theta.
+	\end{align*}
+	As such, any higher-order Lie derivative of $y$ along \eqref{eqn:observability-kinematics-right-deterministic} would include the factor $\widehat{R_0 b}$, which has rank two.
+	Thus, the dimension of $\diff \mathcal{G}(R_0)$ is at most two.
+	Because the system \eqref{eqn:observability-kinematics-right-deterministic} is locally controllable, the system of \eqref{eqn:observability-kinematics-right-deterministic} and \eqref{eqn:observability-measurement-body-deterministic} is unobservable according to~\cite[Theorem 3.12]{hermann1977nonlinear}.
+	The remaining cases with \eqref{eqn:observability-kinematics-left-deterministic} can be shown similarly.
+\end{proof}
+
