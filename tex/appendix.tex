@@ -386,3 +386,116 @@ Then the discrete version of Theorem \ref{thm:observability-nonobs} and Theorem 
 	The remaining cases with \eqref{eqn:observability-kinematics-left-deterministic} can be shown similarly.
 \end{proof}
 
+\chapter{Proof for Theorem \ref{thm:attEst-prop-otherMoments}} \label{app:attEst-prop-otherMoments}
+
+\begin{proof}[Proof of Theorem \ref{thm:attEst-prop-otherMoments}]
+	Equation \eqref{eqn:attEst-prop-Ex_{k+1}} and \eqref{eqn:attEst-prop-Exx_{k+1}} follow from the independence of $x_k$ and $\Delta W_v$, and the linearity of expectation.
+	Equation \eqref{eqn:attEst-prop-EvR_{k+1}} is from the fact that $\expect{Q_{k+1}} = U_{k+1}^T\expect{R_{k+1}}V_{k+1}$ and $S_{k+1}$ are both diagonal.
+	Next, we prove \eqref{eqn:attEst-prop-ExvR_{k+1}} and \eqref{eqn:attEst-prop-EvRvR_{k+1}}.
+	
+	In \eqref{eqn:attEst-kinematics-att-factorization}, denote the exponent of the stochastic part as $\xi \triangleq h(x_k-\mu_k) + H_u\Delta W_u\in\mathbb{R}^3$, and the deterministic part as $\delta R_k \triangleq e^{h(\hat{\Omega}_k+\hat{\mu}_k)}\in\SO{3}$ such that
+	\begin{align*}
+		R_{k+1} = R_k e^{\xi + o(h)} \delta R_k.
+	\end{align*}
+	First consider the MFGI definition.
+	For any $A \in \mathbb{R}^{3\times 3}$, let $\Lambda(A)\in\mathbb{R}^3$ be defined as $\Lambda(A) = (U_{k+1}^TAV_{k+1}S_{k+1}-S_{k+1}V_{k+1}^TA^TU_{k+1})^\vee$. 
+	For example, $\nu_{R_{k+1}} = \Lambda(R_{k+1})$.
+	Further, $\Delta W_v$ in \eqref{eqn:attEst-kinematics-bias-dist} is independent of $R_k$ and $\xi$.
+	Therefore, 
+	\begin{align*}
+		\expect{x_{k+1}\nu^T_{R_{k+1}}} = \sum_{i=0}^\infty \frac{1}{i!} \expect{x_k \Lambda (R_k(\hat{\xi}+o(h))^i \delta R_k)^T},
+	\end{align*}
+	after expanding $e^{\xi + o(h)}$. 
+	Similar with \eqref{eqn:attEst-prop-E(R_{k+1})-taylor},  the first order approximation is 
+	\begin{align} \label{eqn:attEst-prop-ExvR_{k+1}-taylor}
+		\expect{x_{k+1}\nu^T_{R_{k+1}}} &= \expect{x_k \Lambda(R_k\delta R_k )^T} + h\expect{x_k \Lambda( R_k(\hat x_k-\hat{\mu}_k)\delta R_k )^T} \nonumber \\
+		&\qquad + \tfrac{1}{2}\expect{x_k \Lambda( R_k((H_u\Delta W_u)^\wedge)^2\delta R_k )^T} + O(h^2).
+	\end{align}
+	Now we calculate the three terms on the right hand side of \eqref{eqn:attEst-prop-ExvR_{k+1}-taylor}.
+	Similar with \eqref{eqn:MFG-Exx-proof}, the first term is
+	\begin{align*}
+		\expect{x_k\Lambda( R_k\delta R_k )^T} & = \mu_k\expect{\Lambda( R_k\delta R_k )}^T + P_k \expect{\nu_{R_k} \Lambda(R_k\delta R_k)^T },
+	\end{align*}
+	where
+	\begin{align*}
+		&\expect{\Lambda( R_k\delta R_k )} = \tilde{U} (\expect{Q_k}\tilde{S}^T-\tilde{S}\expect{Q_k}^T)^\vee = \tilde{U}\expect{\tilde{\nu}_R}, \\
+		&\expect{\nu_{R_k} \Lambda( R_k\delta R )^T} = \expect{(Q_k S_k-S_kQ_k^T)^\vee ( (Q_k\tilde{S}^T-\tilde{S}Q_k^T)^\vee )^T} \tilde{U}^T = \expect{\nu_{R_k} \tilde{\nu}^T_R}\tilde{U}^T.
+	\end{align*}
+	Next, it can be shown that
+	\begin{align*}
+		\Lambda ( R_k(\hat{x}_k-\hat{\mu}_k)\delta R_k ) = \tilde{U}\left( \mathrm{tr}(Q_k\tilde{S}^T)I - Q_k\tilde{S}^T \right)Q_kV_k^T(x_k-\mu_k) = \tilde{U}\Gamma_QV_k^T(x_k-\mu_k).
+	\end{align*}
+	Therefore, the second term of \eqref{eqn:attEst-prop-ExvR_{k+1}-taylor} is
+	\begin{align*}
+		\expect{x_k \Lambda ( R_k(\hat{x}_k-\hat{\mu}_k)\delta R_k )^T} &= \expect{x_k(x_k-\mu_k)^TV_k\Gamma_Q^T}\tilde{U}^T \\
+		&= \expect{(\Sigma_{c_k} + \mu_k\nu_{R_k}^TP_k^T + P_k\nu_{R_k}\nu_{R_k}^TP_k^T)V_k \Gamma_Q^T}\tilde{U}^T.
+	\end{align*}
+	Due to the independence of $\Delta W_u$ with other random variables, the third term of \eqref{eqn:attEst-prop-ExvR_{k+1}-taylor} is given by
+	\begin{align*}
+		\expect{x_k \Lambda( R_k((H_u\Delta W_u)^\wedge)^2\delta R_k )^T} = h\expect{x_k\Lambda( R_kG_u\delta R_k )^T} - h\tr{G_u}\expect{x_k\Lambda( R_k\delta R_k )^T}.
+	\end{align*}
+	Let $\tilde{\tilde{V}} = V_{k+1}^T\delta R_k^T G_u^TV_k$ and $\tilde{\tilde{S}} = \tilde{U}^TS_k\tilde{\tilde{V}}$. 
+	The first term of the above is
+	\begin{align*}
+		&\expect{x_k \Lambda( R_kG_u\delta R_k )^T} = \mu\left( (\expect{Q_k}\tilde{\tilde{S}}^T-\tilde{\tilde{S}}\expect{Q_k}^T)^\vee \right)^T \tilde{U}^T \\
+		&\qquad\qquad + P_k\expect{ \nu_{R_k} \left( (Q\tilde{\tilde{S}}^T-\tilde{\tilde{S}}Q^T)^\vee \right)^T}\tilde{U}^T
+		= \mu\expect{\tilde{\tilde{\nu}}^T_R}\tilde{U}^T + P\expect{\nu_R\tilde{\tilde{\nu}}^T_R}\tilde{U}^T.
+	\end{align*}
+	Substituting these three terms into \eqref{eqn:attEst-prop-ExvR_{k+1}-taylor}, equation \eqref{eqn:attEst-prop-ExvR_{k+1}-MFGI} is derived.
+	The calculation for MFGB \eqref{eqn:attEst-prop-ExvR_{k+1}-MFGB} is similar, and it is omitted for brevity.
+	But it should be noted that $\tilde{\tilde{V}} \notin \SO{3}$, so \eqref{eqn:attEst-prop-vRTT-MFGB} cannot be written into a compact form like \eqref{eqn:attEst-prop-vRTT-MFGI}.
+	
+	Finally, we present the proof for \eqref{eqn:attEst-prop-EvRvR_{k+1}}.
+	Similar to the derivation of \eqref{eqn:attEst-prop-ExvR_{k+1}-taylor}, after expanding the exponential term, the following equation can be obtained
+	\begin{align*}   
+		\expect{v_{R_{k+1}}v^T_{R_{k+1}}} = \sum_{i,j=0}^\infty \frac{1}{i! j!} \expect{\Lambda( R_k(\hat{\xi}+o(h))^i \delta R_k) \Lambda( R_k(\hat{\xi}+o(h))^j \delta R_k)^T}.
+	\end{align*}
+	After collecting the first order terms, it becomes
+	\begin{align} \label{eqn:attEst-prop-EvRvR_{k+1}-taylor}
+		\expect{v_{R_{k+1}}v^T_{R_{k+1}}} &= \expect{ \Lambda( R_k\delta R )\Lambda( R_k\delta R )^T } + h\expect{\Lambda( R_k\delta R )\, \Lambda( R_k(\hat{x}_k-\hat{\mu}_k)\delta R_k )^T} \nonumber \\
+		&\qquad + h\expect{\Lambda( R_k\delta R )\, \Lambda( R_k(\hat{x}_k-\hat{\mu}_k)\delta R_k )^T}^T \nonumber \\
+		&\qquad + \tfrac{1}{2}\expect{\Lambda( R_k\delta R )\, \Lambda( R_k((H_u\Delta W_u)^\wedge)^2\delta R_k )^T} \nonumber \\
+		&\qquad + \tfrac{1}{2}\expect{\Lambda( R_k\delta R )\, \Lambda( R_k((H_u\Delta W_u)^\wedge)^2\delta R_k )^T}^T \nonumber \\
+		&\qquad + \expect{\Lambda( R_k(H_u\Delta W_u)^\wedge\delta R_k )\, \Lambda( R_k(H_u\Delta W_u)^\wedge\delta R_k )^T } + O(h^2), 
+	\end{align}
+	where the first term on the right hand side is
+	\begin{align*}
+		\expect{\Lambda( R_k\delta R )\, \Lambda( R_k\delta R )^T} = \tilde{U} \expect{(Q_k\tilde{S}^T-\tilde{S}Q_k)^\vee((Q_k \tilde{S}^T-\tilde{S}Q_k)^\vee)^T} \tilde{U}^T = \tilde{U}\expect{\tilde{\nu}_R\tilde{\nu}^T_R}\tilde{U}^T,
+	\end{align*}
+	and the second term is 
+	\begin{align*}
+		\expect{\Lambda( R_k\delta R_k )\, \Lambda( R_k(\hat{x}_k-\hat{\mu}_k )\delta R_k )^T} &= \tilde{U} \expect{(Q_k \tilde{S}^T-\tilde{S}Q_k^T)^\vee \nu^T_{R_k} P_k^T V_k \Gamma_Q^T} \tilde{U}^T \\
+		&= \tilde{U} \expect{\tilde{\nu}_R\nu_{R_k}^T P^T V_k \Gamma_Q^T} \tilde{U}^T,
+	\end{align*}
+	Similarly, the fourth term on the right hand side of \eqref{eqn:attEst-prop-EvRvR_{k+1}-taylor} is
+	\begin{align*}
+		\expect{\Lambda( R_k\delta R_k ) \Lambda( R_k((H_u\Delta W_u)^\wedge)^2\delta R_k )^T } = h\tilde{U}\expect{\tilde{\nu}_R\tilde{\tilde{\nu}}^T_R}\tilde{U}^T - \tr{G_u}h\tilde{U}\expect{\tilde{\nu}_R\tilde{\nu}_R^T}\tilde{U}^T,
+	\end{align*}
+	and the sixth term is
+	\begin{align*}
+		\expect{\Lambda( R_k(H_u\Delta W_u)^\wedge\delta R_k ) \Lambda( R_k(H_u\Delta W_u)^\wedge\delta R_k )^T} = h\tilde{U} \expect{\Gamma_Q V_k^T G_u V_k \Gamma_Q^T} \tilde{U}^T.
+	\end{align*}
+	Substituting these into \eqref{eqn:attEst-prop-EvRvR_{k+1}-taylor} yields \eqref{eqn:attEst-prop-EvRvR_{k+1}-MFGI}.
+	The calculation for MFGB \eqref{eqn:attEst-prop-EvRvR_{k+1}-MFGB} is similar, and it is omitted for brevity.
+\end{proof}
+
+Note that the expression for $\Gamma_Q$ of MFGB \eqref{eqn:attEst-prop-GammaQ-MFGB} only has the first order of $Q$, but the expression for $\Gamma_Q$ of MFGI \eqref{eqn:attEst-prop-GammaQ-MFGI} has the second order of $Q$.
+Fortunately, it is shown in the next lemma that \eqref{eqn:attEst-prop-GammaQ-MFGI} can also be reduced to the first order of $Q$, so that the right hand side of \eqref{eqn:attEst-prop-ExvR_{k+1}-MFGI} and \eqref{eqn:attEst-prop-EvRvR_{k+1}-MFGI} only involve at most the third order moments of $Q$.
+
+\begin{lemma} \label{lemma:attEst-GammaQ}
+	$\Gamma_Q$ in \eqref{eqn:attEst-prop-GammaQ-MFGI} can be simplified as follows:
+	\begin{align}
+		(\Gamma_Q)_{11} &= \tilde{S}_{22}Q_{33} + \tilde{S}_{33}Q_{22} - \tilde{S}_{23}Q_{32} - \tilde{S}_{32}Q_{23} \nonumber \\
+		(\Gamma_Q)_{12} &= \tilde{S}_{23}Q_{31} + \tilde{S}_{31}Q_{23} - \tilde{S}_{21}Q_{33} - \tilde{S}_{33}Q_{21} \nonumber \\
+		(\Gamma_Q)_{13} &= \tilde{S}_{21}Q_{32} + \tilde{S}_{32}Q_{21} - \tilde{S}_{22}Q_{31} - \tilde{S}_{31}Q_{22} \nonumber \\
+		(\Gamma_Q)_{21} &= \tilde{S}_{13}Q_{32} + \tilde{S}_{32}Q_{13} - \tilde{S}_{12}Q_{33} - \tilde{S}_{33}Q_{12} \nonumber \\
+		(\Gamma_Q)_{22} &= \tilde{S}_{11}Q_{33} + \tilde{S}_{33}Q_{11} - \tilde{S}_{13}Q_{31} - \tilde{S}_{31}Q_{13} \nonumber \\
+		(\Gamma_Q)_{23} &= \tilde{S}_{12}Q_{31} + \tilde{S}_{31}Q_{12} - \tilde{S}_{11}Q_{32} - \tilde{S}_{32}Q_{11} \nonumber \\
+		(\Gamma_Q)_{31} &= \tilde{S}_{12}Q_{23} + \tilde{S}_{23}Q_{12} - \tilde{S}_{13}Q_{22} - \tilde{S}_{22}Q_{13} \nonumber \\
+		(\Gamma_Q)_{32} &= \tilde{S}_{13}Q_{21} + \tilde{S}_{21}Q_{13} - \tilde{S}_{11}Q_{23} - \tilde{S}_{23}Q_{11} \nonumber \\
+		(\Gamma_Q)_{33} &= \tilde{S}_{11}Q_{22} + \tilde{S}_{22}Q_{11} - \tilde{S}_{12}Q_{21} - \tilde{S}_{21}Q_{12}.
+	\end{align}
+\end{lemma}
+\begin{proof}
+	This is directly calculated using the fact that for any $Q\in\SO{3}$, $Q_{ij} = (Q^{-1})_{ji} =(-1)^{i+j}M_{ij}$, where $M_{ij}$ is the minor of $Q_{ij}$.
+\end{proof}
