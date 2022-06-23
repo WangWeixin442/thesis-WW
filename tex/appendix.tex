@@ -499,3 +499,185 @@ Fortunately, it is shown in the next lemma that \eqref{eqn:attEst-prop-GammaQ-MF
 \begin{proof}
 	This is directly calculated using the fact that for any $Q\in\SO{3}$, $Q_{ij} = (Q^{-1})_{ji} =(-1)^{i+j}M_{ij}$, where $M_{ij}$ is the minor of $Q_{ij}$.
 \end{proof}
+
+\chapter{Propagating Moments for IMU Kinematics} \label{app:posEst-prop-moments}
+
+This appendix completes the calculations of $\expect{x_{k+1}\nu_{R_{k+1}}^T}$ and $\expect{x_{k+1}x_{k+1}^T}$ in Chapter \ref{section:posEst-propagation}, which are propagated from $(R_k,x_k) \sim \mathcal{MG}(\mu_k,\Sigma_k,P_k,U_k,S_k,V_k)$ through the IMU kinematic equations \eqref{eqn:posEst-kinematics-attitude}-\eqref{eqn:posEst-kinematics-accebias}.
+
+The notation $\Lambda$ in the proof of \eqref{thm:attEst-prop-otherMoments} is used in this appendix.
+Specifically, for any $A\in\mathbb{R}^{3\times 3}$, it is defined as
+\begin{flalign*}
+	\text{(MFGI)} && \Lambda(A) = \left( U_{k+1}^TAV_{k+1}S_{k+1} - S_{k+1}V_{k+1}^TA^TU_{k+1} \right)^\vee, && \\
+	\text{(MFGB)} && \Lambda(A) = \left( S_{k+1}U_{k+1}^TAV_{k+1} - V_{k+1}^TA^TU_{k+1}S_{k+1} \right)^\vee. &&
+\end{flalign*}
+
+\begin{theorem} \label{thm:posEst-prop-ExvR}
+	The moment $\expect{x_{k+1}\nu_{R_{k+1}}^T}$ is calculated in the following equation:
+	\begin{align} \label{eqn:posEst-prop-ExvR_{k+1}-taylor}
+		\expect{x_{k+1}\nu_{R_{k+1}}^T} &= \left( 1 - \tfrac{\tr{G_{gu}}h}{2} \right) \expect{x_{k+1}\Lambda\left(R_k\delta R_k\right)^T} + h\expect{x_{k+1}\Lambda\left( R_k (\hat{b}_{g,k}-\hat{\mu}_{b_g,k}) \delta R_k \right)^T} \nonumber \\
+		&\qquad + \tfrac{h}{2} \expect{x_{k+1}\Lambda\left( R_kG_{gu}\delta R_k \right)^T} + O(h^2),
+	\end{align}
+	where $\delta R_k = \expb{h(\hat{\Omega}_k + \hat{\mu}_{b_g,k})}$.
+	Define $\tilde{U}, \tilde{V}\in\SO{3}$, $\tilde{S}, \tilde{\tilde{V}}, \tilde{\tilde{S}}\in\mathbb{R}^{3\times 3}$, $\tilde{\nu}, \tilde{\tilde{\nu}}\in\mathbb{R}^3$ and $\Gamma_Q\in\mathbb{R}^{3\times 3}$ as in Theorem \ref{thm:attEst-prop-otherMoments}.
+	Then, the first term $\expect{x_{k+1}\Lambda\left(R_k\delta R_k\right)^T}$ in \eqref{eqn:posEst-prop-ExvR_{k+1}-taylor} can be decomposed into blocks $\expect{b_{g,k+1}\Lambda\left(R_k\delta R_k\right)^T}$, $\expect{p_{k+1}\Lambda\left(R_k\delta R_k\right)^T}$, $\expect{v_{k+1}\Lambda\left(R_k\delta R_k\right)^T}$, and $\expect{b_{a,k+1}\Lambda\left(R_k\delta R_k\right)^T}$.
+	The moment $\expect{b_{g,k+1}\Lambda\left(R_k\delta R_k\right)^T}$ is
+	\begin{subequations} \label{eqn:posEst-prop-EbgLambda}
+		\allowdisplaybreaks
+		\begin{flalign}
+			\text{(MFGI)} && \expect{b_{g,k+1}\Lambda\left(R_k\delta R_k\right)^T} &= \left( \mu_{b_g,k}\expect{\tilde{\nu}_R}^T + P_{b_g,k}\expect{\nu_{R_k}\tilde{\nu}_R^T} \right) \tilde{U}^T, && \\
+			\text{(MFGB)} && \expect{b_{g,k+1}\Lambda\left(R_k\delta R_k\right)^T} &= \left( \mu_{b_g,k}\expect{\tilde{\nu}_R}^T + P_{b_g,k}\expect{\nu_{R_k}\tilde{\nu}_R^T} \right) \tilde{V}^T. &&
+		\end{flalign}
+	\end{subequations}
+	The moment $\expect{p_{k+1}\Lambda\left(R_k\delta R_k\right)^T}$ is
+	\begin{subequations} \label{eqn:posEst-prop-EpLambda}
+		\allowdisplaybreaks
+		\begin{flalign}
+			\text{(MFGI)} && \expect{p_{k+1}\Lambda\left(R_k\delta R_k\right)^T} &= \left( \mu_{p,k}\expect{\tilde{\nu}_R}^T + P_{p,k}\expect{\nu_{R_k}\tilde{\nu}_R^T} \right) \tilde{U}^T && \nonumber \\
+			&& &\qquad + h\left( \mu_{v,k}\expect{\tilde{\nu}_R}^T + P_{v,k}\expect{\nu_{R_k}\tilde{\nu}_R^T} \right) \tilde{U}^T, && \\
+			\text{(MFGB)} && \expect{p_{k+1}\Lambda\left(R_k\delta R_k\right)^T} &= \left( \mu_{p,k}\expect{\tilde{\nu}_R}^T + P_{p,k}\expect{\nu_{R_k}\tilde{\nu}_R^T} \right) \tilde{V}^T && \nonumber \\
+			&& &\qquad + h\left( \mu_{v,k}\expect{\tilde{\nu}_R}^T + P_{v,k}\expect{\nu_{R_k}\tilde{\nu}_R^T} \right) \tilde{V}^T. &&
+		\end{flalign}
+	\end{subequations}
+	The moment $\expect{v_{k+1}\Lambda\left(R_k\delta R_k\right)^T}$ is
+	\begin{subequations} \label{eqn:posEst-prop-EvLambda}
+		\allowdisplaybreaks
+		\begin{flalign}
+			\text{(MFGI)} && &\expect{v_{k+1}\Lambda\left(R_k\delta R_k\right)^T} = \left( \mu_{v,k}\expect{\tilde{\nu}_R}^T + P_{v,k}\expect{\nu_{R_k}\tilde{\nu}_R^T} - hg\expect{\tilde{\nu}_R}^T \right) \tilde{U}^T && \nonumber \\
+			&& &\qquad\qquad + h\left( \expect{R_k(a_k+\mu_{b_a,k})\tilde{\nu}_R^T} + \expect{R_kP_{b_a,k}\nu_{R_k}\tilde{\nu}_R^T} \right) \tilde{U}^T, && \\
+			\text{(MFGB)} && &\expect{v_{k+1}\Lambda\left(R_k\delta R_k\right)^T} = \left( \mu_{v,k}\expect{\tilde{\nu}_R}^T + P_{v,k}\expect{\nu_{R_k}\tilde{\nu}_R^T} - hg\expect{\tilde{\nu}_R}^T \right) \tilde{V}^T && \nonumber \\
+			&& &\qquad\qquad + h\left( \expect{R_k(a_k+\mu_{b_a,k})\tilde{\nu}_R^T} + \expect{R_kP_{b_a,k}\nu_{R_k}\tilde{\nu}_R^T} \right) \tilde{V}^T
+		\end{flalign}
+	\end{subequations}
+	And the moment $\expect{b_{a,k+1}\Lambda\left(R_k\delta R_k\right)^T}$ is
+	\begin{subequations} \label{eqn:posEst-prop-EbaLambda}
+		\allowdisplaybreaks
+		\begin{flalign}
+			\text{(MFGI)} && \expect{b_{a,k+1}\Lambda\left(R_k\delta R_k\right)^T} &= \left( \mu_{a_g,k}\expect{\tilde{\nu}_R}^T + P_{a_g,k}\expect{\nu_{R_k}\tilde{\nu}_R^T} \right) \tilde{U}^T, && \\
+			\text{(MFGB)} && \expect{b_{a,k+1}\Lambda\left(R_k\delta R_k\right)^T} &= \left( \mu_{a_g,k}\expect{\tilde{\nu}_R}^T + P_{a_g,k}\expect{\nu_{R_k}\tilde{\nu}_R^T} \right) \tilde{V}^T. &&
+		\end{flalign}
+	\end{subequations}
+	
+	Next, the second term $\expect{x_{k+1}\Lambda\left( R_k (\hat{b}_{g,k}-\hat{\mu}_{b_g,k}) \delta R_k \right)^T}$ in \eqref{eqn:posEst-prop-ExvR_{k+1}-taylor} can be approximated by
+	\begin{subequations} \label{eqn:posEst-prop-ExLambda2}
+		\allowdisplaybreaks
+		\begin{flalign}
+			\text{(MFGI)} && &\expect{x_{k+1}\Lambda\left( R_k (\hat{b}_{g,k}-\hat{\mu}_{b_g,k}) \delta R_k \right)^T} = \Big( \Sigma_{c,xb_g,k}V_k\expect{\Gamma_Q^T} && \nonumber \\
+			&& &\qquad + \mu_k\expect{\nu_{R_k}^TP_{b_g,k}^TV_k\Gamma_Q^T} + P_k\expect{\nu_{R_k}\nu_{R_k}^TP_{b_g,k}^TV_k\Gamma_Q^T} \Big) \tilde{U}^T + O(h), && \\
+			\text{(MFGB)} && &\expect{x_{k+1}\Lambda\left( R_k (\hat{b}_{g,k}-\hat{\mu}_{b_g,k}) \delta R_k \right)^T} = \Big( \Sigma_{c,xb_g,k}V_k\expect{\Gamma_Q^T} && \nonumber \\
+			&& &\qquad + \mu_k\expect{\nu_{R_k}^TP_{b_g,k}^TV_k\Gamma_Q^T} + P_k\expect{\nu_{R_k}\nu_{R_k}^TP_{b_g,k}^TV_k\Gamma_Q^T} \Big) \tilde{V}^T + O(h), &&
+		\end{flalign}
+	\end{subequations}
+	where $\Sigma_{c,xb_g,k}$ is the first three columns of $\Sigma_c$ of $\mathcal{MG}(\mu_k,\Sigma_k,P_k,U_k,S_k,V_k)$.
+	
+	Finally, the third term $\expect{x_{k+1}\Lambda\left( R_kG_{gu}\delta R_k \right)^T}$ in \eqref{eqn:posEst-prop-ExvR_{k+1}-taylor} is
+	\begin{subequations} \label{eqn:posEst-prop-ExLambda3}
+		\allowdisplaybreaks
+		\begin{flalign}
+			\text{(MFGI)} && \expect{x_{k+1}\Lambda\left( R_kG_{gu}\delta R_k \right)^T} &= \left( \mu_k\expect{\tilde{\tilde{\nu}}_R}^T + P_k\expect{\nu_{R_k}\tilde{\tilde{\nu}}_R^T} \right) \tilde{U}^T + O(h), && \\
+			\text{(MFGB)} && \expect{x_{k+1}\Lambda\left( R_kG_{gu}\delta R_k \right)^T} &= \mu_k\expect{\tilde{\tilde{\nu}}_R}^T + P_k\expect{\nu_{R_k}\tilde{\tilde{\nu}}_R^T} + O(h) &&
+		\end{flalign}
+	\end{subequations}
+\end{theorem}
+\begin{proof}
+	Equation \eqref{eqn:posEst-prop-ExvR_{k+1}-taylor} can be derived exactly the same as \eqref{eqn:attEst-prop-ExvR_{k+1}-taylor} in the proof of Theorem \ref{thm:attEst-prop-E(R_{k+1})}, and that $\Delta W_{gu}$ is independent on $(R_k,x_k)$, and $\expect{((H_{gu}\Delta W_{gu})^\wedge)^2} = h(G_u- \tr{G_u}I_{3\times 3})$.
+	Note that $\Lambda(R_k\delta R_k) = \tilde{U}\tilde{\nu}_R$ for MFGI, and $\Lambda(R_k\delta R_k) = \tilde{V}\tilde{\nu}_R$ for MFGB.
+	Using a similar calculation as \eqref{eqn:MFG-Exx-proof}, it can be shown that
+	\begin{align} \label{eqn:posEst-prop-ExLambda1-proof}
+		\expect{x_k\tilde{\nu}_R^T} = \mu_k\expect{\tilde{\nu}_R}^T + P_k\expect{\nu_{R_k}\tilde{\nu}_R^T}.
+	\end{align}
+	Then \eqref{eqn:posEst-prop-EbgLambda}, \eqref{eqn:posEst-prop-EpLambda}, and \eqref{eqn:posEst-prop-EbaLambda} are immediate from \eqref{eqn:posEst-kinematics-gyrobias}, \eqref{eqn:posEst-kinematics-pos}, and \eqref{eqn:posEst-kinematics-accebias}.
+	For \eqref{eqn:posEst-prop-EvLambda}, it can be shown that
+	\begin{align*}
+		\expect{R_k(a_k+b_{a,k})\tilde{\nu}^T} = \expect{R_k(a_k+\mu_{b_a,k})\tilde{\nu}^T} + \expect{R_kP_{b_a,k}\nu_{R_k}\tilde{\nu}^T},
+	\end{align*}
+	and \eqref{eqn:posEst-prop-EvLambda} is derived.
+	
+	Next, since the second term in \eqref{eqn:posEst-prop-ExvR_{k+1}-taylor} already has $h$, \eqref{eqn:posEst-prop-ExLambda2} only needs to be calculated up to $O(h)$.
+	Therefore, \eqref{eqn:posEst-prop-ExLambda2} can be approximated using
+	\begin{align} \label{eqn:posEst-prop-ExLambda2-proof}
+		\expect{x_{k+1}\Lambda\left( R_k (\hat{b}_{g,k}-\hat{\mu}_{b_g,k}) \delta R_k \right)^T} = \expect{x_k\Lambda\left( R_k (\hat{b}_{g,k}-\hat{\mu}_{b_g,k}) \delta R_k \right)^T} + O(h).
+	\end{align}
+	Note that $\Lambda\left( R_k (\hat{b}_{g,k}-\hat{\mu}_{b_g,k}) \delta R_k \right)$ can be simplified as
+	\begin{flalign*}
+		\text{MFGI} && \Lambda\left( R_k (\hat{b}_{g,k}-\hat{\mu}_{b_g,k}) \delta R_k \right) &= \tilde{U} \Gamma_Q V_k^T (b_{g,k}-\mu_{b_g,k}), && \\
+		\text{MFGB} && \Lambda\left( R_k (\hat{b}_{g,k}-\hat{\mu}_{b_g,k}) \delta R_k \right) &= \tilde{V} \Gamma_Q V_k^T (b_{g,k}-\mu_{b_g,k}). &&
+	\end{flalign*}
+	Also, it can be shown that
+	\begin{align*}
+		\expect{x_k(b_{g,k}-\mu_{b_g,k})^TV_k\Gamma_Q^T} = \expect{\left( \Sigma_{c,xb_g,k} + \mu_k\nu_{R_k}^TP_{b_g}^T + P_k\nu_{R_k}\nu_{R_k}^TP_{b_g,k}^T \right) V_k\Gamma_Q^T},
+	\end{align*}
+	from which $\eqref{eqn:posEst-prop-ExLambda2}$ follows.
+	
+	Finally, the third term in \eqref{eqn:posEst-prop-ExvR_{k+1}-taylor} also has $h$, so \eqref{eqn:posEst-prop-ExLambda3} only needs to be calculated up to $O(h)$, and $x_{k+1}$ can be replaced by $x_k$ as in \eqref{eqn:posEst-prop-ExLambda2-proof}.
+	Because $\Lambda(R_kG_{gu}\delta R_k) = \tilde{U}\tilde{\tilde{\nu}}_R$ for MFGI, and $\Lambda(R_kG_{gu}\delta R_k) = \tilde{\tilde{\nu}}_R$ for MFGB.
+	\eqref{eqn:posEst-prop-ExLambda3} follows by the same calculation in \eqref{eqn:posEst-prop-ExLambda1-proof}.
+\end{proof}
+
+Next, the calculation for $\expect{x_{k+1}x_{k+1}^T}$ is given in the following theorem.
+\begin{theorem} \label{thm:posEst-prop-Exx}
+	Let $\expect{x_{k+1}x_{k+1}^T} \in \mathbb{R}^{12\times 12}$ be written in blocks as in \eqref{eqn:posEst-prop-blocks}.
+	Then the blocks without $v_{k+1}$ are given by
+	\begin{align}
+		&\expect{b_{g,k+1}b_{g,k+1}^T} = \expect{b_{g,k}b_{g,k}^T} + hG_{gv}, \label{eqn:posEst-prop-Ebgbg} \\
+		&\expect{b_{g,k+1}p_{k+1}^T} = \expect{b_{g,k}p_k^T} + h\expect{b_{g,k}v_k^T}, \\
+		&\expect{b_{g,k+1}b_{a,k+1}^T} = \expect{b_{g,k}b_{a,k}^T}, \\
+		&\expect{p_{k+1}p_{k+1}^T} = \expect{p_kp_k^T} + h\left(\expect{p_kv_k^T} + \expect{v_kp_k^T}\right) + h^2\expect{v_kv_k^T}, \\
+		&\expect{p_{k+1}b_{a,k+1}^T} = \expect{p_kb_{a,k}^T} + h\expect{v_kb_{a,k}^T}, \\
+		&\expect{b_{a,k+1}b_{a,k+1}^T} = \expect{b_{a,k}b_{a,k}^T} + hG_{av}, \label{eqn:posEst-prop-Ebaba}
+	\end{align}
+	where the expectations on the right hand side can be calculated using the blocks of $\expect{x_kx_k^T}$.
+	Next, the block $\expect{v_{k+1}b_{g,k+1}^T}$ is given by
+	\begin{align} \label{eqn:posEst-prop-Evbg}
+		\expect{v_{k+1}b_{g,k+1}^T} &= \expect{v_kb_{g,k}^T} - hg\expect{b_{g,k}^T} + h\left( \expect{R_k}a_k + \expect{R_kP_{b_a,k}\nu_{R_k}} \right) \mu_{b_g,k}^T \nonumber \\
+		&\qquad + h\left( \expect{R_k(a_k+\mu_{b_a,k})\nu_{R_k}^T} + \expect{R_kP_{b_a,k}\nu_{R_k}\nu_{R_k}^T} \right) P_{b_g,k}^T \nonumber \\
+		&\qquad + h\expect{R_k} \left( \Sigma_{c,b_ab_g,k} + \mu_{b_a,k}\mu_{b_g,k}^T \right).
+	\end{align}
+	The block $\expect{v_{k+1}p_{k+1}^T}$ is
+	\begin{align} \label{eqn:posEst-prop-Evp}
+		&\expect{v_{k+1}p_{k+1}^T} = \expect{v_kp_k^T} + h\expect{v_kv_k^T} - hg\expect{p_k^T} - h^2g\expect{v_k^T} \nonumber \\
+		&\qquad\qquad + h\left( \expect{R_k}a_k + \expect{R_kP_{b_a,k}\nu_{R_k}} \right) \mu_{p,k}^T + h\expect{R_k} \left( \Sigma_{c,b_ap,k} + \mu_{b_a,k}\mu_{p,k}^T \right) \nonumber \\
+		&\qquad\qquad + h\left( \expect{R_k(a_k+\mu_{b_a,k})\nu_{R_k}^T} + \expect{R_kP_{b_a,k}\nu_{R_k}\nu_{R_k}^T} \right) P_{p,k}^T \nonumber \\
+		&\qquad\qquad + h^2\left( \expect{R_k}a_k + \expect{R_kP_{b_a,k}\nu_{R_k}} \right) \mu_{v,k}^T + h\expect{R_k} \left( \Sigma_{c,b_av,k} + \mu_{b_a,k}\mu_{v,k}^T \right) \nonumber \\
+		&\qquad\qquad + h^2\left( \expect{R_k(a_k+\mu_{b_a,k})\nu_{R_k}^T} + \expect{R_kP_{b_a,k}\nu_{R_k}\nu_{R_k}^T} \right) P_{v,k}^T.
+	\end{align}
+	The block $\expect{v_{k+1}v_{k+1}^T}$ is
+	\begin{align} \label{eqn:posEst-prop-Evv}
+		&\expect{v_{k+1}v_{k+1}^T} = \expect{v_kv_k^T} + h^2gg^T + h \expect{R_kG_{au}R_k^T} - h\left( g\expect{v_k}^T + \expect{v_k}g^T \right) \nonumber \\
+		&\qquad\qquad - h^2g\left( \expect{R_k}(a_k+\mu_{b_a,k}) + \expect{R_kP_{b_a,k}\nu_{R_k}} \right)^T \nonumber \\
+		&\qquad\qquad - h^2\left( \expect{R_k}(a_k+\mu_{b_a,k}) + \expect{R_kP_{b_a,k}\nu_{R_k}} \right)g^T \nonumber \\
+		&\qquad\qquad + h\left( \expect{R_k}a_k + \expect{R_kP_{b_a,k}\nu_{R_k}} \right) \mu_{v,k}^T + h\expect{R_k} \left( \Sigma_{c,b_av,k} + \mu_{b_a,k}\mu_{v,k}^T \right) \nonumber \\
+		&\qquad\qquad + h\left( \expect{R_k(a_k+\mu_{b_a,k})\nu_{R_k}^T} + \expect{R_kP_{b_a,k}\nu_{R_k}\nu_{R_k}^T} \right) P_{v,k}^T \nonumber \\
+		&\qquad\qquad + h\mu_{v,k}\left( \expect{R_k}a_k + \expect{R_kP_{b_a,k}\nu_{R_k}} \right)^T + h\left( \Sigma_{c,vb_a,k} + \mu_{v,k}\mu_{b_a,k}^T \right) \expect{R_k}^T \nonumber \\
+		&\qquad\qquad + hP_{v,k}\left( \expect{R_k(a_k+\mu_{b_a,k})\nu_{R_k}^T} + \expect{R_kP_{b_a,k}\nu_{R_k}\nu_{R_k}^T} \right)^T \nonumber \\
+		&\qquad\qquad + h^2\expect{ R_k\left( \Sigma_{c,b_ab_a,k} + a_ka_k^T + a_k\mu_{b_a,k}^T + \mu_{b_a,k}a_k^T + \mu_{b_a,k}\mu_{b_a,k}^T \right)R_k^T } \nonumber \\
+		&\qquad\qquad + h^2\expect{ R_k\left( (a_k+\mu_{b_a,k})\nu_{R_k}^TP_{b_a,k}^T + P_{b_a,k}\nu_{R_k}(a_k+\mu_{b_a,k})^T \right)R_k^T } \nonumber \\
+		&\qquad\qquad + h^2\expect{R_kP_{b_a,k}\nu_{R_k}\nu_{R_k}^TP_{b_a,k}^TR_k^T}.
+	\end{align}
+	And finally, the block $\expect{v_{k+1}b_{a,k+1}^T}$ is
+	\begin{align} \label{eqn:posEst-prop-Evba}
+		\expect{v_{k+1}b_{a,k+1}^T} &= \expect{v_kb_{a,k}^T} - hg\expect{b_{a,k}^T} + h\left( \expect{R_k}a_k + \expect{R_kP_{b_a,k}\nu_{R_k}} \right) \mu_{b_a,k}^T \nonumber \\
+		&\qquad + h\left( \expect{R_k(a_k+\mu_{b_a,k})\nu_{R_k}^T} + \expect{R_kP_{b_a,k}\nu_{R_k}\nu_{R_k}^T} \right) P_{b_a,k}^T \nonumber \\
+		&\qquad + h\expect{R_k} \left( \Sigma_{c,b_ab_a,k} + \mu_{b_a,k}\mu_{b_a,k}^T \right).
+	\end{align}
+\end{theorem}
+\begin{proof}
+	Equation \eqref{eqn:posEst-prop-Ebgbg}-\eqref{eqn:posEst-prop-Ebaba} can be easily derived from \eqref{eqn:posEst-kinematics-attitude}-\eqref{eqn:posEst-kinematics-accebias}.
+	For \eqref{eqn:posEst-prop-Evbg}, it can be calculated as
+	\begin{align*}
+		\expect{v_{k+1}b_{g,k+1}^T} = \expect{v_kb_{g,k}^T} + h\expect{R_ka_kb_{g,k}^T} + h\expect{R_kb_{a,k}b_{g,k}^T} - hg\expect{b_{g,k}^T},
+	\end{align*}
+	where the second and third terms can be expanded into
+	\begin{align*}
+		\expect{R_ka_kb_{g,k}^T} = \expect{R_k}a_k\mu_{b_g,k}^T + \expect{R_ka_k\nu_{R_k}^T}P_{b_g,k}^T,
+	\end{align*}
+	and
+	\begin{align*}
+		\expect{R_kb_{a,k}b_{g,k}^T} &= \expect{R_k} \left( \Sigma_{c,b_ab_g,k} + \mu_{b_a,k}\mu_{b_g,k}^T \right) + \expect{R_k\mu_{b_a,k}\nu_{R_k}^T}P_{b_g,k}^T \\
+		&\qquad\qquad + \expect{R_kP_{b_a,k}\nu_{R_k}}\mu_{b_g,k}^T + \expect{R_kP_{b_a,k}\nu_{R_k}\nu_{R_k}^T}P_{b_g,k}^T.
+	\end{align*}
+	Then \eqref{eqn:posEst-prop-Evbg} can be proved after collecting the terms in the above two equations.
+	The proofs for \eqref{eqn:posEst-prop-Evp}-\eqref{eqn:posEst-prop-Evba} are similar but extremely tedious, and they are omitted for brevity.
+\end{proof}
+
+Note that the term $\expect{R_kP_{b_a,k}\nu_{R_k}\nu_{R_k}^TP_{b_a,k}^TR_k^T}$ in \eqref{eqn:posEst-prop-Evv} needs the fourth order moments of $\expect{Q_k}$, which do not have closed form formula.
+But its accuracy is on the order of $O(h^2)$, and can be omitted if the sampling period $h$ is small enough.

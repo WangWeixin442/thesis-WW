@@ -1454,7 +1454,7 @@ Note that the partial attitude error does not take into account the rotation abo
 
 \begin{table*}
 	\centering
-	\caption{Estimation errors with magnetometer measurements \label{tab:estError}}
+	\caption{Estimation errors with magnetometer measurements \label{tab:attEst-sim3-estError}}
 	\small
 	\begin{tabular}{c|c|ccccc}
 		\multicolumn{2}{c}{} & MEKF & MFGBA & MFGBU & MFGIA & MFGIU \\ \hline
@@ -1470,7 +1470,7 @@ Note that the partial attitude error does not take into account the rotation abo
 	\end{tabular}
 \end{table*}
 
-The estimation errors for the five filters are presented in Table \ref{tab:estError} and Figure \ref{fig:attEst-sim3-error-i0} to Figure \ref{fig:attEst-sim3-error-i90}.
+The estimation errors for the five filters are presented in Table \ref{tab:attEst-sim3-estError} and Figure \ref{fig:attEst-sim3-error-i0} to Figure \ref{fig:attEst-sim3-error-i90}.
 In addition, the estimated uncertainties in attitude and bias are presented in Figure \ref{fig:attEst-sim3-error-i0} to Figure \ref{fig:attEst-sim3-error-i90}.
 Looking at the bias estimation, the two MFGB based filters are much more accurate than MEKF, though their estimated uncertainties are similar.
 Because the bias is represented in the body-fixed frame, MFGB is more appropriate then MFGI to model the attitude-bias correlation.
@@ -1840,7 +1840,123 @@ The pseudocode is summarized in Table \ref{tab:posEst-filter}.
 
 \subsection{Numerical Simulations}
 
-The recursive Bayesian filter developed for IMU-GNSS navigation using MFG is compared with the filter in \cite{sola2017quaternion} which is based on MEKF.
+In this subsection, the recursive Bayesian filter developed for IMU-GNSS navigation using MFG is compared with the filter in \cite{sola2017quaternion} which is based on MEKF through numerical simulations.
+In this simulation study, a vehicle is assumed to move in a circle with radius $\SI{20}{\meter}$ on the ground.
+The speed of the vehicle fluctuates from $\SI{0}{\meter/\second}$ to $\SI{10}{\meter/\second}$ as a sinusoidal function with the frequency at $\SI{0.2}{\hertz}$.
+The resulting average free acceleration is $\SI{4.88}{\meter/\second\squared}$.
+The vehicle simultaneously undergoes a rotational motion where the three Euler angles (body-fixed 3-2-1) follow sinusoidal functions with the frequency at \SI{0.35}{\hertz}, and the amplitudes of $\pi$, $\pi/2$ and $\pi$, respectively.
+The corresponding average angular speed is \SI{6.17}{\radian/\second}.
+
+The IMU is assumed to be sampled at $\SI{200}{\hertz}$.
+The gyroscope white noise is isotropic with $\sigma_{gu} = \SI{1}{\deg/\sqrt{\second}}$, i.e., $H_{gu} = \sigma_{gu}I_{3\times 3}$ in \eqref{eqn:posEst-kinematics-attitude}.
+And its bias random walk noise is isotropic with $\sigma_{gv} = \SI{50}{\deg/\hour/\sqrt{\second}}$, i.e., $H_{gv} = \sigma_{gv}I_{3\times 3}$ in \eqref{eqn:posEst-kinematics-gyrobias}.
+Similarly, the accelerometer white noise is isotropic with $\sigma_{au} = \SI{0.01}{\meter/\second/\sqrt{\second}}$, and its bias random walk noise is $\sigma_{av} = \SI{0.333}{\meter/\second\squared/\sqrt{\hour}}$, i.e., $H_{au} = \sigma_{au}I_{3\times 3}$ in \eqref{eqn:posEst-kinematics-velocity} and $H_{av} = \sigma_{av}I_{3\times 3}$ in \eqref{eqn:posEst-kinematics-accebias}.
+The GNSS receiver is assumed to be sampled at $\SI{10}{\hertz}$, with the noise $\Sigma_y = \sigma_y^2I_{3\times 3}$, where $\sigma_y = \SI{1}{\meter}$.
+There are no attitude or direction measurements.
+
+The initial position is given as the first measurement from the GNSS receiver, and its uncertainty is set the same as $\Sigma_y$.
+The initial velocity, gyroscope and accelerometer biases are assumed to be zero, with the uncertainty $0.01^2I_{3\times 3}$.
+Two cases for the initial attitude are tested.
+In the first case, the initial attitude is randomly chosen from $R_t(0)\expb{\delta\hat{\theta}}$, where $\delta\theta\sim\mathcal{N}(0,0.1^2I_{3\times 3})$.
+The initial attitude uncertainty for MEKF is set as $0.1^2I_{3\times 3}$, and for the MFG filters is $S_0 = 50I_{3\times 3}$.
+This indicates an initial condition with relatively small attitude uncertainty.
+To challenge the filters with large uncertainty, in the second case, it is assumed that the gravity direction is given by the first accelerometer measurement, assuming zero free acceleration.
+And the rotation around gravity is set as the true direction rotated by $\SI{180}{\deg}$, indicating a completely wrong heading.
+This scenario is frequently encountered in practical navigation problems when the initial heading direction cannot be estimated, for example in a building where the magnetometer reading is unreliable.
+The initial attitude uncertainties in the directions perpendicular to gravity, i.e., $s_1$, $s_2$ for MFG, and the first two diagonal entries of the covariance matrix for MEKF, are determined from the accuracy of the accelerometer.
+And the initial uncertainty in the heading direction is set for MFG as $s_3 = 0$, and for MEKF as $1000$ for the third diagonal entry of the covariance matrix.
+All initial correlation terms are set as zero.
+
+The simulation is run for 60 seconds.
+A hundred Monte Carlo runs with respect to the random noises are carried out for each initial attitude condition.
+The estimation error for attitude is defined as the angle needed to rotate the estimated attitude to the true attitude, and for other Euclidean quantities are defined as the Euclidean distance.
+The errors are first averaged across all time steps in a single simulation, and further averaged across 100 simulations.
+Paired t-test is conducted between MEKF and the two MFG filters, with the significance level set as $\alpha=0.001$, to indicate any statistical significance.
+
+\begin{table*}
+	\centering
+	\caption{Estimation errors with small initial attitude error $\pm$ S.D. ($p$-value)}
+	\label{tab:posEst-error-1}
+	\small
+	\begin{tabular}{c|ccc}
+		\hline\hline
+		 & MEKF & MFGI & MFGB \\ \hline
+		attitude error ($\SI{}{\deg}$) & 3.21$\pm$0.43 & 3.23$\pm$0.39 (0.207) & 3.24$\pm$0.38 (0.166) \\ \hline
+		gyroscope bias error ($\SI{}{\deg/\second}$) & 0.37$\pm$0.11 & 0.36$\pm$0.11 (0.777) & 0.36$\pm$0.11 (0.860) \\ \hline
+		position error ($\SI{}{\meter}$) & 0.585$\pm$0.034 & 0.586$\pm$0.033 (0.163) & 0.586$\pm$0.033 (0.259) \\ \hline
+		velocity error ($\SI{}{\meter/\second}$) & 0.568$\pm$0.039 & 0.570$\pm$0.036 (0.169) & 0.569$\pm$0.036 (0.233) \\ \hline
+		accelerometer bias error ($\SI{}{\meter/\second\squared}$) & 0.045$\pm$0.016 & 0.045$\pm$0.015 (0.777) & 0.045$\pm$0.015 (0.793) \\ \hline\hline
+	\end{tabular}
+\end{table*}
+
+\begin{table*}
+	\centering
+	\caption{Estimation errors with large initial attitude error $\pm$ S.D. ($p$-value)}
+	\label{tab:posEst-error-2}
+	\small
+	\begin{tabular}{c|ccc}
+		\hline\hline
+		& MEKF & MFGI & MFGB \\ \hline
+		attitude error ($\SI{}{\deg}$) & 23.3$\pm$21.7 & 6.91$\pm$0.95 (<0.001) & 7.23$\pm$1.25 (<0.001) \\ \hline
+		gyroscope bias error ($\SI{}{\deg/\second}$) & 1.63$\pm$1.31 & 0.36$\pm$0.12 (<0.001) & 0.36$\pm$0.11 (<0.001) \\ \hline
+		position error ($\SI{}{\meter}$) & 1.54$\pm$0.99 & 0.63$\pm$0.04 (<0.001) & 0.63$\pm$0.04 (<0.001) \\ \hline
+		velocity error ($\SI{}{\meter/\second}$) & 2.23$\pm$1.59 & 0.72$\pm$0.06 (<0.001) & 0.73$\pm$0.08 (<0.001) \\ \hline
+		accelerometer bias error ($\SI{}{\meter/\second\squared}$) & 0.074$\pm$0.043 & 0.044$\pm$0.015 (<0.001) & 0.044$\pm$0.015 (<0.001) \\ \hline\hline
+	\end{tabular}
+\end{table*}
+
+The results for the case with small attitude error is summarized in Table \ref{tab:posEst-error-1}.
+It is shown that the MEKF and two MFG filters have negligible differences in all estimations, and no statistical significance is found.
+This result is consistent with the small uncertainty in attitude estimation as presented in Table \ref{tab:attEst-sim1-error}, and is expected because the MFG with small uncertainty can be well approximated by a Gaussian distribution.
+
+Next, the result with completely wrong initial heading direction is shown in Table \ref{tab:posEst-error-2}.
+In the presence of large initial attitude uncertainty, the two MFG filters have significantly better accuracy in all estimations than MEKF.
+The error trajectory of a single simulation is presented in Figure \ref{fig:posEst-error}.
+It is seen that the major advantage of MFG filters is that the attitude error converges much faster than MEKF.
+Although the estimation error for other quantities are initially small for all filters, the wrong estimation of attitude makes the error grow very large for MEKF later.
+This is because the integrated velocity and position from \eqref{eqn:posEst-kinematics-velocity} and \eqref{eqn:posEst-kinematics-pos} contains large error due to the inaccuracy of attitude, but the MEKF still maintains small variance of these integrated values, giving falsely high confidence to them in the measurement update step.
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=1.2]{figures/posEst-error}
+	\caption{Estimation errors with large initial attitude error.}
+	\label{fig:posEst-error}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\begin{subfigure}{\textwidth}
+		\centering
+		\includegraphics[scale=1.15]{figures/posEst-std-att}
+		\caption{Attitude Uncertainty}
+		\label{fig:posEst-std-att}
+	\end{subfigure}
+	\begin{subfigure}{\textwidth}
+		\centering
+		\includegraphics[scale=1.15]{figures/posEst-std-pos}
+		\caption{Position Uncertainty}
+		\label{fig:posEst-std-pos}
+	\end{subfigure}
+	\caption{Estimation standard deviation with large initial error.
+		The attitude standard deviation for MFG is the square root of the diagonals of $U(\tr{S}I_{3\times 3}-S)^{-1}U^T$, and for MEKF is the square root of the diagonals of the covariance matrix transformed into the inertial frame using the estimated attitude.
+		And the position standard deviation is the square root of the corresponding entry in the covariance matrix.}
+	\label{fig:posEst-std}
+\end{figure}
+
+This is more clearly seen in Figure \ref{fig:posEst-std}, where the estimated standard deviations of the attitude and position are shown.
+It is seen that although the MEKF has very large attitude error, its uncertainty is on the same level of MFG filters.
+Looking at the attitude standard deviation around the gravity direction (the third row in Figure \ref{fig:posEst-std-att}), it converges exponentially for MEKF, which is typical for an EKF.
+On the other hand, it converges slower for the MFG filters, possibly indicating that MFG has better accuracy in modeling large attitude uncertainty, as the attitude dose not converge very fast as indicated in Figure \ref{fig:posEst-error}.
+Note that in this IMU-GNSS navigation simulation, the attitude is not directly observed, and it is corrected by its correlation with the position.
+This suggests that the MFG not only has better accuracy in attitude uncertainty, but also in the correlation between attitude and position, when the attitude uncertainty is large.
 
 \section{Visual-Inertial Odometry}
+
+\subsection{Pose Estimation Without Map Uncertainty}
+
+\subsection{Numerical Simulations Without Map Uncertainty}
+
+\subsection{Pose Estimation With Map Uncertainty}
+
+\subsection{Numerical Simulations With Map Uncertainty}
 
