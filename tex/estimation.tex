@@ -3,7 +3,22 @@
 \chapter{Bayesian Estimation with Matrix Fisher-Gaussian Distribution} \label{chap:estimation}
 
 In the previous two chapters, the matrix Fisher distribution defined on $\SO{3}$ is reviewed, and a new probability model called the matrix Fisher--Gaussian distribution on $\SO{3}\times \mathbb{R}^n$ is developed to model the correlation between $\SO{3}$ and $\mathbb{R}^n$.
-The development of MFG opens a new gate to use the matrix Fisher distribution or Bingham distribution in a lot of classic estimation problems where the attitude and some quantities in Euclidean space must be estimated simultaneously.
+The development of MFG opens a new gate to use the matrix Fisher distribution or Bingham distribution in a lot of classic estimation problems where the attitude and some quantities in Euclidean space must be estimated simultaneously, such as position, sensor biases, landmark locations, etc.
+Compared to MEKF and its variants \cite{mourikis2007multi,sola2017quaternion}, the stochastic estimator designed using MFG has the potential to handle large attitude uncertainty, which may occur when the initial conditions are unknown, when there is a degree of freedom in attitude that is not properly observed, or when some sensors fail (for example a GPS receiver) for a long period of time.
+The fact that MFG models large attitude uncertainty with high fidelity could make the estimator achieve higher accuracy, or faster convergence speed from a wrong state.
+
+In this chapter, this idea is investigated with three estimation problems: (i) attitude estimation with a gyroscope and direction sensors, (ii) loosely coupled IMU-GNSS system for localization, and (iii) visual-inertial odometry or localization.
+First in Chapter \ref{section:observability}, the observability of 3D attitude is studied when only angular velocity and single direction measurements are available, where the matrix Fisher distribution is utilized to analyze how the attitude uncertainty is propagated through the gyroscope kinematics, and updated by the single direction measurement.
+Then in Chapter \ref{section:attEst}, a new recursive Bayesian filter based on MFG is designed to estimate the attitude and gyroscope bias simultaneously.
+In particular, the linear part of MFG is used to model the gyroscope bias in $\mathbb{R}^3$.
+In Chapter \ref{section:posEst}, attitude estimation is generalized into a full inertial navigation problem, where the linear acceleration measured by an accelerometer is transformed into the inertial frame using the estimated attitude, and integrated twice into position.
+Under this setting, the linear part of MFG is augmented into $\mathbb{R}^{12}$, including the linear velocity, position, gyroscope and accelerometer biases.
+The measurement update is considered with position measurements given by a GNSS receiver.
+Finally in Chapter \ref{section:VIO}, the position measurement is replaced by camera measurements of the locations for unknown features or known landmarks.
+It is assume that the camera is a RGBD or stereo camera, so that image measurements have already been triangulated into 3D locations.
+
+It is demonstrated in this chapter that the estimators designed using MFG have advantages over MEKF or its variants when dealing with unknown initial conditions, and when not all degrees of freedom for attitude are adequately observed.
+In particular, the MFG based filter has faster convergence speed from large initial errors, highlighting its capability to model large attitude uncertainty with high fidelity.
 
 \section{Attitude Observability with Single Direction Measurement} \label{section:observability}
 
@@ -757,7 +772,7 @@ Similar with the simulation results, for the two observable cases (AVI\_RVI and 
 The standard deviation of the rotation vector is demonstrated in Figure \ref{fig:observability-attitudeStd-Exp}.
 Again the uncertainties for the two observable cases are small in all three axes, but those for the two unobservable cases are only small in two axes, which is very similar to the simulation results.
 
-\section{Attitude Estimation}
+\section{Attitude Estimation} \label{section:attEst}
 
 In the previous section, a Bayesian attitude estimator is proposed to estimate the attitude with a gyroscope and repeated measurements of a single reference direction, in order to study attitude observability.
 In \eqref{eqn:observability-kinematics-left}, it is assumed that the angular velocity measured from a gyroscope is affected by a white noise.
@@ -1529,7 +1544,7 @@ Also, if there is a degree of freedom that is not properly observed, for example
 Due to that the gyroscope bias is resolved in the body-fixed frame, the MFGB definition more accurately models the attitude-bias correlation than the MFGI definition.
 The advantage of MFGB becomes particularly significant when the attitude uncertainty is highly non-isotropic, which is consistent with the discussion in Chapter \ref{section:MFG-MFGI-MFGB}.
 
-\section{Loosely Coupled IMU-GNSS Integration}
+\section{Loosely Coupled IMU-GNSS Integration} \label{section:posEst}
 
 In this section, the attitude estimation problem considered in the previous section is extended into a full inertial navigation problem.
 More specifically, it is assumed that an inertial measurement unit (IMU) is attached to a rigid body, which has a gyroscope measuring the angular velocity, and an accelerometer measuring the linear acceleration, both in the body fixed frame.
@@ -1661,7 +1676,7 @@ The pseudocode for this uncertainty propagation scheme is summarized in Table \r
 	\end{algorithmic}
 \end{table}
 
-\subsection{Measurement Update}
+\subsection{Measurement Update} \label{section:posEst-update}
 
 The algorithm for propagating the posterior distribution $(R_k,x_k) | \{\mathcal{Z}_{m}\}_{m=1}^k$ at time $t_k$ into the prior distribution $(R_{k+1},x_{k+1}) | \{\mathcal{Z}_{m}\}_{m=1}^k$ at time $t_{k+1}$ has been introduced in the previous subsection.
 In this subsection, the prior distribution $(R_{k+1},x_{k+1}) | \{\mathcal{Z}_{m}\}_{m=1}^k$ is updated into the posterior distribution $(R_{k+1},x_{k+1}) | \{\mathcal{Z}_{m}\}_{m=1}^{k+1}$ at time $t_{k+1}$, with the measurements $\mathcal{Z}_{k+1}$ using Bayes' formula.
@@ -1677,7 +1692,7 @@ where $H = [0_{3\times 3}, I_{3\times 3}, 0_{3\times 6}]$ selects the position c
 Compared with \eqref{eqn:attEst-update-density} in attitude estimation, \eqref{eqn:posEst-update-density} has an additional term contributed by the position measurement coming from the GNSS receiver.
 
 To deal with this posterior density, it is first shown that \eqref{eqn:posEst-update-density} can be factorized into the marginal component for $R$, and the conditional component for $x|R$.
-\begin{lemma}
+\begin{lemma} \label{lemma:posEst-update-factor}
 	Let $\tilde{F}$ be defined as the $F^+$ in \eqref{eqn:attEst-update-F}, or $\tilde{F} = F$ if there is no attitude or direction measurements.
 	Also, define the ``Kalman gain''
 	\begin{align}
@@ -1712,11 +1727,11 @@ Since the $\mu_c$ is linear in $R$, $f_R(R)$ has quadratic terms of $R$ in its e
 Instead, $\expect{R}$ is approximated using the unscented transform of matrix Fisher distribution \cite{gilitschenski2015unscented,lee2018bayesian} \footnote{The unscented transform in \cite{gilitschenski2015unscented} is developed for the Bingham distribution, and it can be converted to the matrix Fisher distribution using Theorem \ref{thm:Bh2MF}}.
 The idea is that the weighted sigma points $\{R_i,w_i\}_{i=1}^7$ are selected from $\mathcal{M}(\tilde{F})$, corresponding to the first part of \eqref{eqn:posEst-update-density-R}.
 The weights are reweighed by the second part of \eqref{eqn:posEst-update-density-R} as
-\begin{align*}
+\begin{align} \label{eqn:posEst-update-sigmapoints}
 	w_i^+ = w_i \expb{-\tfrac{1}{2}(H\mu_{c,i}-y)^T (\Sigma_y+H\Sigma_cH^T)^{-1} (H\mu_{c,i}-y)},
-\end{align*}
+\end{align}
 where $\mu_{c,i}$ are calculated using $R_i$ as in \eqref{eqn:MFG-Miuc}, for $i=1,\dots,7$.
-Then the moment $\expect{R}$ is approximated using these reweighed sigma points as $\sum_{i=1}^7 w_i^+R_i$.
+Then the moment $\expect{R}$ is approximated using these reweighed sigma points as $\sum_{i=1}^7 w_i^+R_i$ after normalization.
 This update procedure comes from particle filters \cite{arulampalam2002tutorial} where the deterministic sigma points are replaced by the randomly sampled particles, and has been widely applied in Bayesian filters with nonlinear measurement functions \cite{kurz2016recursive}.
 
 However, as noted in \cite{kurz2016recursive}, the approximation of $\expect{R}$ using this technique can sometimes degenerate, i.e., some or all of $w_i^+$ can be close to zero due to large discrepancies between $H\mu_{c,i}$ and $y$.
@@ -1762,6 +1777,7 @@ Whereas if the unscented transform in \cite{gilitschenski2015unscented} is used,
 		\State Let $\alpha = \log\tau / \log\left( \tfrac{\min\{f_m(R_i)\}}{\max\{f_m(R_i)\}} \right)$.
 		\State For $i=1,\ldots,7$, calculate $f_m(R_i)^\alpha$.
 		\State For $i=1,\ldots,7$, update the weights as $w_i^+ = w_i f_m(R_i)^\alpha$.
+		\State Normalize the weights as $w_i^+ = w_i^+/\sum_{i=1}^7 w_i^+$.
 		\State Calculate $\expect{R} = \sum_{i=1}^7 w_i^+ R_i$.
 		\State Select sigma points $\{R_i,w_i\}_{i=1}^7$ from the matrix Fisher distribution that has the moment $\expect{R}$.
 		\State Set $\lambda = \lambda-\alpha$.
@@ -1770,6 +1786,7 @@ Whereas if the unscented transform in \cite{gilitschenski2015unscented} is used,
 		\EndIf
 		\EndWhile
 		\State For $i=1,\ldots,7$, update the weights as $w_i^+ = w_i f_m(R_i)^\lambda$.
+		\State Normalize the weights as $w_i^+ = w_i^+/\sum_{i=1}^7 w_i^+$.
 		\State Calculate $\expect{R} = \sum_{i=1}^7 w_i^+ R_i$.
 		\State Obtain $F^+$ using the MLE of matrix Fisher distribution in Chapter \ref{section:MF-MF} from $\expect{R}$.
 		\EndProcedure
@@ -1783,7 +1800,7 @@ As $f_R(R)$ in \eqref{eqn:posEst-update-density-R} has been approximated by the 
 	p(R,x|\mathcal{Z}) \approx c \cdot \etr{F^+R^T} f_{x|R}(x|R),
 \end{align}
 where $c$ is a constant independent of $(R,x)$.
-Let $F^+ = U^+S^+(V^+)^T$ be its proper singular value decomposition, define $\nu_R^+ = (Q^+S^+ - S^+(Q^+)^T)^\vee$ for MFGI, or $\nu_R^+ = (S^+Q^+ - (Q^+)^TS^+)^\vee$ for MFGB.
+Let $F^+ = U^+S^+(V^+)^T$ be its proper singular value decomposition, define $\nu_R^+ = (Q^+S^+ - S^+(Q^+)^T)^\vee$ for MFGI, or $\nu_R^+ = (S^+Q^+ - (Q^+)^TS^+)^\vee$ for MFGB, with $Q^+ = (U^+)^TS^+V^+$.
 Then to match the above density function to an MFG, the conditional MLE in Theorem \ref{thm:MFG-MLE-conditional} needs to be used, which requires the moments $\expect{x|\mathcal{Z}}$, $\expect{x(\mu_R^+)^T|\mathcal{Z}}$, and $\expect{xx^T|\mathcal{Z}}$ to be calculated.
 These expectations are evaluated with respect to \eqref{eqn:posEst-update-density-approx}, and are calculated in the next theorem.
 
@@ -1832,7 +1849,7 @@ The pseudocode is summarized in Table \ref{tab:posEst-filter}.
 		\State Let the pSVD of $F^+$ be $F^+ = U^+S^+(V^+)^T$.
 		\State Calculate the moments of the posterior density in Theorem \ref{thm:posEst-update-moments}.
 		\State Obtain $\mu^+,\Sigma^+,P^+$ according to Theorem \ref{thm:MFG-MLE-conditional}.
-		\State Set $\mathcal{MG}^+ = \mathcal{MG}(\mu^+,\Sigma^+,P^+,U^+,S^+,V^+)$
+		\State Set $\mathcal{MG}^+ = \mathcal{MG}(\mu^+,\Sigma^+,P^+,U^+,S^+,V^+)$.
 		\EndProcedure
 		\algrule[0.8pt]
 	\end{algorithmic}
@@ -1950,11 +1967,661 @@ On the other hand, it converges slower for the MFG filters, possibly indicating 
 Note that in this IMU-GNSS navigation simulation, the attitude is not directly observed, and it is corrected by its correlation with the position.
 This suggests that the MFG not only has better accuracy in attitude uncertainty, but also in the correlation between attitude and position, when the attitude uncertainty is large.
 
-\section{Visual-Inertial Odometry}
+\section{Visual-Inertial Odometry} \label{section:VIO}
+
+In this section, the same inertial navigation setting as in the previous section is studied.
+But instead of using direct position measurements from GNSS receivers, it is assumed that the 3D coordinates of some unknown features or known landmarks in the inertial frame are measured by cameras.
+This is usually referred to as a visual-inertial system.
+In this section, two cases are distinguished: (i) if the features captured by the camera are landmarks whose 3D coordinates are known in advance (possibly with noises), it is referred to as visual-inertial \textit{navigation};
+(ii) if instead there is no prior information of the features, it is referred to as visual-inertial \textit{odometry}.
+To simplify analysis, instead of studying projection measurements on the image plane, it is assumed that the camera is in RGBD or stereo configuration, so that the location, i.e., the 3D coordinates in the inertial frame, of the feature or landmark has already been triangulated.
+And the measured location is directly used to correct any integration errors from the inertial system.
+
+As reviewed in Chapter \ref{section:intro-review-VIO}, the VIO algorithms can be roughly classified into two categories: filtering and optimization.
+The optimization based VIO algorithms have achieved better accuracy, but it is usually more computationally demanding.
+This section will primarily focus on the filtering approach.
+The reason is that in the optimization method, the uncertainty of pose is not modeled, and the uncertainty for pre-integrated IMU pose is only for a short period of time which is very accurate, so the MFG which is designed to model large uncertainty is not very useful.
+On the other hand, the filtering method has to model the uncertainty of pose directly, where large uncertainty is frequently encountered.
+
+More specifically, this section will first study a general problem of estimating a pose and its uncertainty that aligns two 3D point sets with known correspondences.
+This is usually one of the steps in point cloud registration \cite{huang2021comprehensive}.
+It is first assumed that the 3D coordinates of one point set is perfectly known (map), and the other point set has noises (measurement).
+Then based on the proposed algorithm, noises for the map point set are also considered.
+The uncertainty of the estimated pose is modeled by MFG to deal with possible large attitude uncertainties.
+Together with the uncertainty propagation method proposed in Chapter \ref{section:posEst-propagation}, these constitute a visual-inertial navigation algorithm when known landmarks in the inertial frame are measured.
+Finally, this algorithm is extended to a visual-inertial odometry algorithm where unknown features are measured without any prior information.
 
 \subsection{Pose Estimation Without Map Uncertainty}
 
+First, this subsection studies the problem of finding the pose that aligns two point sets using MFG.
+Suppose the coordinates of landmarks in the inertial frame are given as $\{p_i\}_{i=1}^N$.
+These are measured by a camera in the body-fixed frame as $\{p'_i\}_{i=1}^N$.
+It is assumed that the correspondences are known, i.e., $p'_i$ is the measurement of $p_i$, for $i = 1,\ldots,N$.
+The pose of the rigid body is denoted by $(R,t)\in\SE{3}$, where $\SE{3}$ is the three dimensional Euclidean group.
+The measurements are affected by noises which are assumed to be zero mean Gaussian, with covariance matrices $A_i$, i.e.,
+\begin{align}
+	p'_i = R^T(p_i-t) + \mathcal{N}(0,A_i).
+\end{align}
+To make the calculation easier, the noise $A_i$ is assumed to be isotropic, i.e., $A_i = \sigma_i^2I_{3\times 3}$.
+The objective is to find an MFG that describes the uncertainty of the pose $(R,t)$.
+
+The negative log-likelihood function of $(R,t)$ given the point measurements can be written as
+\begin{align} \label{eqn:VIO-likelihood}
+	f(p'_1,\ldots,p'_N | R,t) = \sum_{i=1}^N \big(R^T(p_i-t)-p'_i\big)^T A_i^{-1} \big(R^T(p_i-t)-p'_i\big).
+\end{align}
+The conventional method to find $(R,t)$ is to solve the maximum likelihood estimation by posting the above equation into a least square problem, and finding the maximum using Guass-Newton or Levenberg–Marquardt algorithm.
+Denote the Jacobian matrix of the residual error with respect to $(R,t)$ as $J_r\in\mathbb{R}^{3N\times 6}$ in the last step of the optimization, then the covariance of the estimated pose is approximated by $(J_r^TJ_r)^{-1}$.
+However, this method is expected to only deal with small uncertainty, and in this subsection \eqref{eqn:VIO-likelihood} is approximated by the exponent of an MFG as in \eqref{eqn:MFG-density}.
+
+As in chapter \ref{section:posEst-update}, the idea is to decompose \eqref{eqn:VIO-likelihood} into two parts: the marginal likelihood of $R$, and the conditional likelihood of $x|R$.
+And then the MLE for MFG can be used to recover the parameters from these two likelihood functions.
+The approach is motivated by the conventional SVD method \cite{arun1987least,besl1992method}, where the rotation $R$ is first found by centering the two point sets.
+This decomposition is formulated in the following theorem.
+
+\begin{theorem} \label{thm:VIO-factor}
+	Define $T\in\mathbb{R}^{(N-1)\times N}$ as
+	\begin{align}
+		T = \begin{bmatrix} 
+			\frac{N-1}{N} I_{3\times 3} & \cdots & -\frac{1}{N} I_{3\times 3} & -\frac{1}{N} I_{3\times 3}
+			\\ \vdots & \ddots & \vdots & \vdots
+			\\ -\frac{1}{N} I_{3\times 3} & \cdots & \frac{N-1}{N} I_{3\times 3} & -\frac{1}{N} I_{3\times 3} 
+		\end{bmatrix},
+	\end{align}
+	and $\mathbf{T} = T\otimes I_{3\times 3}$.
+	Denote $\bm{p}'\in\mathbb{R}^{3N\times 1}$ and $\bm{p}_m\in\mathbb{R}^{3N\times 1}$ as the column concatenation of $\{p'_i\}_{i=1}^3$ and $\{R^T(p_i-t)\}_{i=1}^3$ respectively.
+	Let $\mathbf{A} = \diag(A_1,\ldots,A_N) \in \mathbb{R}^{3N\times 3N}$ be a block diagonal matrix.
+	Also, let $\mathbf{Y} = \Big[ \tfrac{1}{N}I_{3\times 3}, \cdots, \tfrac{1}{N}I_{3\times 3} \Big] \in \mathbb{R}^{3N\times 3}$ be $N$ copies of identity matrices in a row.
+	Define $C\in\mathbb{R}^{3\times 3}$, and $\mathbf{D}\in\mathbb{R}^{3\times 3N}$ as
+	\begin{align}
+		C &= \mathbf{Y}\mathbf{A}\mathbf{Y}^T - \mathbf{Y}\mathbf{A}\mathbf{T}^T (\mathbf{T}\mathbf{A}\mathbf{T}^T)^{-1} \mathbf{T}\mathbf{A}\mathbf{Y}^T, \label{eqn:VIO-likelihood-C} \\
+		\mathbf{D} &= \mathbf{Y}\mathbf{A}\mathbf{T}^T (\mathbf{T}\mathbf{A}\mathbf{T}^T)^{-1} \mathbf{T} - \mathbf{Y}. \label{eqn:VIO-likelihood-D}
+	\end{align}
+	Let $\mathbf{D}$ be written in block as $\mathbf{D} = \big[D_1, \cdots, D_N\big]$, where $D_i\in\mathbb{R}^{3\times 3}$ for $i=1,\ldots,N$.
+	Then, the likelihood \eqref{eqn:VIO-likelihood} can be decomposed as
+	\begin{align}
+		f(p'_1,\ldots,p'_N | R,t) = f_R(R) + f_{t|R}(t|R),
+	\end{align}
+	where the marginal likelihood $f_R(R)$ is
+	\begin{align} \label{eqn:VIO-likelihood-marginal}
+		f_R(R) = (\mathbf{T}\bm{p}'-\mathbf{T}\bm{p}_m)^T \big(\mathbf{T}\mathbf{A}\mathbf{T}^T\big)^{-1} (\mathbf{T}\bm{p}'-\mathbf{T}\bm{p}_m).
+	\end{align}
+	And the conditional likelihood $f_{t|R}(t|R)$ is
+	\begin{align} \label{eqn:VIO-likelihood-conditional}
+		f_{t|R}(t|R) = (t - \mu_{t|R})^T (RCR^T)^{-1} (t - \mu_{t|R}),
+	\end{align}
+	where
+	\begin{align} \label{eqn:VIO-likelihood-mu_{t|R}}
+		\mu_{t|R} = R \sum_{i=1}^N D_i(p'_i-R^Tp_i).
+	\end{align}
+\end{theorem}
+\begin{proof}
+	By definition, \eqref{eqn:VIO-likelihood} can be written as
+	\begin{align*}
+		f(p'_1,\ldots,p'_N | R,t) = (\bm{p}'-\bm{p}_m)^T \mathbf{A}^{-1} (\bm{p}'-\bm{p}_m).
+	\end{align*}
+	So it remains to check
+	\begin{align} \label{eqn:VIO-likelihood-conditional-proof}
+		f(p'_1,\ldots,p'_N | R,t) - f_R(R) = (\bm{p}'-\bm{p}_m)^T \left( \mathbf{A}^{-1} - \mathbf{T}^T \big(\mathbf{T}\mathbf{A}\mathbf{T}^T\big)^{-1} \mathbf{T} \right) (\bm{p}'-\bm{p}_m)
+	\end{align}
+	equates $f_{x|R}(x|R)$.
+	Let $\mathbf{T}_f = \begin{bmatrix} \mathbf{T} \\ \mathbf{Y} \end{bmatrix}\in\mathbb{R}^{3N\times 3N}$, it is easy to check that $\mathbf{T}_f$ if full rank and hence invertible.
+	So $\mathbf{A}^{-1} = \mathbf{T}_f^T (\mathbf{T}_f\mathbf{A}\mathbf{T}_f^T)^{-1} \mathbf{T}_f$, and
+	\begin{align*}
+		\mathbf{A}^{-1} - \mathbf{T}^T \big(\mathbf{T}\mathbf{A}\mathbf{T}^T\big)^{-1} \mathbf{T} &= \mathbf{T}_f^T (\mathbf{T}_f\mathbf{A}\mathbf{T}_f^T)^{-1} \mathbf{T}_f - \mathbf{T}^T \big(\mathbf{T}\mathbf{A}\mathbf{T}^T\big)^{-1} \mathbf{T} \\
+		&= \begin{bmatrix} \mathbf{T}^T & \mathbf{Y}^T \end{bmatrix} \begin{bmatrix} \mathbf{T}\mathbf{A}\mathbf{T}^T & \mathbf{T}\mathbf{A}\mathbf{Y}^T \\ \mathbf{Y}\mathbf{A}\mathbf{T}^T & \mathbf{Y}\mathbf{A}\mathbf{Y}^T\end{bmatrix}^{-1} \begin{bmatrix} \mathbf{T} \\ \mathbf{Y} \end{bmatrix} - \mathbf{T}^T \big(\mathbf{T}\mathbf{A}\mathbf{T}^T\big)^{-1} \mathbf{T} \\
+		&= \mathbf{D}^T C^{-1} \mathbf{D},
+	\end{align*}
+	where the last equality uses the block inversion formula \cite{petersen2008matrix}.
+	Note that $\mathbf{TY}^T = 0$, so
+	\begin{align*}
+		\sum_{i=1}^N D_i = N\mathbf{DY}^T = N\mathbf{YAT}^T (\mathbf{TAT}^T)^{-1} \mathbf{TY}^T - N\mathbf{YY}^T = -N\mathbf{YY}^T = -I_{3\times 3}.
+	\end{align*}
+	Next, it can be shown that
+	\begin{align*}
+		\mathbf{D}(\bm{p}' - \bm{p}_m) &= \sum_{i=1}^N D_i(p'_i - R^Tp_i + R^Tt) \\
+		&= -R^Tt - \sum_{i=1}^N D_iR^Tp_i + \sum_{i=1}^N D_ip'_i \\
+		&= -R^T\left( t - R\sum_{i=1}^N D_i(p'_i-R^Tp_i) \right).
+	\end{align*}
+	Substitute these into \eqref{eqn:VIO-likelihood-conditional-proof} yields $f(p'_1,\ldots,p'_N | R,t) - f_R(R) = f_{x|R}(x|R)$.
+\end{proof}
+
+With this decomposition of the likelihood \eqref{eqn:VIO-likelihood}, the marginal part $f_R(R)$ can be first approximated by a matrix Fisher density, then the conditional part $f_{x|R}(x|R)$ can be use in Theorem \ref{thm:MFG-MLE-conditional} to recover the parameters $\mu$, $\Sigma$, and $P$ of the MFG.
+
+\paragraph{Marginal Likelihood}
+
+First, an algorithm to approximate the marginal likelihood \eqref{eqn:VIO-likelihood-marginal} is developed.
+Define $q_i$, $q'_i\in\mathbb{R}^3$ for $i = 1,\ldots,N-1$ as
+\begin{align} \label{eqn:VIO-centering}
+	q_i = p_i-\frac{1}{N} \sum_{i=1}^N p_i, \qquad\qquad q'_i = p'_i - \frac{1}{N} \sum_{i=1}^N p'_i,
+\end{align}
+i.e., they are $\{p_i\}$ and $\{p'_i\}$ centered by their geometric centers.
+Define $\bm{q'}\in\mathbb{R}^{3(N-1)\times 1}$ and $\bm{q}_m\in\mathbb{R}^{3(N-1)\times 1}$ as the concatenation of $\{q'_i\}_{i=1}^{N-1}$ and $\{R^Tq_i\}_{i=1}^{N-1}$ respectively.
+It is straightforward to verify that $\bm{q}' = \mathbf{T}\bm{p}'$, and $\bm{q}_m = T\bm{p}_m$.
+Note that the translation $t$ in $\bm{p}_m$ does not appear in the centered $\bm{q}_m$ anymore, which is the key point that $f_R(R)$ does not depend on $t$.
+With these notations, the marginal likelihood \eqref{eqn:VIO-likelihood-marginal} can be written as
+\begin{align} \label{eqn:VIO-likelihood-marginal-q}
+	f_R(R) = (\bm{q}'-\bm{q}_m)^T \big(\mathbf{T}\mathbf{A}\mathbf{T}^T\big)^{-1} (\bm{q}'-\bm{q}_m).
+\end{align}
+
+Now finding the $R\in\SO{3}$ that maximizes $f_R(R)$ becomes very similar to the classic Wahba's problem \cite{markley1988attitude,shuster1981three}.
+In other words, $q'_i$ can be regarded as direction measurements of $q_i$, for $i=1,\ldots,N-1$, and $R$ can be found by aligning these two sets of directions.
+However, the difficulty is that $q'_i$ are correlated, since $\mathbf{T}\mathbf{A}\mathbf{T}^T$ in general has nonzero diagonal terms.
+Two cases are considered here: (i) all measurements have equal covariance matrices, i.e. $A_1 = \cdots = A_N$, and (ii) the covariance matrices are different.
+It is firstly shown that for equal covariance matrices, a linear transform can be applied to $\{q_i\}_{i=1}^{N-1}$ again to make them uncorrelated, so $R$ can be found using an algorithm similar to Theorem III.2 in \cite{lee2018bayesian}.
+
+\begin{theorem}
+	The matrix $TT^T \in \mathbb{R}^{(N-1)\times (N-1)}$ is invertible.
+	Let $TT^T = U^TDU$ be the eigen-decomposition of $TT^T$.
+	For $i = 1,\ldots,N-1$, let
+	\begin{align} \label{eqn:VIO-uncorrelate}
+		r_i = \sum_{j=1}^{N-1} U_{ij} q_i \qquad\qquad r'_i = \sum_{j=1}^{N-1} U_{ij} q'_i,
+	\end{align}
+	where $U_{ij}$ is the $(i,j)$-th entry of $U$.
+	If $A_1 = \cdots = A_N \triangleq A = \sigma^2I_{3\times 3}$, then
+	\begin{align} \label{eqn:VIO-likelihood-marginal-r}
+		f_R(R) = (\bm{r}'-\bm{r}_m)^T (D\otimes A)^{-1} (\bm{r}'-\bm{r}_m),
+	\end{align}
+	where $\bm{r}'$ and $\bm{r}_m$ are the concatenation of $\{r'_i\}_{i=1}^{N-1}$ and $\{R^T r_i\}_{i=1}^{N-1}$ respectively.
+\end{theorem}
+\begin{proof}
+	The matrix $TT^T \in \mathbb{R}$ is invertible can be verified by direction calculation.
+	Also, it can be easily shown that $\bm{r}' = (U\otimes I_{3\times 3}) \bm{q}'$, and $\bm{r}_m = (U\times I_{3\times 3})\bm{q}_m$.
+	Note that $(U\otimes I_{3\times 3})^{-1} = U^T\otimes I_{3\times 3} = (U\otimes I_{3\times 3})^T$, so $\bm{q}' = (U\otimes I_{3\times 3})^T \bm{r}'$, and $\bm{q}_m = (U\otimes I_{3\times 3})^T \bm{r}_m$.
+	Then by \eqref{eqn:VIO-likelihood-marginal-q}, $f_R(R)$ can be written as
+	\begin{align*}
+		f_R(R) = (\bm{r}'-\bm{r}_m)^T (U\otimes I_{3\times 3}) \big(\mathbf{T}\mathbf{A}\mathbf{T}^T\big)^{-1} (U\otimes I_{3\times 3})^T (\bm{r}'-\bm{r}_m).
+	\end{align*}
+	Because $\mathbf{T}\mathbf{A}\mathbf{T}^T = (T\otimes I_{3\times 3})(I_{N\times N}\otimes A)(T\otimes I_{3\times 3})^T$, the covariance matrix for $\bm{r}'$ becomes
+	\begin{align*}
+		&(U\otimes I_{3\times 3}) \big(\mathbf{T}\mathbf{A}\mathbf{T}^T\big)^{-1} (U\otimes I_{3\times 3})^T \\
+		= &\left( (U\otimes I_{3\times 3}) (T\otimes I_{3\times 3}) (I_{N\times N}\otimes A) (T\otimes I_{3\times 3})^T (U\otimes I_{3\times 3})^T \right)^{-1} \\
+		= &\left( (UT\otimes I_{3\times 3}) (I_{N\times N}\otimes A) (UT\otimes I_{3\times 3})^T \right)^{-1} \\
+		= &(UTT^TU^T \otimes A)^{-1} \\
+		= &(D\otimes A)^{-1}.
+	\end{align*}
+	And \eqref{eqn:VIO-likelihood-marginal-r} is obtained.
+\end{proof}
+
+Since $D = \diag(d_1,\ldots d_{N-1})$ is a diagonal matrix, only the diagonal blocks of $D\otimes A$ is nonzero.
+Therefor, the marginal likelihood \eqref{eqn:VIO-likelihood-marginal-r} can be treated as measuring $N-1$ directions $r_i$ in the inertial frame with noises.
+More specifically, the measurements $r'_i$ can be written as
+\begin{align} \label{eqn:VIO-direction-measurement}
+	r'_i = R^Tr_i + \mathcal{N}(0, d_i\sigma^2 I_{3\times 3}),
+\end{align}
+for $i = 1,\ldots,N-1$.
+To approximate \eqref{eqn:VIO-likelihood-marginal-r} into a matrix Fisher density, the Gaussian distribution of $r'_i$ is first approximated by a von Mises Fisher distribution on $\Sph^2$ according to the following lemma.
+
+\begin{lemma} \label{thm:VIO-GaussToVM}
+	The density function of $\tfrac{r'_i}{\norm{r'_i}}$ in \eqref{eqn:VIO-direction-measurement} can be approximated by
+	\begin{align} \label{eqn:VIO-direction-vonMises}
+		p\left( \tfrac{r'_i}{\norm{r'_i}} \right) \approx c \expb{\kappa_i \tfrac{(r')_i^TR^Tr_i}{\norm{r'_i}\norm{r_i}}}
+	\end{align}
+	where $c$ is a normalizing constant. The concentration parameter $\kappa_i$ is solved from
+	\begin{align} \label{eqn:VIO-resultantLenth}
+		\coth\kappa_i - \frac{1}{\kappa_i} = \frac{2}{\gamma} \phi(\gamma) + \left( 1-\frac{1}{\gamma^2} \right) (2\Phi(\gamma)-1),
+	\end{align}
+	where $\gamma = \norm{r_i}/(\sqrt{d_i}\sigma)$, $\phi(\cdot)$ and $\Phi(\cdot)$ are the probability density and cumulative density functions of a one dimensional normal distribution.
+\end{lemma}
+\begin{proof}
+	Because $r'_i$ follows a Gaussian distribution, its direction $r'_i/\norm{r'_i}$ follows a projected normal distribution \cite{mardia2009directional}.
+	And its mean resultant length \cite{presnell2008mean} can be calculated as on the right hand side of \eqref{eqn:VIO-resultantLenth}.
+	Based on the maximum likelihood estimation \cite{mardia2009directional} for a von Mises Fisher distribution, $r'_i/\norm{r'_i}$ can be matched to a von Mises Fisher distribution with mean direction $R^Tr_i/\norm{r_i}$, and the concentration parameter solved from \eqref{eqn:VIO-resultantLenth}.
+	The density function is given in \eqref{eqn:VIO-direction-vonMises}.
+\end{proof}
+
+Based on the above lemma, the marginal likelihood $f_R(R)$ in \eqref{eqn:VIO-likelihood-marginal-r} can be further approximated by
+\begin{align} \label{eqn:VIO-likelihood-marginal-F}
+	\expb{-\tfrac{1}{2}f_R(R)} &\approx c \sum_{i=1}^{N-1} \expb{\kappa_i \tfrac{(r')_i^TR^Tr_i}{\norm{r'_i}\norm{r_i}}} \nonumber \\ 
+	&= c \cdot \etr{\left(\sum_{i=1}^{N-1} \kappa_i \tfrac{r_i(r'_i)^T}{\norm{r_i}\norm{r'_i}}\right) R^T} \triangleq c \cdot \etr{FR^T},
+\end{align}
+for some constant $c$.
+In other words, the marginal likelihood $f_R(R)$ is matched to a matrix Fisher density with the parameter $F = \sum_{i=1}^{N-1} \kappa_i \tfrac{r_i(r'_i)^T}{\norm{r_i}\norm{r'_i}}$.
+
+Nevertheless, the approximation in \eqref{eqn:VIO-likelihood-marginal-F} requires that all measurements have the same isotropic noise $A = \sigma^2I_{3\times 3}$, which seems too stringent.
+To relax this requirement such that the measurements can have different levels of noises, the technique of \textit{importance sampling} is used.
+Similar to Chapter \ref{section:posEst-update}, the idea is to use unscented transform to select sigma points from a matrix Fisher distribution, and reweigh these sigma points to calculated the expectation $\expect{R}$ according to the density function \eqref{eqn:VIO-likelihood-marginal-q}.
+To use importance sampling, a \textit{proposal} matrix Fisher distribution is needed that is close to the density function \eqref{eqn:VIO-likelihood-marginal-q}.
+A good choice is simply treating $\{q'_i\}_{i=1}^{N-1}$ as uncorrelated direction measurements, and using Theorem \ref{thm:VIO-GaussToVM} and \eqref{eqn:VIO-likelihood-marginal-F} to find a matrix Fisher distribution.
+
+Let this matrix Fisher distribution be denoted by $\mathcal{M}(F_\text{prop})$, and its density function be denoted by $f_\text{prop}(R)$.
+Select sigma points \cite{gilitschenski2015unscented,lee2018bayesian} $\{(R_j,w_j)\}_{j=1}^7$ from the proposal distribution $\mathcal{M}(F_\text{prop})$, and reweigh these sigma points as
+\begin{align} \label{eqn:VIO-update-sigmapoints}
+	w_j^+ = w_j \cdot \frac{\expb{-\tfrac{1}{2}f_R(R_j)}}{f_\text{prop}(R_j)}.
+\end{align}
+Then the reweighed sigma points $\{(R_j,w_j^+)\}_{j=1}^7$ can be regarded as weighted samples from the density \eqref{eqn:VIO-likelihood-marginal-q}.
+And the expectation $\expect{R}$ can be calculated as $\expect{R} = \sum_{j=1} w_j^+R_j$ after normalization, which can be matched to a matrix Fisher distribution using the MLE as introduced in Chapter \ref{section:MF-MF}.
+
+Note that the update of weights in \eqref{eqn:VIO-update-sigmapoints} is similar to that in \eqref{eqn:posEst-update-sigmapoints}, so the progressive update procedure in Chapter \ref{section:posEst-update} can also be used here to improve accuracy.
+In addition, even if all measurements have the same covariance matrix, \eqref{eqn:VIO-likelihood-marginal-F} is still not perfect due to the approximation of projected normal distribution as von Mises Fisher distribution in Theorem \ref{thm:VIO-GaussToVM}.
+So using this importance sampling approach with \eqref{eqn:VIO-likelihood-marginal-F} as the proposal distribution is also expected to improve accuracy even for the case of same covariance matrix.
+The pseudocode to match \eqref{eqn:VIO-likelihood-marginal} to a matrix Fisher density is given in Table \ref{tab:VIO-marginal}.
+
+\begin{table}
+	\caption{Attitude Estimation From Marginal Likelihood}
+	\label{tab:VIO-marginal}
+	\begin{algorithmic}[1]
+		\algrule[0.8pt]
+		\Procedure{$F = $ Attitude Estimation}{$\{p_i\}$, $\{p'_i\}$}
+		\algrule
+		\State Calculate $\{q_i\}$ and $\{q'_i\}$ using \eqref{eqn:VIO-centering}.
+		\If{$A_1 = \cdots = A_N$}
+		\State Calculate $\{r_i\}$ and $\{r'_i\}$ using \eqref{eqn:VIO-uncorrelate}.
+		\State Calculate $F_\text{prop}$ as in \eqref{eqn:VIO-likelihood-marginal-F} using Theorem \ref{thm:VIO-GaussToVM}.
+		\Else
+		\State Calculate $F_\text{prop}$ as in \eqref{eqn:VIO-likelihood-marginal-F} using Theorem \ref{thm:VIO-GaussToVM}, with $\{r_i\}$ and $\{r'_i\}$ replaced by $\{q_i\}$ and $\{q'_i\}$, and $d_i\sigma^2I_{3\times 3}$ in \eqref{eqn:VIO-direction-measurement} replaced by the $i$-th diagonal block of $\mathbf{TAT}^T$.
+		\EndIf
+		\State Select sigma points \cite{gilitschenski2015unscented,lee2018bayesian} from $\mathcal{M}(F_\text{prop})$ as $\{R_j,w_j\}_{j=1}^7$.
+		\State Let $\lambda = 1$.
+		\While{$\lambda > 0$}
+		\State For $j=1,\ldots,7$, calculate $f_m(R_j)^\lambda$, with $f_m(R) = \expb{-\tfrac{1}{2}f_R(R_j)} / f_\text{prop}(R)$, where $f_R(R)$ is in \eqref{eqn:VIO-likelihood-marginal-q}, and $f_\text{prop}$ is the density function of $\mathcal{M}(F_\text{prop})$.
+		\If{$\min\{f_m(R_j)^{\lambda}\} / \max\{f_m(R_j)^{\lambda}\} < \tau$}
+		\State Let $\alpha = \log\tau / \log\left( \tfrac{\min\{f_m(R_j)\}}{\max\{f_m(R_j)\}} \right)$.
+		\State For $j=1,\ldots,7$, calculate $f_m(R_j)^\alpha$.
+		\State For $j=1,\ldots,7$, update the weights as $w_j^+ = w_j f_m(R_j)^\alpha$.
+		\State Normalize the weights as $w_j^+ = w_j^+/\sum_{j=1}^7 w_j^+$.
+		\State Calculate $\expect{R} = \sum_{i=j}^7 w_i^+ R_j$.
+		\State Select sigma points $\{R_j,w_j\}_{j=1}^7$ from the matrix Fisher distribution that has the moment $\expect{R}$.
+		\State Set $\lambda = \lambda-\alpha$.
+		\Else
+		\State Set $\lambda = 0$.
+		\EndIf
+		\EndWhile
+		\State For $j=1,\ldots,7$, update the weights as $w_j^+ = w_j f_m(R_j)^\lambda$.
+		\State Normalize the weights as $w_j^+ = w_j^+/\sum_{j=1}^7 w_j^+$.
+		\State Calculate $\expect{R} = \sum_{j=1}^7 w_j^+ R_j$.
+		\State Obtain $F$ using the MLE of matrix Fisher distribution in Chapter \ref{section:MF-MF} from $\expect{R}$.
+		\EndProcedure
+		\algrule[0.8pt]
+	\end{algorithmic}
+\end{table}
+
+In summary, after matching the marginal likelihood \eqref{eqn:VIO-likelihood-marginal} to a matrix Fisher distribution with parameter $F$, the full likelihood \eqref{eqn:VIO-likelihood} has been approximated 
+\begin{align} \label{eqn:VIO-likelihood-approx}
+	\expb{-\tfrac{1}{2}f(p'_1,\ldots,p'_N|R,t)} \approx c\cdot \etr{FR^T} \expb{-\tfrac{1}{2}f_{x|R}(x|R)},
+\end{align}
+where $c$ is a normalizing constant, and $f_{x|R}(x|R)$ is the conditional likelihood \eqref{eqn:VIO-likelihood-conditional}.
+In the next subsection, the conditional likelihood \eqref{eqn:VIO-likelihood-conditional} is further used to match \eqref{eqn:VIO-likelihood-approx} to an MFG density.
+
+\paragraph{Conditional Likelihood}
+
+As before, the conditional likelihood is handled by the conditional MLE of MFG in Theorem \ref{thm:MFG-MLE-conditional}.
+After obtaining $F$ from the marginal likelihood, let $F = USV^T$ be its pSVD, and define $\nu_R = (QS-SQ^T)^\vee$ for MFGI, or $\nu_R = (SQ-Q^TS)^\vee$ for MFGB, with $Q = U^TRV$.
+To use the theorem, the following moments needs to be calculated: $\expect{t}$, $\expect{t\nu_R^T}$, and $\expect{tt^T}$.
+These moments are according to the density function \eqref{eqn:VIO-likelihood-approx}.
+As shown in \eqref{eqn:VIO-likelihood-mu_{t|R}}, clearly $\expect{tt^T}$ involves the fourth order of $R$, which currently do not have closed form formulae.
+To simplify these moments, the follow lemma is very useful.
+
+\begin{lemma} \label{lemma:VIO-likelihood-CD}
+	Given $A_i = \sigma_i^2I_{3\times 3}$ for $i=1,\ldots,N$, $C$ in \eqref{eqn:VIO-likelihood-C} and $\mathbf{D}$ in \eqref{eqn:VIO-likelihood-D} satisfy the following equations:
+	\begin{align}
+		RCR^T &= C, \label{eqn:VIO-likelihood-C-sim} \\
+		RD_iR^T &= D_i. \label{eqn:VIO-likelihood-D-sim}
+	\end{align}
+\end{lemma}
+\begin{proof}
+	Note that $R\mathbf{Y} = \mathbf{Y}(I_{N\times N}\otimes R)$, and $(I_{N\times N}\otimes R) \mathbf{A} (I_{N\times N}\otimes R)^T = \diag(RA_1R^T,\allowbreak \ldots,\allowbreak RA_NR^T) = A$.
+	For $C$, it can be shown that
+	\begin{align*}
+		R\mathbf{YAY}^TR^T &= \mathbf{Y} (I_{N\times N}\otimes R) \mathbf{A} (I_{N\times N}\otimes R)^T \mathbf{Y}^T = \mathbf{YAY}^T.
+	\end{align*}
+	Also, note that $\left(I_{(N-1)\times (N-1)}\otimes R\right) \mathbf{T} = \mathbf{T} (I_{N\times N}\otimes R)$, and $(I_{N\times N}\otimes R)^T \mathbf{A} (I_{N\times N}\otimes R) = \mathbf{A}$, so the following equality holds:
+	\begin{align*}
+		\mathbf{TAT}^T = \left(I_{(N-1)\times (N-1)}\otimes R\right)^T \mathbf{TAT}^T \left(I_{(N-1)\times (N-1)}\otimes R\right).
+	\end{align*}
+	Therefore, it can be shown that
+	\begin{align*}
+		&R\mathbf{Y}\mathbf{A}\mathbf{T}^T (\mathbf{T}\mathbf{A}\mathbf{T}^T)^{-1} \mathbf{T}\mathbf{A}\mathbf{Y}^TR^T \\
+		= &R\mathbf{Y} \mathbf{AT}^T \left(I_{(N-1)\times (N-1)}\otimes R\right)^T (\mathbf{TAT}^T)^{-1} \left(I_{(N-1)\times (N-1)}\otimes R\right) \mathbf{TA} \mathbf{Y}^T R^T \\
+		= &R\mathbf{YA} (I_{N\times N}\otimes R)^T \mathbf{T}^T (\mathbf{TAT}^T)^{-1} \mathbf{T} (I_{N\times N}\otimes R) \mathbf{AY}^T R \\
+		= &R\mathbf{Y} (I_{N\times N}\otimes R)^T \mathbf{AT}^T (\mathbf{TAT}^T)^{-1} \mathbf{TA} (I_{N\times N}\otimes R) \mathbf{Y}^T R \\
+		= &\mathbf{Y}\mathbf{A}\mathbf{T}^T (\mathbf{T}\mathbf{A}\mathbf{T}^T)^{-1} \mathbf{T}\mathbf{A}\mathbf{Y}^T,
+	\end{align*}
+	which proves \eqref{eqn:VIO-likelihood-C-sim}.
+	Equation \eqref{eqn:VIO-likelihood-D-sim} can be proved using similar calculations.
+\end{proof}
+
+With the above lemma, the conditional likelihood \eqref{eqn:VIO-likelihood-conditional} with its conditional mean \eqref{eqn:VIO-likelihood-mu_{t|R}} are now simplified as
+\begin{align} \label{eqn:VIO-likelihood-conditional-sim}
+	f_{t|R}(t|R) = \left( t - \sum_{i=1}^N D_i(Rp'_i - p_i) \right)^T C^{-1} \left( t - \sum_{i=1}^N D_i(Rp'_i - p_i) \right).
+\end{align}
+Then the moments necessary for conditional MLE for MFG are evaluated as follows:
+
+\begin{theorem} \label{thm:VIO-conditional}
+	The moments $\expect{t}$, $\expect{t\nu_R^T}$, and $\expect{tt^T}$ according to the density \eqref{eqn:VIO-likelihood-approx} are
+	\begin{align}
+		\expect{t} &= \sum_{i=1}^N D_i(\expect{R}p'_i-p_i), \\
+		\expect{t\nu_R^T} &= \sum_{i=1}^N D_i \expect{Rp'_i\nu_R^T}, \\
+		\expect{tt^T} &= C + \sum_{i=1}^N \sum_{j=1}^N D_i \left( \expect{Rp'_i(p'_j)^TR^T} - \expect{R}p'_ip_j^T - p_i(p'_j)^T\expect{R}^T + p_ip_j^T \right) D_j^T. \label{eqn:VIO-likelihood-Ett}
+	\end{align}
+\end{theorem}
+\begin{proof}
+	These equations can be easily derived by integrating the left hand side with respect to the Gaussian density \eqref{eqn:VIO-likelihood-conditional-sim} first, as in \eqref{eqn:MFG-Exx-proof}.
+\end{proof}
+
+It is notable that the complexity for $\expect{tt^T}$ in \eqref{eqn:VIO-likelihood-Ett} is $O(N^2)$, which becomes computationally demanding if the number of points is large.
+This cannot be avoided for general cases, but in next theorem, it is shown that if all measurements have the same covariance matrices, the expressions for $\expect{t}$, $\expect{t\nu_R^T}$, and $\expect{tt^T}$ can be greatly simplified.
+
+\begin{theorem} \label{thm:VIO-conditional-sim}
+	Let $p_c = \tfrac{1}{N}\sum_{i=1}^N p_i$, and $p'_c = \tfrac{1}{N}\sum_{i=1}^N p'_i$.
+	If $A_1 = \cdots = A_N \triangleq A = \sigma^2I_{3\times 3}$, then $\expect{t}$, $\expect{t\nu_R^T}$, and $\expect{tt^T}$ according to the density \eqref{eqn:VIO-likelihood-approx} are
+	\begin{align}
+		\expect{t} &= p_c - \expect{R}p'_c \\
+		\expect{t\nu_R^T} &= -\expect{Rp'_c\nu_R^T} \\
+		\expect{tt^T} &= \tfrac{\sigma^2}{N}I_{3\times 3} + \expect{Rp'_c(p'_c)^TR^T} - p_c(p'_c)^T\expect{R}^T - \expect{R}p'_cp_c^T + p_cp_c^T.
+	\end{align}
+\end{theorem}
+\begin{proof}
+	Let $Y = \tfrac{1}{N}[1,\ldots,1]\in\mathbb{R}^{1,N}$ so that $\mathbf{Y} = Y\otimes I_{3\times 3}$.
+	Note that $YT^T = 0$, so it can be shown that
+	\begin{align*}
+		\mathbf{YAT}^T = (Y\otimes I_{3\times 3})(I_{N\times N}\otimes A) (T^T\otimes I_{3\times 3}) = YT^T\otimes A = 0.
+	\end{align*}
+	So $C = \mathbf{YAY}^T = \tfrac{N}{1}A = \tfrac{\sigma^2}{N} I_{3\times 3}$, and $\mathbf{D} = -\mathbf{Y}$, i.e., $D_i = \tfrac{1}{N}I_{3\times 3}$ for $i=1,\ldots,N$.
+	Substitute these into \eqref{eqn:VIO-likelihood-conditional-sim}, it is simplified to
+	\begin{align}
+		f_{t|R}(t|R) = \left( t - (p_c-Rp'_c) \right)^T \left( \tfrac{\sigma^2}{N}I_{3\times 3} \right)^{-1} \left( t - (p_c-Rp'_c) \right),
+	\end{align}
+	and the desired moments can be easily derived.
+\end{proof}
+
+After calculating the moments $\expect{t}$, $\expect{t\nu_R^T}$, and $\expect{tt^T}$, they can be used in the conditional MLE for MFG to obtain the parameters $\mu$, $\Sigma$, and $P$.
+So the likelihood function \eqref{eqn:VIO-likelihood} is matched to an MFG.
+The pseudocode is summarized in Table \ref{tab:VIO-pose}.
+
+\begin{table}
+	\caption{Pose Estimation Without Map Noise}
+	\label{tab:VIO-pose}
+	\begin{algorithmic}[1]
+		\algrule[0.8pt]
+		\Procedure{$\mathcal{MG} = $ Pose Estimation}{$\{p_i\}$, $\{p'_i\}$}
+		\algrule
+		\State Obtain $F=$ Attitude Estimation($\{p_i\}$, $\{p'_i\}$) in Table \ref{tab:VIO-marginal}.
+		\State Let $F = USV^T$ be its pSVD.
+		\State Calculate $\expect{\nu_R\nu_R^T}$ as in \eqref{eqn:MFG-EvRvR} using $S$.
+		\If{$A_1 = \cdots = A_N$}
+		\State Calculate $\expect{t}$, $\expect{t\nu_R^T}$, and $\expect{tt^T}$ in Theorem \ref{thm:VIO-conditional-sim}.
+		\Else
+		\State Calculate $\expect{t}$, $\expect{t\nu_R^T}$, and $\expect{tt^T}$ in Theorem \ref{thm:VIO-conditional}.
+		\EndIf
+		\State Obtain $\mu$, $\Sigma$, $P$ according to Theorem \ref{thm:MFG-MLE-conditional}, with $\expect{t}$, $\expect{t\nu_R^T}$, $\expect{tt^T}$, $\expect{\nu_R\nu_R^T}$, and $\expect{\nu_R} = 0$.
+		\State Set $\mathcal{MG} = \mathcal{MG}(\mu,\Sigma,P,U,S,V)$.
+		\EndProcedure
+		\algrule[0.8pt]
+	\end{algorithmic}
+\end{table}
+
+\paragraph{Posterior Density}
+
+Up to Table \eqref{tab:VIO-pose}, an algorithm to find the distribution of the pose $(R,t)$ modeled by MFG is given to align the map point set $\{p_i\}$ and measurement point set $\{p'_i\}$.
+If this algorithm is used in a filtering algorithm, the pose also has a prior distribution.
+Here a more general problem is considered.
+Let $y = [t^T, a^T]^T \in \mathbb{R}^n$, suppose $(R,y)$ follows an MFG with the parameter $(\mu,\Sigma,P,U,S,V)$ before measurements, where $a$ includes other Euclidean quantities, such as linear velocity and sensor biases as in the IMU-GNSS navigation.
+According to the Bayes' formula, the posterior density for $(R,y)$ after incorporating the measurements $\{p'_i\}$ is
+\begin{align} \label{eqn:VIO-posterior}
+	p(R,y|p'_1,\ldots,p'_N) &\propto p(p'_1,\ldots,p'_N|R,t) p(R,y) \nonumber \\
+	&= \expb{-\tfrac{1}{2}\sum_{i=1}^N \big(R^T(p_i-Hy)-p'_i\big)^T A_i^{-1} \big(R^T(p_i-Hy)-p'_i\big)} \nonumber \\
+	&\qquad \cdot \etr{FR^T} \expb{-\tfrac{1}{2}(y-\mu_c)^T \Sigma_c^{-1} (y-\mu_c)},
+\end{align}
+where the first exponential term on the right hand side is the likelihood \eqref{eqn:VIO-likelihood}, with $H = [I_{3\times 3}, 0_{3\times (n-3)}]$ selects $t$ from $y$.
+The intermediate parameters $F$, $\mu_c$, and $\Sigma_c$ are defined with respect to $\mathcal{MG}(\mu,\Sigma,P,U,S,V)$.
+Next, matching the posterior density $p(R,y|p'_1,\ldots,p'_N)$ to an MFG is studied.
+
+In Theorem \ref{thm:VIO-factor}, the likelihood $f(p'_1,\ldots,p'_N|R,t)$ has been factorized into the marginal $f_R(R)$ and the conditional $f_{x|R}(x|R)$, which can be directly applied to the posterior density.
+\begin{align} \label{eqn:VIO-posterior-factor1}
+	&p(R,y|p'_1,\ldots,p'_N) \propto \expb{FR^T} \expb{-\tfrac{1}{2}(\bm{q}'-\bm{q}_m)^T \big(\mathbf{T}\mathbf{A}\mathbf{T}^T\big)^{-1} (\bm{q}'-\bm{q}_m)} \nonumber \\
+	&\qquad \cdot \expb{-\tfrac{1}{2}(y-\mu_c)^T \Sigma_c^{-1} (y-\mu_c)} \expb{-\tfrac{1}{2}(Hy - \mu_{t|R})^T C^{-1} (Hy - \mu_{t|R})}
+\end{align}
+with $\mu_{t|R}$ given as in \eqref{eqn:VIO-likelihood-conditional-sim}.
+The last two terms has the same structure as in \eqref{eqn:posEst-update-density}, so they can be calculated similarly as in Lemma \ref{lemma:posEst-update-factor}.
+More specifically, define
+\begin{align}
+	K = \Sigma_cH^T(H\Sigma_cH^T + C)^{-1}.
+\end{align}
+Then \eqref{eqn:VIO-posterior-factor1} can be further factorized into
+\begin{align} \label{eqn:VIO-posterior-factor2}
+	&p(R,y|p'_1,\ldots,p'_N) \propto \expb{FR^T} \expb{-\tfrac{1}{2}(\bm{q}'-\bm{q}_m)^T \big(\mathbf{T}\mathbf{A}\mathbf{T}^T\big)^{-1} (\bm{q}'-\bm{q}_m)} \nonumber \\
+	&\qquad \cdot \expb{-\tfrac{1}{2} (H\mu_c-\mu_{t|R})^T (C + H\Sigma_cH^T)^{-1} (H\mu_c-\mu_{t|R})^T} \nonumber \\
+	&\qquad \cdot \expb{-\tfrac{1}{2} (y-(I-KH)\mu_c-K\mu_{t|R})^T \big((I-KH)\Sigma_c\big)^{-1} (y-(I-KH)\mu_c-K\mu_{t|R})},
+\end{align}
+where $I$ is abbreviated for $I_{n\times n}$.
+The first three terms on the right hand side of \eqref{eqn:VIO-posterior-factor2} does not depend on $y$, and they can be regarded as the marginal posterior density for $R$.
+The same algorithm as in Table \ref{tab:posEst-update-att} can be used to approximate it to a matrix Fisher distribution.
+Let the approximated parameter be denoted by $F^+$, then \eqref{eqn:VIO-posterior-factor2} is approximated by
+\begin{align} \label{eqn:VIO-posterior-approx}
+	&p(R,y|p'_1,\ldots,p'_N) \propto \expb{F^+R^T} \cdot p_{y|R}(y|R),
+\end{align}
+where $p_{y|R}(y|R)$ is the last term in \eqref{eqn:VIO-posterior-factor2}.
+
+Let $F^+ = U^+S^+(V^+)^T$ be its pSVD, define $\nu_R^+ = (Q^+S^+ - S^+(Q^+)^T)^\vee$ for MFGI, or $\nu_R^+ = (S^+Q^+ - (Q^+)^TS^+)^\vee$ for MFGB, with $Q^+ = (U^+)^TS^+V^+$.
+The function $p_{y|R}(y|R)$ is Gaussian for $y$, and it can be regarded as the conditional posterior density for $y|R$.
+To use the conditional MLE of MFG, the moments $\expect{y}$, $\expect{y(\nu_R^+)^T}$, and $\expect{yy^T}$ according to the density \eqref{eqn:VIO-posterior-approx} need to be calculated.
+To distinguish these moments with those moments according to the prior $\mathcal{MG}(\mu,\Sigma,P,U,S,V)$, they are denoted by $\expect{y|\mathcal{Z}}$, $\expect{y(\nu_R^+)^T|\mathcal{Z}}$, and $\expect{yy^T|\mathcal{Z}}$, where $\mathcal{Z} = \{p'_i\}_{i=1}^N$ are all measurements.
+
+\begin{table}
+	\caption{Measurement update without map noises}
+	\label{tab:VIO-update}
+	\begin{algorithmic}[1]
+		\algrule[0.8pt]
+		\Procedure{$\mathcal{MG}^+$ = Measurement Update}{$\mathcal{MG}^-$, $\{p_i\}$, $\{p'_i\}$}
+		\algrule
+		\State Let $F^- = U^-S^-(V^-)^T$.
+		\State Calculate $F^+=$ Attitude Update($F^-$, $\{p_i\}$, $\{p'_i\}$).
+		\State Let the pSVD of $F^+$ be $F^+ = U^+S^+(V^+)^T$.
+		\State Calculate the moments of the posterior density in Theorem \ref{thm:VIO-posterior-conditional-moments}.
+		\State Obtain $\mu^+$, $\Sigma^+$, and $P^+$ using the conditional MLE in Theorem \ref{thm:MFG-MLE-conditional}.
+		\State Set $\mathcal{MG}^+ = \mathcal{MG}(\mu^+,\Sigma^+,P^+,U^+,S^+,V^+)$.
+		\EndProcedure
+		\algrule
+		\Procedure{$F^+ = $ Attitude Update}{$F^-$, $\{p_i\}$, $\{p'_i\}$}
+		\State Select sigma points \cite{gilitschenski2015unscented,lee2018bayesian} from $\mathcal{M}(F^-)$ as $\{R_j,w_j\}_{j=1}^7$.
+		\State Let $\lambda = 1$.
+		\While{$\lambda > 0$}
+		\State For $j=1,\ldots,7$, calculate $f_m(R_j)^\lambda$, where $f_m(R)$ is the second and third terms on the right hand side of \eqref{eqn:VIO-posterior-factor2}.
+		\If{$\min\{f_m(R_j)^{\lambda}\} / \max\{f_m(R_j)^{\lambda}\} < \tau$}
+		\State Let $\alpha = \log\tau / \log\left( \tfrac{\min\{f_m(R_j)\}}{\max\{f_m(R_j)\}} \right)$.
+		\State For $j=1,\ldots,7$, calculate $f_m(R_j)^\alpha$.
+		\State For $j=1,\ldots,7$, update the weights as $w_j^+ = w_j f_m(R_j)^\alpha$.
+		\State Normalize the weights as $w_j^+ = w_j^+/\sum_{i=j}^7 w_j^+$.
+		\State Calculate $\expect{R} = \sum_{j=1}^7 w_j^+ R_j$.
+		\State Select sigma points $\{R_j,w_j\}_{j=1}^7$ from the matrix Fisher distribution that has the moment $\expect{R}$.
+		\State Set $\lambda = \lambda-\alpha$.
+		\Else
+		\State Set $\lambda = 0$.
+		\EndIf
+		\EndWhile
+		\State For $j=1,\ldots,7$, update the weights as $w_j^+ = w_j f_m(R_j)^\lambda$.
+		\State Normalize the weights as $w_j^+ = w_j^+/\sum_{i=j}^7 w_j^+$.
+		\State Calculate $\expect{R} = \sum_{j=1}^7 w_j^+ R_j$.
+		\State Obtain $F^+$ using the MLE of matrix Fisher distribution in Chapter \ref{section:MF-MF} from $\expect{R}$.
+		\EndProcedure
+		\algrule[0.8pt]
+	\end{algorithmic}
+\end{table}
+
+\begin{theorem} \label{thm:VIO-posterior-conditional-moments}
+	The moments $\expect{y|\mathcal{Z}}$, $\expect{y(\nu_R^+)^T|\mathcal{Z}}$ according to the density \eqref{eqn:VIO-posterior-approx} can be calculated as
+	\begin{align}
+		\expect{y|\mathcal{Z}} &= (I-KH)\mu + K\expect{\mu_{t|R}|\mathcal{Z}}, \\
+		\expect{y(\nu_R^+)^T|\mathcal{Z}} &= (I-KH)P\expect{\nu_R(\nu_R^+)^T|\mathcal{Z}} + K\expect{\mu_{t|R}(\nu_R^+)^T|\mathcal{Z}}.
+	\end{align}
+	And the moment $\expect{yy^T|\mathcal{Z}}$ is
+	\begin{align}
+		&\expect{yy^T|\mathcal{Z}} = (I-KH)\Sigma_c + (I-KH) \Big( \mu\mu^T + \mu\expect{\nu_R|\mathcal{Z}}^TP^T + P\expect{\nu_R|\mathcal{Z}}\mu^T \nonumber \\
+		&\qquad + P\expect{\nu_R\nu_R^T|\mathcal{Z}}P^T \Big) (I-KH)^T + (I-KH)\left( \mu\expect{\mu_{t|R}^T|\mathcal{Z}} + P\expect{\nu_R\mu_{t|R}^T|\mathcal{Z}} \right)K^T \nonumber \\
+		&\qquad + K\left(\expect{\mu_{t|R}|\mathcal{Z}}\mu^T + \expect{\mu_{t|R}\nu_R^T|\mathcal{Z}}P^T\right)(I-KH)^T + K\expect{\mu_{t|R}\mu_{t|R}^T|\mathcal{Z}}K^T.
+	\end{align}
+	In the above equations, $I$ is abbreviated for $I_{n\times n}$.
+	The moments $\expect{\nu_R|\mathcal{Z}}$, $\expect{\nu_R\nu_R^T|\mathcal{Z}}$, and $\expect{\nu_R(\nu_R^+)^T|\mathcal{Z}}$ are calculated the same as in Theorem \ref{thm:attEst-update-moments}.
+	Also, the moments $\expect{\mu_{t|R}|\mathcal{Z}}$, $\expect{\mu_{t|R}(\nu_R^+)^T|\mathcal{Z}}$, and $\expect{\mu_{t|R}\mu_{t|R}^T|\mathcal{Z}}$ are the same as $\expect{t}$, $\expect{t\nu_R^T}$ and $\expect{tt^T}$ in Theorem \ref{thm:VIO-conditional} and Theorem \ref{thm:VIO-conditional-sim} depending on the respective conditions of the theorem, with $\nu_R$ replaced by $\nu_R^+$.
+	Also, if $A_1 = \cdots = A_N$, $\expect{\mu_{t|R}\nu_R^T|\mathcal{Z}}$ is given as
+	\begin{align}
+		\expect{\mu_{t|R}\nu_R^T|\mathcal{Z}} = p_c\expect{\nu_R^T|\mathcal{Z}} - \expect{Rp'_c\nu_R^T|\mathcal{Z}},
+	\end{align}
+	otherwise it is
+	\begin{align}
+		\expect{\mu_{t|R}\nu_R^T|\mathcal{Z}} = \sum_{i=1}^N D_i(\expect{Rp'_i\nu_R^T|\mathcal{Z}} - p_i\expect{\nu_R^T|\mathcal{Z}}).
+	\end{align}
+\end{theorem}
+\begin{proof}
+	The proof is a very straightforward extension of Theorem \ref{thm:posEst-update-moments}, with $y$ replaced by $\mu_{t|R}$.
+\end{proof}
+
+With these moments, the conditional MLE of $\mu^+$, $\Sigma^+$, and $P^+$ can be obtained using Theorem \ref{thm:MFG-MLE-conditional} as before.
+In summary, the posterior density \eqref{eqn:VIO-posterior} has been matched to an MFG with parameters $(\mu^+,\Sigma^+,P^+,U^+,S^+,V^+)$, and the pseudocode is given in Table \ref{tab:VIO-update}.
+
 \subsection{Numerical Simulations Without Map Uncertainty}
+
+In this subsection, the algorithm in Table \ref{tab:VIO-pose} that estimates the uncertainty of pose using an MFG is compared with the conventional least square approach.
+Namely, an Levenberg–Marquardt (LM) algorithm is used to directly optimize the likelihood \eqref{eqn:VIO-likelihood}, and the covariance of the pose estimate is given as $(J_r^TJ_r)^{-1}$, where $J_r$ is the Jacobian in the last step of the optimization iteration.
+
+The true attitude is set as $R_t = \expb{\tfrac{\pi}{2}\hat{e}_3}$, and the true translation is $t_t = [5,0,0]^T$.
+The measurement noise is set as $A_1 = \cdots = A_N = 0.5^2I_{3\times 3}$, and the number of points are varied as $N\in\{4,6,8,10,12,14,16,18,20\}$.
+Smaller number of points indicates more uncertainty in the estimation of pose.
+The map points $\{p_i\}_{i=1}^N$ are randomly scattered as $p_i = t_t + \xi_i$, where $\xi_i\in\mathbb{R}^3$ is a three dimensional uniform distribution on $[0,1]^3$.
+For the algorithm in Table \ref{tab:VIO-pose}, the attitude estimate is given as $UV^T$, and the translation estimate is given as $\mu$.
+A thousand Monte Carlo simulations are carried out for each $N$ with respect to the random measurement noises.
+Paired $t$-test with significance level at $\alpha = 0.001$ are used to detect significant differences between the two algorithms.
+
+\begin{table}
+	\centering
+	\caption{Estimation error of the pose that aligns two point sets}
+	\label{tab:VIO-pose-error}
+	\small
+	\begin{tabular}{l|ccc}
+		\hline\hline
+		estimator & \multicolumn{3}{c}{MFG} \\ \hline
+		$N$ & 20 & 18 & 16 \\ \hline
+		att err (deg) & 30.6$\pm$17.3(p<0.001) & 29.47$\pm$15.6(p<0.001) & 32.9$\pm$18.7(p<0.001) \\
+		pos err & 0.38$\pm$0.18(p<0.001) & 0.38$\pm$0.19(p=0.590) & 0.43$\pm$0.23(p=0.905) \\
+		\midrule[1.2pt]
+		estimator & \multicolumn{3}{c}{LM optimization} \\ \hline
+		$N$ & 20 & 18 & 16 \\ \hline
+		att err (deg) & 28.7$\pm$14.1 & 28.4$\pm$13.9 & 31.8$\pm$17.9 \\
+		pos err & 0.37$\pm$0.18 & 0.38$\pm$0.19 & 0.43$\pm$0.23 \\
+		\hline\hline
+		estimator & \multicolumn{3}{c}{MFG} \\ \hline
+		$N$ & 14 & 12 & 10  \\ \hline
+		att err (deg) & 35.1$\pm$20.4(p<0.001) & 43.7$\pm$26.2(p<0.001) & 47.8$\pm$29.6(p<0.001) \\
+		pos err & 0.46$\pm$0.24(p=0.223) & 0.52$\pm$0.27(p=0.006) & 0.53$\pm$0.27(p<0.001) \\
+		\midrule[1.2pt]
+		estimator & \multicolumn{3}{c}{LM optimization} \\ \hline
+		$N$ & 14 & 12 & 10 \\ \hline
+		att err (deg) & 34.1$\pm$19.1 & 42.1$\pm$25.2 & 45.6$\pm$27.7 \\
+		pos err & 0.46$\pm$0.25 & 0.53$\pm$0.29 & 0.54$\pm$0.29 \\
+		\hline\hline
+		estimator & \multicolumn{3}{c}{MFG} \\ \hline
+		$N$ & 8 & 6 & 4 \\ \hline
+		att err (deg) & 49.5$\pm$29.4(p=0.002) & 57.1$\pm$35.6(p=0.372) & 77.8$\pm$42.9(p=0.707)  \\
+		pos err & 0.58$\pm$0.29(p<0.001) & 0.67$\pm$0.33(p<0.001) & 0.92$\pm$0.36(p<0.001) \\
+		\midrule[1.2pt]
+		estimator & \multicolumn{3}{c}{LM optimization} \\ \hline
+		$N$ & 8 & 6 & 4 \\ \hline
+		att err (deg) & 48.5$\pm$28.8 & 56.7$\pm$35.5 & 77.7$\pm$43.0  \\
+		pos err & 0.61$\pm$0.32 & 0.72$\pm$0.39 & 1.04$\pm$0.49 \\
+		\hline\hline
+	\end{tabular}
+\end{table}
+
+The estimation errors of the two algorithms are listed in Table \ref{tab:VIO-pose-error}.
+Unfortunately, the attitude estimation from the MFG based method is worse than the LM optimization, and their difference is significant when $N>8$.
+This is not surprising because the optimization method finds the maximum likelihood estimation directly, and should have better accuracy if the algorithms converges properly.
+The translation (position) estimation for MFG is worse than the LM method when $N=20$, but it becomes better when $N<12$.
+The reason for this is currently unknown, but it may indicate that the gradient based optimization is not very effective when the uncertainty is large, i.e., the Hessian or the Fisher information is small.
+
+The estimation of uncertainty is also compared between the two methods.
+Let $p(R,t) = c\cdot\expb{-\tfrac{1}{2} f(p'_1,\ldots,p'_N|R,t)}$ be the real probability density function of $(R,t)$.
+Also, let the density function of the MFG as the output of Table \ref{tab:VIO-pose} be denoted by $f_\text{MFG}(R,t)$, and the density function of the Gaussian distribution from the LM optimization be denoted by $f_\text{LM}(R,t)$.
+The KL divergence $KL(p||p_\text{MFG})$ and $KL(p||p_\text{LM})$ are compared to see which method has a better approximation of the true density $p(R,t)$.
+To evaluate the KL divergence, a hundred million random samples $\{R_j,t_j\}$ are drawn from the Gaussian distribution of the LM optimization, which is treated as the proposal distribution in importance sampling for the true density function.
+Then, these samples are weighed by $w_j = p(R_j,t_j)/p_\text{LM}(R_j,t_j)$, and the weights are normalized by $w_j = w_j/\sum_{j} w_j$.
+The KL divergence are evaluated using these weighed sampled as
+\begin{align*}
+	d(p||p_\text{MFG}) &\triangleq KL(p||p_\text{MFG}) - \log(c) = \sum_j w_j \log\left( p(R_j,t_j)/p_\text{MFG}(R_j,t_j) \right), \\
+	d(p||p_\text{LM}) &\triangleq KL(p||p_\text{LM}) - \log(c) = \sum_j w_j \log\left( p(R_j,t_j)/p_\text{LM}(R_j,t_j) \right).
+\end{align*}
+Because only the difference between the KL divergence of the two methods matters, the constant $\log(c)$ which cannot be evaluated is subtracted from the calculation.
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=1.4]{figures/VIO-KL}
+	\caption{KL divergence $d(p||p_\text{MFG})$ and $d(p||p_\text{LM})$ of the MFG and LM-optimization methods.}
+	\label{fig:VIO-KL}
+\end{figure}
+
+The results are presented in Figure \ref{fig:VIO-KL}.
+Because the constant $\log(c)$ is not calculated, the KL divergence in the figure is sometimes negative.
+It can be seen that when $N>10$, the KL divergence for the LM method is slightly lower, indicating a slightly better estimation of the uncertainty.
+When $N \leq 10$, because the uncertainty in pose increases, the KL-divergence of the MFG becomes smaller.
+And when $N=4$, it becomes notably smaller than the LM method, indicating MFG is more accurate when dealing with very large uncertainty in the pose.
+
+Finally, the measurement update algorithm in Table \ref{tab:VIO-update} is combined with the uncertainty propagation in Table \ref{tab:posEst-prop} into a recursive Bayesian filter.
+This filter is compared with the MEKF based method in a visual-inertial navigation setting.
+A vehicle is supposed to move in a circle with radius of $\SI{3}{\meter}$.
+The height of the trajectory is fluctuating between $\SI{0}{\meter}$ and $\SI{1}{\meter}$ as a sinusoidal function with the frequency at $\SI{0.785}{\hertz}$.
+The resulting average free acceleration is $\SI{0.51}{\meter/\second\squared}$.
+The first body-fixed axis of the vehicle points forward along the tangent direction of the trajectory, and the second body-fixed axis is confined in the horizontal plane, pointing towards the center of the circle.
+The resulting average angular velocity is $\SI{24.7}{\deg/\second}$.
+A hundred landmarks are scattered around the trajectory in a rectangular shape.
+The trajectory of the vehicle and locations of landmarks are depicted in Figure \ref{fig:VIO-trajectory}.
+A landmark is measured by the camera only if it is within $\SI{3}{\meter}$ of the vehicle.
+
+\begin{figure}
+	\centering
+	\includegraphics{figures/VIO-trajectory}
+	\caption{Trajectory and landmarks for visual-inertial navigation.}
+	\label{fig:VIO-trajectory}
+\end{figure}
+
+The white noise for the gyroscope is set as $\SI{0.1}{\deg/\sqrt{\second}}$, and for the accelerometer is $\SI{0.1}{\meter/\second/\sqrt{\second}}$.
+It is assumed that the gyroscope and accelerometer do not have random walk biases, i.e., $H_{gv}$ in \eqref{eqn:posEst-kinematics-gyrobias} and $H_{av}$ in \eqref{eqn:posEst-kinematics-accebias} are zero, so the biases are not estimated in the filter.
+The gyroscope is sampled at $\SI{200}{\hertz}$.
+The position measurement noise of the camera is set identically as $\sigma^2I_{3\times 3}$, with $\sigma = \SI{1}{\meter}$.
+And the sampling frequency for the camera is at $\SI{10}{\hertz}$.
+The simulation lasts for $\SI{40}{\second}$.
+
+Two initial conditions are tested.
+For the first case, the initial attitude uncertainty for the MFG filter is $S_0 = 50I_{3\times 3}$, and for MEKF is $0.1^2I_{3\times 3}$.
+The initial velocity and position uncertainties for both filters are set as $0.1^2I_{3\times 3}$.
+The initial attitude, velocity, and position are their true values plus a random noise sampled from those initial uncertainty distributions.
+This corresponds to an initial condition with relatively small uncertainty.
+Next, for the second case, the initial conditions for velocity and position are set the same as in the first case.
+But the initial attitude is rotated from the true attitude around the inertial vertical axis by $\SI{180}{\deg}$, simulating the scenario when the initial heading direction is completely unknown.
+The attitude uncertainty for MFG is set as $S_0 = 0.01I_{3\times 3}$, and for MEKF is $1000I_{3\times 3}$, indicating a very large initial attitude uncertainty.
+A hundred Monte Carlo simulations are carried out for both initial conditions, and paired $t$-test is used to find any significant difference with the significant level at $\alpha = 0.001$.
+
+\begin{table}
+	\centering
+	\footnotesize
+	\caption{Estimation error for visual-inertial navigation without map noises}
+	\label{tab:VIO-filter-error}
+	\begin{tabular}{l|c|c|c|c}
+		\hline\hline
+		initial condition & \multicolumn{2}{c|}{small uncertainty} & \multicolumn{2}{c}{large uncertainty} \\ \hline
+		filter & MFG & MEKF & MFG & MEKF \\ \hline
+		att err (deg) & 0.97$\pm$0.21 (p<0.001) & 0.90$\pm$0.20 & 1.62$\pm$0.23 (p<0.001) & 75.0$\pm$38.5 \\
+		vel err (m/s) & 0.208$\pm$0.012 (p<0.001) & 0.205$\pm$0.013 & 0.235$\pm$0.013 (p<0.001) & 1.59$\pm$0.54 \\
+		pos err (m) & 0.173$\pm$0.011 (p<0.001) & 0.172$\pm$0.011 & 0.184$\pm$0.010 (p<0.001) & 2.37$\pm$1.03 \\
+		\hline\hline
+	\end{tabular}
+\end{table}
+
+For the MFG filter, only definition MFGI is tested, because all linear components, i.e., velocity and position, are defined in the inertial frame.
+The estimation errors for MFG and MEKF are summarized in Table \ref{tab:VIO-filter-error}.
+It demonstrates that MEKF has slightly better accuracy than MFG for the small initial uncertainty case, which is consistent with the results in Table \eqref{tab:VIO-pose-error} for static pose estimation.
+But their relative differences are very small compared to the magnitude of error.
+On the other hand, for large initial uncertainty, the MFG filter behaves much better than MEKF.
+The trajectory of the estimation error for one particular simulation is presented in Figure \ref{fig:VIO-filter-error}.
+It is seen that the MEKF suffers from extremely slow convergence from the initially wrong attitude.
+Even worse, the wrong attitude estimation for MEKF contributes to the large errors in velocity and position.
+This is very similar to the simulation for IMU-GNSS navigation in Figure \ref{fig:posEst-error}.
+And the reason for this slow convergence can be attributed to that the Gaussian distribution of MEKF does not properly describe the initial large attitude uncertainty.
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=1.3]{figures/VIO-filter-error}
+	\caption{Error trajectory of a particular simulation for visual-inertial navigation without map noises.}
+	\label{fig:VIO-filter-error}
+\end{figure}
 
 \subsection{Pose Estimation With Map Uncertainty}
 
