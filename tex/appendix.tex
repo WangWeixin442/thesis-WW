@@ -681,3 +681,133 @@ Next, the calculation for $\expect{x_{k+1}x_{k+1}^T}$ is given in the following 
 
 Note that the term $\expect{R_kP_{b_a,k}\nu_{R_k}\nu_{R_k}^TP_{b_a,k}^TR_k^T}$ in \eqref{eqn:posEst-prop-Evv} needs the fourth order moments of $\expect{Q_k}$, which do not have closed form formula.
 But its accuracy is on the order of $O(h^2)$, and can be omitted if the sampling period $h$ is small enough.
+
+\chapter{The Posterior Density With Map Uncertainty} \label{app:VIO-map-posterior}
+
+This appendix deals with the calculations related to the posterior density function \eqref{eqn:VIO-map-posterior}.
+First, the proof for Theorem \ref{thm:VIO-map-posterior} is given.
+
+\begin{proof}[Proof of Theorem \ref{thm:VIO-map-posterior}]
+	The last two terms in \eqref{eqn:VIO-map-posterior-factor1} can be combined into
+	\begin{align*}
+		&(\bm{x}-\bm{\mu}_{x|R})^T \bm{\Sigma}_{x|R}^{-1} (\bm{x}-\bm{\mu}_{x|R}) + (y-\mu_c)^T \Sigma_c^{-1} (y-\mu_c) \\
+		= &(Hz-\bm{\mu}_{x|R})^T \bm{\Sigma}_{x|R}^{-1} (Hz-\bm{\mu}_{x|R}) + (Gz-\mu_c)^T \Sigma_c^{-1} (Gz-\mu_c) \\
+		= &z^T \left( H^T\bm{\Sigma}_{x|R}^{-1}H + G^T\Sigma_c^{-1}G \right) z - z^T \left( H^T\bm{\Sigma}_{x|R}^{-1}\mu_{x|R} + G^T\Sigma_c^{-1}\mu_c \right) + \mu_{x|R}^T \bm{\Sigma}_{x|R}^{-1} \mu_{x|R} + \mu_c^T \Sigma_c^{-1} \mu_c \\
+		= & (z-\mu_{z|R})^T \Sigma_{z|R}^{-1} (z-\mu_{z|R}) - \mu_{z|R}^T \Sigma_{z|R}^{-1} \mu_{z|R} + \mu_{x|R}^T \bm{\Sigma}_{x|R}^{-1} \mu_{x|R} + \mu_c^T \Sigma_c^{-1} \mu_c.
+	\end{align*}
+	Substitute this into \eqref{eqn:VIO-map-posterior-factor1}, it remains to show that
+	\begin{align*}
+		(\mu_{t|R}-\mu_{c,t})^T (\Sigma_{t|R} + \Sigma_{c,t})^{-1} (\mu_{t|R}-\mu_{c,t}) = \mu_{x|R}^T \bm{\Sigma}_{x|R}^{-1} \mu_{x|R} + \mu_c^T \Sigma_c^{-1} \mu_c - \mu_{z|R}^T \Sigma_{z|R}^{-1} \mu_{z|R}.
+	\end{align*}
+	Note that $HH^T = I_{3N+3}$, and $GG^T = I_{n\times n}$, so the right hand side can be expanded into
+	\begin{align} \label{eqn:VIO-three-terms}
+		&\mu_{x|R}^T \bm{\Sigma}_{x|R}^{-1} \mu_{x|R} + \mu_c^T \Sigma_c^{-1} \mu_c - \mu_{z|R}^T \Sigma_{z|R}^{-1} \mu_{z|R} \nonumber \\
+		= &(H^T\mu_{x|R})^T \left[ H^T\bm{\Sigma}_{x|R}^{-1}H - H^T\bm{\Sigma}_{x|R}^{-1}H \left( H^T\bm{\Sigma}_{x|R}^{-1}H + G^T\Sigma_c^{-1}G \right)^{-1} H^T\bm{\Sigma}_{x|R}^{-1}H \right] (H^T\mu_{x|R}) \nonumber \\
+		&\qquad + (G^T\mu_c)^T \left[ G^T\Sigma_c^{-1}G - G^T\Sigma_c^{-1}G \left( H^T\bm{\Sigma}_{x|R}^{-1}H + G^T\Sigma_c^{-1}G \right)^{-1} G^T\Sigma_c^{-1}G \right] (G^T\mu_c) \nonumber \\
+		&\qquad -2 (H^T\mu_{x|R})^T H^T\bm{\Sigma}_{x|R}^{-1} H \left( H^T\bm{\Sigma}_{x|R}^{-1}H + G^T\Sigma_c^{-1}G \right)^{-1} G^T\Sigma_c^{-1}G (G^T\mu_c).
+	\end{align}
+	The first term on the right hand side of \eqref{eqn:VIO-three-terms} can be simplified using block inversion formula, and Woodbury matrix identity as
+	\begin{align*}
+		&(H^T\mu_{x|R})^T \left[ H^T\bm{\Sigma}_{x|R}^{-1}H - H^T\bm{\Sigma}_{x|R}^{-1}H \left( H^T\bm{\Sigma}_{x|R}^{-1}H + G^T\Sigma_c^{-1}G \right)^{-1} H^T\bm{\Sigma}_{x|R}^{-1}H \right] (H^T\mu_{x|R}) \\
+		= &\mu_{x|R}^T \bm{\Sigma}_{x|R}^{-1}H \left( H^T\bm{\Sigma}_{x|R}^{-1}H + G^T\Sigma_c^{-1}G \right)^{-1} G^T\Sigma_c^{-1} GH^T\mu_{x|R} \\
+		= &\mu_{t|R}^T \Sigma_{t|R}^{-1} \left( \Sigma_{t|R}^{-1} + \Sigma_{c,t}^{-1} \right)^{-1} \Sigma_{c,t}^{-1} \mu_{t|R} \\
+		= &\mu_{t|R}^T (\Sigma_{t|R}+\Sigma_{c,t})^{-1} \mu_{t|R},
+	\end{align*}
+	where the first equality is a straightforward but extremely tedious application of the block inversion formula to $\Sigma_{z|R}$, which has to be omitted here.
+	And the second equality is because
+	\begin{align*}
+		\bm{\Sigma}_{x|R}^{-1}H \left( H^T\bm{\Sigma}_{x|R}^{-1}H + G^T\Sigma_c^{-1}G \right)^{-1} G^T\Sigma_c^{-1} = \begin{bmatrix} 0_{3N\times 3} & 0_{3N\times n} \\ \Sigma_{t|R}^{-1} \left( \Sigma_{t|R}^{-1} + \Sigma_{c,t}^{-1} \right)^{-1} \Sigma_{c,t}^{-1} & 0_{3\times n} \end{bmatrix}.
+	\end{align*}
+	Similarly, the second term on the right hand side of \eqref{eqn:VIO-three-terms} can be simplified as
+	\begin{align*}
+		&(G^T\mu_c)^T \left[ G^T\Sigma_c^{-1}G - G^T\Sigma_c^{-1}G \left( H^T\bm{\Sigma}_{x|R}^{-1}H + G^T\Sigma_c^{-1}G \right)^{-1} G^T\Sigma_c^{-1}G \right] (G^T\mu_c) \\
+		= &\mu_{c,t}^T (\Sigma_{t|R}+\Sigma_{c,t})^{-1} \mu_{c,t},
+	\end{align*}
+	and the third term can be simplified as
+	\begin{align*}
+		&(H^T\mu_{x|R})^T H^T\bm{\Sigma}_{x|R}^{-1} H \left( H^T\bm{\Sigma}_{x|R}^{-1}H + G^T\Sigma_c^{-1}G \right)^{-1} G^T\Sigma_c^{-1}G (G^T\mu_c) \\
+		= &\mu_{t|R} (\Sigma_{t|R}+\Sigma_{c,t})^{-1} \mu_{c,t}.
+	\end{align*}
+	Combining these three terms yields the desired equality.
+\end{proof}
+
+Next, the moments for $y|R$ and $p_i|R$ according to the posterior density \eqref{eqn:VIO-map-posterior-factor2} are given in the following theorem.
+
+\begin{theorem} \label{thm:VIO-map-posterior-moments}
+	Define $K_y \in \mathbb{R}^{n\times n}$ as
+	\begin{align}
+		K_y = \left( \begin{bmatrix} \tilde{C}^{-1} & 0_{3\times (n-3)} \\ 0_{(n-3)\times 3} & 0_{(n-3)\times (n-3)} \end{bmatrix} + \Sigma_c^{-1} \right)^{-1} \Sigma_c^{-1}.
+	\end{align}
+	Then the moment $\expect{y|\mathcal{Z}}$ can be calculated as
+	\begin{align}
+		\expect{y|\mathcal{Z}} = (I-K_y) \begin{bmatrix} \expect{\mu_{t|R}|\mathcal{Z}} \\ 0_{(n-3)\times 1} \end{bmatrix} + K_y\left( \mu + P\expect{\nu_R|\mathcal{Z}} \right).
+	\end{align}
+	The moment $\expect{y(\nu_R^+)^T|\mathcal{Z}}$ is
+	\begin{align}
+		\expect{y(\nu_R^+)^T|\mathcal{Z}} = (I-K_y) \begin{bmatrix} \expect{\mu_{t|R}(\nu_R^+)^T|\mathcal{Z}} \\ 0_{(n-3)\times 1} \end{bmatrix} + K_yP\expect{\nu_R(\nu_R^+)^T|\mathcal{Z}}.
+	\end{align}
+	And the moment $\expect{yy^T|\mathcal{Z}}$ is
+	\begin{align} \label{eqn:VIO-map-posterior-Eyy}
+		&\expect{yy^T|\mathcal{Z}} = \left( \begin{bmatrix} \tilde{C}^{-1} & 0_{3\times (n-3)} \\ 0_{(n-3)\times 3} & 0_{(n-3)\times (n-3)} \end{bmatrix} + \Sigma_c^{-1} \right)^{-1} \nonumber \\
+		&\qquad + (I-K_y) \begin{bmatrix} \expect{\mu_{t|R}\mu_{t|R}^T|\mathcal{Z}} & 0_{3\times (n-3)} \\ 0_{(n-3)\times 3} & 0_{(n-3)\times (n-3)} \end{bmatrix} (I-K_y)^T \nonumber \\
+		&\qquad + (I-K_y) \begin{bmatrix} \expect{\mu_{t|R}|\mathcal{Z}}\mu^T + \expect{\mu_{t|R}\nu_R^T|\mathcal{Z}}P^T \\ 0_{(n-3)\times n} \end{bmatrix} K_y^T \nonumber \\
+		&\qquad + K_y \begin{bmatrix} \expect{\mu_{t|R}|\mathcal{Z}}\mu^T + \expect{\mu_{t|R}\nu_R^T|\mathcal{Z}}P^T \\ 0_{(n-3)\times n} \end{bmatrix}^T (I-K_y)^T \nonumber \\
+		&\qquad + K_y\left( \mu\mu^T + \mu\expect{\nu_R^T|\mathcal{Z}} P^T + P\expect{\nu_R|\mathcal{Z}}\mu^T + P\expect{\nu_R\nu_R^T|\mathcal{Z}}P^T \right)K_y^T.
+	\end{align}
+	In the above three equations, $I$ is abbreviated for $I_{n\times n}$, $\expect{\nu_R|\mathcal{Z}}$, $\expect{\nu_R(\nu_R^+)^T|\mathcal{Z}}$ and $\expect{\nu_R\nu_R^T|\mathcal{Z}}$ are calculated as in Theorem \ref{thm:attEst-update-moments}.
+	Also, $\expect{\mu_{t|R}|\mathcal{Z}}$, $\expect{\mu_{t|R}(\nu_R^+)^T|\mathcal{Z}}$, $\expect{\mu_{t|R}\nu_R^T|\mathcal{Z}}$, and $\expect{\mu_{t|R}\mu_{t|R}^T|\mathcal{Z}}$ are calculated as in Theorem \ref{thm:VIO-posterior-conditional-moments}, with $p_i$, $C$, $D_i$ replaced by $\bar{p}_i$, $\tilde{C}$, $\tilde{D}_i$.
+	Next, the moment $\expect{p_i|\mathcal{Z}}$ is
+	\begin{align}
+		\expect{p_i|\mathcal{Z}} = (I_{3\times 3} - K_i) \bar{p}_i + K_i(Rp'_i + \expect{t|\mathcal{Z}}).
+	\end{align}
+	And the moment $\expect{p_ip_i^T|\mathcal{Z}}$ is
+	\begin{align}
+		&\expect{p_ip_i^T|\mathcal{Z}} = B_i - B_i\left[ (A_i+B_i)^{-1} \left( A_i + B_i + (\tilde{C}^{-1} + \Sigma_{c,t}^{-1})^{-1} \right) (A_i+B_i)^{-1} \right] B_i \nonumber \\
+		&\qquad + (I_{3\times 3} - K_i) \bar{p}_i\bar{p}_i^T (I_{3\times 3} - K_i)^T + (I_{3\times 3} - K_i)\bar{p}_i \left((p'_i)^T\expect{R|\mathcal{Z}}^T + \expect{t|\mathcal{Z}}^T\right) K_i^T \nonumber \\
+		&\qquad + K_i \left( \expect{Rp'_i(p'_i)^TR^T | \mathcal{Z}} + \expect{Rp'_it^T|\mathcal{Z}} + \expect{t(p'_i)^TR^T|\mathcal{Z}} + \expect{\mu'_{t|R}(\mu'_{t|R})^T|\mathcal{Z}} \right) \nonumber \\
+		&\qquad + K_i \left( \expect{R|\mathcal{Z}}p'_i + \expect{t|\mathcal{Z}} \right) \bar{p}_i^T (I_{3\times 3}-K_i)^T.
+	\end{align}
+	In the above two equations, $\expect{t|\mathcal{Z}}$ is the first three columns of $\expect{y|\mathcal{Z}}$, and $\expect{\mu'_{t|R}(\mu'_{t|R})^T|\mathcal{Z}}$ is the first 3-by-3 diagonal block of the last four term on the right hand side of \eqref{eqn:VIO-map-posterior-Eyy}.
+	Finally, let $K_t \in \mathbb{R}^{3\times 3}$ be the first 3-by-3 diagonal block of $K_y$, then
+	\begin{align}
+		\expect{t(p'_i)^TR^T|\mathcal{Z}} = (I_{3\times 3}-K_t) \expect{\mu_{t|R}(p'_i)^TR^T|\mathcal{Z}} + K_t \expect{\mu_{c,t}(p'_i)^TR^T|\mathcal{Z}},
+	\end{align}
+	where $\expect{\mu_{t|R}(p'_i)^TR^T|\mathcal{Z}}$ is given in Theorem \ref{thm:VIO-likelihood-Ep}.
+\end{theorem}
+\begin{proof}
+	The key idea is to calculate the diagonal blocks of the covariance matrix $\Sigma_{z|R}$ and the conditional mean $\mu_{z|R}$ in Theorem \ref{thm:VIO-map-posterior}, corresponding to $y$ and $p_i$.
+	First, by directly applying block inversion formula to $\Sigma_{z|R}$, the diagonal block for $y$ is calculated as
+	\begin{align*}
+		\Sigma'_{y|R} = \left( \begin{bmatrix} \tilde{C}^{-1} & 0_{3\times (n-3)} \\ 0_{(n-3)\times 3} & 0_{(n-3)\times (n-3)} \end{bmatrix} + \Sigma_c^{-1} \right)^{-1},
+	\end{align*}
+	and the block for $p_i$ is
+	\begin{align*}
+		\Sigma'_{p_i|R} = B_i - B_i\left[ (A_i+B_i)^{-1} \left( A_i + B_i + (\tilde{C}^{-1} + \Sigma_{c,t}^{-1})^{-1} \right) (A_i+B_i)^{-1} \right] B_i.
+	\end{align*}
+	Next, the conditional mean can be written as
+	\begin{align*}
+		\mu_{z|R} &= \left( H^T\bm{\Sigma}_{x|R}^{-1}H + G^T\Sigma_c^{-1}G \right)^{-1} \left( H^T\bm{\Sigma}_{x|R}^{-1}\mu_{x|R} + G^T\Sigma_c^{-1}\mu_c \right) \\
+		&= H^T\mu_{x|R} + \left( H^T\bm{\Sigma}_{x|R}^{-1}H + G^T\Sigma_c^{-1}G \right)^{-1} \left( G^T\Sigma_c^{-1}\mu_c - G^T\Sigma_c^{-1}GH^T\mu_{x|R} \right) \nonumber \\
+		&= H^T\mu_{x|R} + \left( H^T\bm{\Sigma}_{x|R}^{-1}H + G^T\Sigma_c^{-1}G \right)^{-1} G^T\Sigma_c^{-1} \left( \mu_c - \begin{bmatrix} \mu_{t|R} \\ 0_{(n-3)\times 1} \end{bmatrix} \right).
+	\end{align*}
+	So the component for $y$ is
+	\begin{align*}
+		\mu'_{y|R} = (I-K_y) \begin{bmatrix} \mu_{t|R} \\ 0_{(n-3)\times 1} \end{bmatrix} + K_y\mu_c,
+	\end{align*}
+	and the component for $p_i$ is
+	\begin{align*}
+		\mu'_{p_i|R} &= \mu_{p_i|R} + \begin{bmatrix} K_i & 0_{3\times (n-3)}  \end{bmatrix} K_y \left( \mu_c - \begin{bmatrix} \mu_{t|R} \\ 0_{(n-3)\times 1} \end{bmatrix} \right).
+	\end{align*}
+	Using block inversion formula, note that
+	\begin{align*}
+		K_y = \begin{bmatrix} \left( \tilde{C}^{-1} + \Sigma_{c,t}^{-1} \right)^{-1} \Sigma_{c,t}^{-1} & 0_{3\times n} \\ \cdot & I_{n\times n} \end{bmatrix}.
+	\end{align*}
+	So $\mu'_{p_i|R}$ can be simplified as
+	\begin{align*}
+		\mu'_{p_i|R} &= \mu_{p_i|R} + K_iK_t(\mu_{c,t}-\mu_{t|R}) \\
+		&= (I-F_i)\bar{p}_i + K_i(Rp'_i+\mu_{t|R}) + K_iK_t(\mu_{c,t} - \mu_{t|R}) \\
+		&= (I-F_i)\bar{p}_i + K_i(Rp'_i+\mu'_{t|R}),
+	\end{align*}
+	where $\mu'_{t|R}$ is the first three columns of $\mu'_{y|R}$.
+	The above calculations are used when integration the left hand side of the moments with respect to the last term of \eqref{eqn:VIO-map-posterior-factor2}, and evaluating the resulting moments with respect to $\mathcal{M}(F^+)$, which is the matrix Fisher distribution matched to the first three terms on the right hand side of \eqref{eqn:VIO-map-posterior-factor2}.
+\end{proof}
