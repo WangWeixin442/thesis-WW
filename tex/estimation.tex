@@ -206,7 +206,7 @@ These are illustrated in Figure \ref{fig:observability-kinematics}.
 		\node at (12.3,-3.0) {$t=1$s};
 	\end{tikzpicture}
 
-	\caption{Illustration of propagated uncertainties: (a-c) by the right-trivialized \eqref{eqn:observability-kinematics-right-dist}; (d-f) by the left-trivialized \eqref{eqn:observability-kinematics-left-dist}.
+	\caption[Illustration of propagated uncertainties by the right-trivialized \eqref{eqn:observability-kinematics-right-dist} and the left-trivialized \eqref{eqn:observability-kinematics-left-dist}.]{Illustration of propagated uncertainties: (a-c) by the right-trivialized \eqref{eqn:observability-kinematics-right-dist}; (d-f) by the left-trivialized \eqref{eqn:observability-kinematics-left-dist}.
 		The initial distribution is $R_0 \sim \mathcal{M}(F_0)$ with $F_0 = \diag(150, 10, 0)$.
 		The angular velocities are $\omega = \Omega = \tfrac{\pi}{2}e_3 \SI{}{\radian\per\second}$ without any noise, which can be transformed to each other by the initial mean attitude $I_{3\times 3}$.
 		The red, green and blue arrows represent the mean directions of the body-fixed $\bm{b}_1$, $\bm{b}_2$, $\bm{b}_3$ axes, and the corresponding shades represent the marginal distribution for each body-fixed axis.
@@ -272,7 +272,7 @@ The additional information in the direction measurement is injected into the pri
 		\node at (12.6,-3.0) {$y=-\tfrac{1}{2}e_1 + \tfrac{\sqrt{3}}{2}e_2$};
 	\end{tikzpicture}
 	
-	\caption{Posterior distribution with single direction measurements ($\kappa=500$): (a-c) inertial direction measurements \eqref{eqn:observability-measurement-inertial} with $a=e_1$; (d-f) body-fixed direction measurements \eqref{eqn:observability-measurement-body} with $b=e_1$.}
+	\caption[Posterior distribution with single direction measurements.]{Posterior distribution with single direction measurements ($\kappa=500$): (a-c) inertial direction measurements \eqref{eqn:observability-measurement-inertial} with $a=e_1$; (d-f) body-fixed direction measurements \eqref{eqn:observability-measurement-body} with $b=e_1$.}
 	\label{fig:observability-measurement}
 \end{figure}
 
@@ -553,7 +553,7 @@ The above intuition is formally presented in the next theorem.
 		\node at (12.6,-3.0) {Posterior dist. at $t=1$};
 	\end{tikzpicture}
 	
-	\caption{Estimation with the right trivialized \eqref{eqn:observability-kinematics-right-dist} and the inertial direction measurement \eqref{eqn:observability-measurement-inertial}, where the complete attitude is estimated after incorporating two inertial single direction measurements.}
+	\caption[Estimation with the right trivialized \eqref{eqn:observability-kinematics-right-dist} and the inertial direction measurement \eqref{eqn:observability-measurement-inertial}.]{Estimation with the right trivialized \eqref{eqn:observability-kinematics-right-dist} and the inertial direction measurement \eqref{eqn:observability-measurement-inertial}, where the complete attitude is estimated after incorporating two inertial single direction measurements.}
 	\label{fig:observability-est_RI}
 \end{figure}
 
@@ -591,7 +591,7 @@ The above intuition is formally presented in the next theorem.
 		\node at (12.6,-3.0) {Posterior dist. at $t=1$};
 	\end{tikzpicture}
 
-	\caption{Estimation with the left trivialized \eqref{eqn:observability-kinematics-left-dist} and the body-fixed direction measurement \eqref{eqn:observability-measurement-body}, where the complete attitude is estimated after incorporating two body-fixed single direction measurements.}
+	\caption[Estimation with the left trivialized \eqref{eqn:observability-kinematics-left-dist} and the body-fixed direction measurement \eqref{eqn:observability-measurement-body}.]{Estimation with the left trivialized \eqref{eqn:observability-kinematics-left-dist} and the body-fixed direction measurement \eqref{eqn:observability-measurement-body}, where the complete attitude is estimated after incorporating two body-fixed single direction measurements.}
 	\label{fig:observability-est_LB}
 \end{figure}
 
@@ -721,7 +721,7 @@ And if the reference vector is known in the inertial frame, MEKF has been shown 
 \begin{figure}
 	\centering
 	\includegraphics[scale=1.4]{figures/observability/attitudeStd}
-	\caption{Attitude standard deviations for the matrix Fisher (MF) estimator and MEKF.
+	\caption[Attitude standard deviations for the matrix Fisher (MF) estimator and MEKF.]{Attitude standard deviations for the matrix Fisher (MF) estimator and MEKF.
 		In the ``RVI'' and ``RVB'' cases, the attitude covariance matrix is expressed in the inertial and body-fixed frames respectively.
 		For the MF filter, $(\tr{S}I_{3\times 3}-S)^{-1}$ is used as the attitude covariance matrix in the principal axes frame. \label{fig:observability-attitudeStd}}
 \end{figure}
@@ -762,7 +762,7 @@ Note that these are not carefully tuned for the specific hardware, since the mai
 \begin{figure}
 	\centering
 	\includegraphics[scale=1.4]{figures/observability/attitudeStd-Exp}
-	\caption{Attitude uncertainty for the matrix Fisher estimator (MF) and MEKF.
+	\caption[Attitude uncertainty for the matrix Fisher estimator (MF) and MEKF.]{Attitude uncertainty for the matrix Fisher estimator (MF) and MEKF.
 		In the ``RVI'' cases, the attitude covariance matrix is expressed in the inertial frame; and in the ``RVB'' cases, it is expressed in the $b'$-$b''$-$b$ frame, where $b$ is the reference vector when resolved in the body-fixed frame, and $b',b''$ are perpendicular to $b$.
 		For the MF filter, $(\tr{S}I_{3\times 3}-S)^{-1}$ is used as the attitude covariance matrix in the principal axes frame. \label{fig:observability-attitudeStd-Exp}}
 \end{figure}
@@ -1346,7 +1346,7 @@ The large uncertainty of $\sigma_2$ could lead to large uncertainty of the rotat
 \begin{figure}
 	\centering
 	\includegraphics[scale=1.4]{figures/attEst-sim2-error}
-	\caption{Estimation errors for varying accuracies of the second vector measurement: (a) full attitude error; (b) partial attitude error; (c) bias error for MEKF, UKF, MFGIA and MFGBA with varying $\sigma_2^2$.
+	\caption[Estimation errors for varying accuracies of the second vector measurement.]{Estimation errors for varying accuracies of the second vector measurement: (a) full attitude error; (b) partial attitude error; (c) bias error for MEKF, UKF, MFGIA and MFGBA with varying $\sigma_2^2$.
 		The errors of the unscented MFG filters are similar with the analytical MFG filters, and they are omitted for readability. \label{fig:attEst-sim2-error}}
 \end{figure}
 
@@ -1368,7 +1368,7 @@ The bias error of the MFG filters is also lower then MEKF, and is comparable to 
 \begin{figure}
 	\centering
 	\includegraphics[scale=1.4]{figures/attEst-sim2-trajectory-att}
-	\caption{(a) Full attitude error of MEKF, UKF, MFGIA and MFGBA for a sample simulation ($\sigma_2^2 = 0.1$) during the first three seconds.
+	\caption[Full attitude error for example simulations.]{(a) Full attitude error of MEKF, UKF, MFGIA and MFGBA for a sample simulation ($\sigma_2^2 = 0.1$) during the first three seconds.
 		(b) Full attitude error (\SI{0}{\second} to \SI{300}{\second}) for a sample simulation ($\sigma_2^2 = 10$).
 		The error of the unscented MFG filters is similar to the analytical MFG filters. \label{fig:attEst-sim2-trajectory-att}}.
 \end{figure}
@@ -1501,7 +1501,7 @@ Also, the partial attitude error does not depend on the inclination angle $i$ of
 \begin{figure}
 	\centering
 	\includegraphics[scale=0.97]{figures/attEst-sim3-error-i0}
-	\caption{Estimation error, attitude uncertainty, and bias uncertainty for various attitude filters when $i=0^\circ$.
+	\caption[Estimation error, attitude uncertainty, and bias uncertainty for various attitude filters when $i=0^\circ$.]{Estimation error, attitude uncertainty, and bias uncertainty for various attitude filters when $i=0^\circ$.
 		The attitude uncertainty is expressed in the coordinate frame specified by the direction of magnetic field ($b$), and its two perpendicular vectors ($b_{\perp 1}$ and $b_{\perp 2}$).
 		The attitude uncertainty for MEKF is given by the square root of the diagonals of its covariance; and that for MFG filters is given by the square root of the diagonals of $(\tr{S}I_{3\times 3}-S)^{-1}$, after transformed into the correct frame.
 		The bias uncertainty is expressed in the body-fixed frame, and is given by the square root of the diagonals of the covariance.
@@ -1954,7 +1954,7 @@ This is because the integrated velocity and position from \eqref{eqn:posEst-kine
 		\caption{Position Uncertainty}
 		\label{fig:posEst-std-pos}
 	\end{subfigure}
-	\caption{Estimation standard deviation with large initial error.
+	\caption[Estimation standard deviations with large initial error.]{Estimation standard deviations with large initial error.
 		The attitude standard deviation for MFG is the square root of the diagonals of $U(\tr{S}I_{3\times 3}-S)^{-1}U^T$, and for MEKF is the square root of the diagonals of the covariance matrix transformed into the inertial frame using the estimated attitude.
 		And the position standard deviation is the square root of the corresponding entry in the covariance matrix.}
 	\label{fig:posEst-std}
@@ -2545,7 +2545,7 @@ Because only the difference between the KL divergence of the two methods matters
 \begin{figure}
 	\centering
 	\includegraphics[scale=1.4]{figures/VIO-KL}
-	\caption{KL divergence $d(p||p_\text{MFG})$ and $d(p||p_\text{LM})$ of the MFG and LM-optimization methods.}
+	\caption[KL divergence of the MFG and LM-optimization methods.]{KL divergence $d(p||p_\text{MFG})$ and $d(p||p_\text{LM})$ of the MFG and LM-optimization methods.}
 	\label{fig:VIO-KL}
 \end{figure}
 
@@ -3147,7 +3147,7 @@ These will be pursued in future works.
 		\vspace{1cm}
 		\includegraphics[scale=1.3]{figures/VIO-VCU_RVI-error1}
 	\end{subfigure}
-	\caption{Estimation errors for the ``lab\_bumper1'' trial. The top row is the true and estimated trajectories.}
+	\caption[Estimation errors for the ``lab\_bumper1'' trial.]{Estimation errors for the ``lab\_bumper1'' trial. The top row is the true and estimated trajectories.}
 	\label{fig:VIO-dataset1}
 \end{figure}
 
@@ -3162,7 +3162,7 @@ These will be pursued in future works.
 		\vspace{1cm}
 		\includegraphics[scale=1.3]{figures/VIO-VCU_RVI-error2}
 	\end{subfigure}
-	\caption{Estimation errors for the ``lab\_bumper2'' trial. The top row is the true and estimated trajectories.}
+	\caption[Estimation errors for the ``lab\_bumper2'' trial.]{Estimation errors for the ``lab\_bumper2'' trial. The top row is the true and estimated trajectories.}
 	\label{fig:VIO-dataset2}
 \end{figure}
 
@@ -3177,7 +3177,7 @@ These will be pursued in future works.
 		\vspace{1cm}
 		\includegraphics[scale=1.3]{figures/VIO-VCU_RVI-error3}
 	\end{subfigure}
-	\caption{Estimation errors for the ``lab\_bumper3'' trial. The top row is the true and estimated trajectories.}
+	\caption[Estimation errors for the ``lab\_bumper3'' trial.]{Estimation errors for the ``lab\_bumper3'' trial. The top row is the true and estimated trajectories.}
 	\label{fig:VIO-dataset3}
 \end{figure}
 
@@ -3192,7 +3192,7 @@ These will be pursued in future works.
 		\vspace{1cm}
 		\includegraphics[scale=1.3]{figures/VIO-VCU_RVI-error4}
 	\end{subfigure}
-	\caption{Estimation errors for the ``lab\_bumper4'' trial. The top row is the true and estimated trajectories.}
+	\caption[Estimation errors for the ``lab\_bumper4'' trial.]{Estimation errors for the ``lab\_bumper4'' trial. The top row is the true and estimated trajectories.}
 	\label{fig:VIO-dataset4}
 \end{figure}
 
@@ -3207,6 +3207,6 @@ These will be pursued in future works.
 		\vspace{1cm}
 		\includegraphics[scale=1.3]{figures/VIO-VCU_RVI-error5}
 	\end{subfigure}
-	\caption{Estimation errors for the ``lab\_bumper5'' trial. The top row is the true and estimated trajectories.}
+	\caption[Estimation errors for the ``lab\_bumper5'' trial.]{Estimation errors for the ``lab\_bumper5'' trial. The top row is the true and estimated trajectories.}
 	\label{fig:VIO-dataset5}
 \end{figure}

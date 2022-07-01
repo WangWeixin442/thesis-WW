@@ -161,7 +161,7 @@ This is because the correlation is formulated between the ambient space of $\mat
 \begin{figure}
 	\centering
 	\includegraphics[scale=1.4]{figures/MFG-angular-linear-correlation}
-	\caption{The illustration of the cylindrical distribution with the mean angle $\pi/4$~\cite{mardia1978model}.
+	\caption[The illustration of the cylindrical distribution with the mean angle $\pi/4$~\cite{mardia1978model}.]{The illustration of the cylindrical distribution with the mean angle $\pi/4$~\cite{mardia1978model}.
 		In the left figure, the correlation between the linear variable $x\in\mathbb{R}$ and the angular variable $q=(q_1,q_2)\in\Sph^1$ is only nonzero along the tangent direction of $\mathbb{S}^1$ at $\pi/4$, and the distribution of $q$ conditioned by $x$ varies as $x$ is altered, and vice versa. 
 		However in the right figure,  the correlation is specified along the radial direction of $\Sph^1$, and there is no clear correlation between $x$ and $q$.
 		These illustrate the correlation along the tangent direction captures what we expect as a \textit{linear} correlation between two random variables.
@@ -262,7 +262,7 @@ Also, there are only $3n$ parameters required to quantify the linear correlation
 \begin{figure}
 	\centering
 	\includegraphics[scale=1.4]{figures/MFG-correlation}
-	\caption{Visualization of the attitude-linear correlation (MFGB) for $(R,x)\in\SO{3}\times\mathbb{R}^1$: the density for $R$ conditioned on $x$ is illustrated on the unit-sphere for three correlation matrices $P$. 
+	\caption[Visualization of the attitude-linear correlation (MFGB) for $(R,x)\in\SO{3}\times\mathbb{R}^1$.]{Visualization of the attitude-linear correlation (MFGB) for $(R,x)\in\SO{3}\times\mathbb{R}^1$: the density for $R$ conditioned on $x$ is illustrated on the unit-sphere for three correlation matrices $P$. 
 		More specifically, the marginal distribution for each column of $R$ is shown on the unit sphere as red, green and blue shades. 
 		The parameters are $n=1$, $\mu=0$, $\Sigma=1$, $U=V=I_{3\times3}$, $S=10I_{3\times3}$.
 		For each  $P$, three conditioning values of $x$ are considered. 
@@ -326,7 +326,7 @@ Then, each sample attitude $R_i$ has a distinct axis of rotation given by $R_i V
 \begin{figure}
 	\centering
 	\includegraphics[scale=1.4]{figures/MFG-MFGI-MFGB}
-	\caption{Difference between MFGB (top row) and MFGI (bottom row).
+	\caption[Difference between MFGB and MFGI.]{Difference between MFGB (top row) and MFGI (bottom row).
 		The conditional density of $R|x$ is illustrated on the unit sphere for varying $x$, with the red, green, and blue arrows representing the first, second, and third columns of the mean attitude, respectively.
 		Parameters are chosen as $n=1$, $\mu=0$, $\Sigma=1$, $P = [0,0,0.069]$, $U=V=I_{3\times 3}$, $S = \diag(100,3,3)$.
 		For both of MFGB and MFBI, the mean attitude of $R|x$ rotates identically about the third inertial axis.
@@ -595,7 +595,7 @@ On the other hand, when the attitude is more concentrated, say $s > 6$, the frac
 \begin{figure}
 	\centering
 	\includegraphics[scale=1.4]{figures/MFG-information}
-	\caption{The graph of $r(s) = \frac{2s\left(c(S)\partial_{11}c(S) - (\partial_1c(S))^2\right)}{c(s)\left(c(S)-\partial_{11}c(S)\right)}$ against $s$. \label{fig:MFG-information}}
+	\caption[The graph of $r(s)$ against $s$.]{The graph of $r(s) = \frac{2s\left(c(S)\partial_{11}c(S) - (\partial_1c(S))^2\right)}{c(s)\left(c(S)-\partial_{11}c(S)\right)}$ against $s$. \label{fig:MFG-information}}
 \end{figure}
 
 The proposed closed form solution of MLE is essential for designing and implementing recursive stochastic filters based on MFG, as it is inevitably used in each step of uncertainty propagation and measurement update, which typically run at more than $\SI{100}{\hertz}$.
