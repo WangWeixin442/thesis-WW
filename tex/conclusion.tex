@@ -1,0 +1,25 @@
+% !TEX root = ../thesis-WW.tex
+
+\chapter{Conclusions} \label{chap:conclusion}
+
+\section{Summary of Contributions}
+
+In this dissertation, the matrix Fisher distribution defined on $\SO{3}$ is used to model the uncertainty of 3D rotations for a rigid body.
+To apply the matrix Fisher distribution in practical estimation problems, a new recursive algorithm to calculates its higher order moments, and a new approximation for a highly concentrated case are firstly introduces.
+Next, the matrix Fisher--Gaussian (MFG) distribution is constructed on $\SO{3}\times \mathbb{R}^n$ to model the correlation between random rotations and variables in the Euclidean space.
+The MFG generalizes the application of matrix Fisher distribution into a wide variety of classic estimation problems, where the attitude must be estimated concurrently with other quantities in Euclidean space, such as sensor biases, position, and landmark locations, etc.
+In particular, recursive Bayesian filters are developed for (i) attitude estimation with a gyroscope and direction sensors, (ii) loosely coupled IMU-GNSS navigation, and (iii) visual-inertial odometry and navigation.
+Compared with the widely used Gaussian distribution, the algorithms developed in this dissertation achieves faster convergence speed and better accuracy for scenarios with large attitude uncertainty, for example, when the initial attitude is completely unknown, when there is a degree of freedom that is not properly observed, or when a sensor fails for a long period of time.
+
+\section{Future Directions}
+
+There are a few directions to further apply the techniques in directional statistics to estimation problems in practical engineering.
+First, the pose estimation algorithms that aligns two point sets proposed in Chapter \ref{section:VIO-pose} and Chapter \ref{section:VIO-pose-map} can be combined with a recursive algorithms for point cloud registration \cite{arun2018probabilistic,besl1992method,myronenko2010point}, where the correspondences between the two points sets are unknown.
+To deal with large initial attitude uncertainty for the visual odometry algorithm in Chapter \ref{section:VIO-pose-map}, the density in \eqref{eqn:VIO-transformPoint} for the map point can be decomposed into the distribution for the distance from the camera on $\mathbb{R}^1$, and the direction on $\Sph^2$, so the large dispersion for direction can be more accurately modeled by a density function on the sphere.
+In addition, the uncertainty for map points can be more carefully constructed by taking the triangulation process into account, so the uncertainty for depth becomes more dispersed when the feature is further away from the camera.
+
+Although the matrix Fisher distribution models large attitude uncertainty more accurately, it is still restrictive in the sense that it is Gaussian shaped, i.e., it is uni-modal and symmetric around the mean.
+To deal with more flexible uncertainties on $\SO{3}$, analogs of polynomial chaos expansions can be developed for the matrix Fisher distribution.
+This involves constructing a basis of orthogonal polynomials, analogous to the Gauss Hermite polynomial, with respect to the density function of matrix Fisher distribution.
+This has been done on the unit circle for the wrapped normal distribution \cite{jones2019stochastic,schmid2020angular}, but still remains to be investigated on $\SO{3}$.
+Besides, the orthogonal polynomial can be used to design more accurate quadrature rules through deterministic sampling then the unscented transform introduced in \cite{gilitschenski2015unscented,lee2018bayesian}, which will make the measurement update step of the filters designed in this dissertation more accurate.

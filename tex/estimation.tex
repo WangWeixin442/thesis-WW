@@ -3021,7 +3021,7 @@ This signifies the advantage of MFG filter that has very fast convergence speed 
 Finally, to test the proposed algorithm in visual-inertial odometry settings where there is no prior map information, the unknown map point is constructed using its measurement in the body-fixed frame by the camera.
 More specifically, suppose the pose $(R,t)$ has a density function $p_{R,t}(R,t)$, and the map point $p_i$ is measured as $p'_i = R^T(p_i-t)$ in the body-fixed frame, with a density function $p_{p'_i}(p'_i)$.
 Then using convolution, it can be shown that the probability density function of $p_i$ is
-\begin{align}
+\begin{align} \label{eqn:VIO-transformPoint}
 	p_{p_i}(p_i) = \int_{R\in\SO{3}} \int_{t\in\mathbb{R}^3} p_{R,t}(R,t) p_{p'_i}\left( R^T(p_i-t) \right) \diff t \diff R.
 \end{align}
 In particular, if $(R,t)$ follows an MFG, and $p'_i$ follows a Gaussian distribution, the density of $p_i$ becomes very complicated.
