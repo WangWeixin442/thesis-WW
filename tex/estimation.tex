@@ -820,7 +820,7 @@ First, suppose the attitude is measured by $N_a$ attitude sensors as $Z_i\in\SO{
 More specifically, given the true attitude $R_t\in\SO{3}$, the measurement error $R_t^TZ_i\in\SO{3}$ follows the matrix Fisher distribution with the parameter $F_{Z_i}\in\mathbb{R}^{3\times 3}$ for $i=1,\ldots, N_a$, which characterizes the accuracy and bias of the $i$-th attitude sensor. 
 
 Next, suppose there are also $N_v$ fixed reference vectors ${a}_j\in\mathbb{S}^2$ in the inertial reference frame, which are measured by direction sensors in the body-fixed frame as ${z}_j\in\mathbb{S}^2$ for $j=1,\ldots,N_v$.
-Furthermore, given the true attitude $R_t$, the noisy measurement ${z}_j$ is assumed to follow the von Mises Fisher distribution \cite{mardia2009directional} with mean direction $R_t^TB_j{a}_j\in\mathbb{S}^2$ and concentration parameter $\kappa_j>0$.
+Furthermore, given the true attitude $R_t$, the noisy measurement ${z}_j$ is assumed to follow the von Mises--Fisher distribution \cite{mardia2009directional} with mean direction $R_t^TB_j{a}_j\in\mathbb{S}^2$ and concentration parameter $\kappa_j>0$.
 The parameter $B_j\in\SO{3}$ specifies the constant bias of the direction sensor, and $\kappa_j$ specifies the concentration of its random noise.
 The measurements $\Big\{\{Z_i\}_{i=1}^{N_a}, \{z_j\}_{j=1}^{N_v}\Big\}$ at time $t_k$ are altogether denoted by $\mathcal{Z}_k$.
 
@@ -1291,7 +1291,7 @@ for $i\in\{1,2\}$, and they are normalized to have unit lengths.
 In the above equation, the reference directions are chosen as $a_1=e_2$ and $a_2=e_1$.
 The true attitude is denoted by $R_t$, and $v_1,v_2$ are Gaussian noises distributed by $v_1 \sim \mathcal{N}(0,0.01I_{3\times3})$, $v_2 \sim \mathcal{N}(0,\sigma_2^2I_{3\times3})$. 
 These follow the common MEKF and UKF frameworks in attitude estimation.
-To simulate the proposed MFG filters, $a_i+v_i$ for $i=1,2$ are matched to von Mises Fisher distributions by Monte Carlo sampling to obtain $\kappa_1,\kappa_2$ in \eqref{eqn:attEst-update-F} with $B_1 = B_2 = I_{3\times 3}$.
+To simulate the proposed MFG filters, $a_i+v_i$ for $i=1,2$ are matched to von Mises--Fisher distributions by Monte Carlo sampling to obtain $\kappa_1,\kappa_2$ in \eqref{eqn:attEst-update-F} with $B_1 = B_2 = I_{3\times 3}$.
 The gyroscope measurements are sampled at \SI{150}{\hertz}, and the two direction measurements are sampled at \SI{30}{\hertz}.
 The simulation period is \SI{300}{\second}.
 
@@ -2149,7 +2149,7 @@ More specifically, the measurements $r'_i$ can be written as
 	r'_i = R^Tr_i + \mathcal{N}(0, d_i\sigma^2 I_{3\times 3}),
 \end{align}
 for $i = 1,\ldots,N-1$.
-To approximate \eqref{eqn:VIO-likelihood-marginal-r} into a matrix Fisher density, the Gaussian distribution of $r'_i$ is first approximated by a von Mises Fisher distribution on $\Sph^2$ according to the following lemma.
+To approximate \eqref{eqn:VIO-likelihood-marginal-r} into a matrix Fisher density, the Gaussian distribution of $r'_i$ is first approximated by a von Mises--Fisher distribution on $\Sph^2$ according to the following lemma.
 
 \begin{lemma} \label{thm:VIO-GaussToVM}
 	The density function of $\tfrac{r'_i}{\norm{r'_i}}$ in \eqref{eqn:VIO-direction-measurement} can be approximated by
@@ -2165,7 +2165,7 @@ To approximate \eqref{eqn:VIO-likelihood-marginal-r} into a matrix Fisher densit
 \begin{proof}
 	Because $r'_i$ follows a Gaussian distribution, its direction $r'_i/\norm{r'_i}$ follows a projected normal distribution \cite{mardia2009directional}.
 	And its mean resultant length \cite{presnell2008mean} can be calculated as on the right hand side of \eqref{eqn:VIO-resultantLenth}.
-	Based on the maximum likelihood estimation \cite{mardia2009directional} for a von Mises Fisher distribution, $r'_i/\norm{r'_i}$ can be matched to a von Mises Fisher distribution with mean direction $R^Tr_i/\norm{r_i}$, and the concentration parameter solved from \eqref{eqn:VIO-resultantLenth}.
+	Based on the maximum likelihood estimation \cite{mardia2009directional} for a von Mises--Fisher distribution, $r'_i/\norm{r'_i}$ can be matched to a von Mises--Fisher distribution with mean direction $R^Tr_i/\norm{r_i}$, and the concentration parameter solved from \eqref{eqn:VIO-resultantLenth}.
 	The density function is given in \eqref{eqn:VIO-direction-vonMises}.
 \end{proof}
 
@@ -2192,7 +2192,7 @@ Then the reweighed sigma points $\{(R_j,w_j^+)\}_{j=1}^7$ can be regarded as wei
 And the expectation $\expect{R}$ can be calculated as $\expect{R} = \sum_{j=1} w_j^+R_j$ after normalization, which can be matched to a matrix Fisher distribution using the MLE as introduced in Chapter \ref{section:MF-MF}.
 
 Note that the update of weights in \eqref{eqn:VIO-update-sigmapoints} is similar to that in \eqref{eqn:posEst-update-sigmapoints}, so the progressive update procedure in Chapter \ref{section:posEst-update} can also be used here to improve accuracy.
-In addition, even if all measurements have the same covariance matrix, \eqref{eqn:VIO-likelihood-marginal-F} is still not perfect due to the approximation of projected normal distribution as von Mises Fisher distribution in Theorem \ref{thm:VIO-GaussToVM}.
+In addition, even if all measurements have the same covariance matrix, \eqref{eqn:VIO-likelihood-marginal-F} is still not perfect due to the approximation of projected normal distribution as von Mises--Fisher distribution in Theorem \ref{thm:VIO-GaussToVM}.
 So using this importance sampling approach with \eqref{eqn:VIO-likelihood-marginal-F} as the proposal distribution is also expected to improve accuracy even for the case of same covariance matrix.
 The pseudocode to match \eqref{eqn:VIO-likelihood-marginal} to a matrix Fisher density is given in Table \ref{tab:VIO-marginal}.
 

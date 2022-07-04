@@ -11,7 +11,7 @@ In particular, chapter \ref{section:MF-SO(3)} reviews some basic properties of $
 The matrix Fisher distribution is formally introduced in chapter \ref{section:MF-MF}, and its construction and properties are also reviewed.
 In chapter \ref{section:MF-Bingham}, the Bingham distribution defined on $\Sph^3$, which is equivalent to the matrix Fisher distribution, is reviewed.
 Next, some new results on the computation of higher order moments of matrix Fisher distribution are developed in Chapter \ref{section:MF-moments}.
-And finally, Chapter \ref{section:MF-approx} introduces two new approximations when the matrix Fisher distribution is highly concentrated in one or two directions.
+And finally, Chapter \ref{section:MF-approx} introduces a new approximation when the matrix Fisher distribution is highly concentrated in two directions.
 
 \section{Properties of \SO{3} as a Lie Group} \label{section:MF-SO(3)}
 
@@ -19,7 +19,7 @@ The three dimensional special orthogonal group $\SO{3}$ is defined as
 \begin{align}
 	\SO{3} = \left\{ R\in\mathbb{R}^{3\times 3} \,|\, RR^T = I_{3\times 3},\, \det R = 1 \right\}.
 \end{align}
-An element $R\in\SO{3}$ is usually called a rotation matrix, which is used to transform the coordinates of a vector after it undergoes a rotation in the three dimensional space.
+An element $R\in\SO{3}$ is usually called a rotation matrix, which is used to transform the coordinates of a vector after it undergoes a rotation in the 3D Euclidean space.
 Suppose there are two reference frames, the inertial frame, or the world frame which is considered fixed; and the body-fixed frame, which is fixed to the rigid body.
 For a vector $\vec{v}$, let its coordinates in the inertial frame be denoted by $v^I \in \mathbb{R}^3$, and its coordinates in the body-fixed frame be denoted by $v^B \in \mathbb{R}^3$.
 In this dissertation, $R$ is used to transform $v^B$ to $v^I$, i.e.,
@@ -79,7 +79,7 @@ where $A,B\in\so{3}$, and $C\in\so{3}$ is a correction term composed of iterated
 \begin{align}
 	C = \frac{1}{2}[A,B] + \frac{1}{12}[A,[A,B]] - \frac{1}{12}[B,[A,B]] + \cdots,
 \end{align}
-where the Lie brackets $[A,B] = AB-BA$ is also known as the matrix commutator.
+where the Lie bracket $[A,B] = AB-BA$ is also known as the matrix commutator.
 It should be noted that $\so{3}$ is closed under Lie brackets.
 
 For a curve $R(t)\in\SO{3}$, its angular velocity can be expressed in two different ways
@@ -108,7 +108,7 @@ Also, for any $R\in\SO{3}$, $A\in\mathbb{R}^{3\times 3}$, and $x\in\mathbb{R}^{3
 
 \section{Matrix Fisher Distribution} \label{section:MF-MF}
 
-In this chapter, the definition, properties and construction of the matrix Fisher distribution on $\SO{3}$ are reviewed.
+In this subsection, the definition, properties and construction of the matrix Fisher distribution on $\SO{3}$ are reviewed.
 
 \subsection{Definition and Properties}
 
@@ -195,7 +195,7 @@ Given the relationship \eqref{eqn:MF-S2D}, it can be shown that $d_i+d_j$ and $s
 	where the integrand has the same sign as $s_i$ over $u\in[-1,1)$.
 	So $d_i\neq 0$.
 	
-	Finally to prove the monotonicity, let $\alpha=s_i+s_j$ and $\beta = s_i-s_j$, which yield $s_i = \frac{1}{2}(\alpha+\beta)$ and $s_j = \frac{1}{2}(\alpha-\beta)$.
+	Finally to prove the monotonicity, let $\alpha=s_i+s_j$ and $\beta = s_i-s_j$, which yields $s_i = \frac{1}{2}(\alpha+\beta)$ and $s_j = \frac{1}{2}(\alpha-\beta)$.
 	From the chain rule,
 	\begin{align} \label{eqn:MF-dij_sij}
 		\frac{\partial (d_i+d_j)}{\partial \alpha} = \frac{1}{2} \left\{ \frac{\partial d_i+d_j}{\partial s_i} + \frac{\partial d_i+d_j}{\partial s_j} \right\}.
@@ -213,7 +213,7 @@ Given the relationship \eqref{eqn:MF-S2D}, it can be shown that $d_i+d_j$ and $s
 
 This lemma shows that $S$ and $D$ have a one-to-one correspondence, so for every $D$ , a unique $S$ can be solve from \eqref{eqn:MF-S2D}.
 Therefore, from \eqref{eqn:MF-ER}, it can be seen that $\expect{R}$ and $F$ carry the same information.
-In other words, $\expect{R}$ is a sufficient statistics for $F$.
+In other words, $\expect{R}$ is a sufficient statistic for $F$.
 Given $\expect{R}$, let its pSVD be given in \eqref{eqn:MF-ER}, and let $S = \diag(s_1,s_2,s_3)$ be solved from $D$ using \eqref{eqn:MF-S2D},
 then the maximum likelihood estimation (MLE) of $F$ is given by $F=USV^T$ \cite{khatri1977mises,lee2018bayesian}.
 This can be used to inference a matrix Fisher distribution from random samples.
@@ -221,7 +221,7 @@ This can be used to inference a matrix Fisher distribution from random samples.
 \subsection{Construction}
 
 In directional statistics, a generic way of constructing a ``Gaussian'' like probability distribution on a manifold is through conditioning \cite{pewsey2021recent}.
-The idea is that the manifold is first embedded into a Euclidean space, where a Gaussian distribution is defined.
+The idea is that the manifold is first embedded into Euclidean space, where a Gaussian distribution is defined.
 Then the Gaussian distribution is conditioned onto the manifold, and becomes a new probability distribution on the manifold.
 A number of famous models can be constructed using this approach, including von Mises and von Mises--Fisher distribution on $\Sph^n$ \cite{mardia2009directional}, the matrix Fisher distribution on Stiefel manifold \cite{downs1972orientation}, the Bingham distribution on $\Sph^n$ \cite{bingham1974antipodally}, and the distribution on the cylinder \cite{mardia1978model}, etc.
 
@@ -290,7 +290,7 @@ The mode of Bingham distribution is $q = m_0$, which maximizes the density \eqre
 The principal axes are given by the unit quaternions $m_1,m_2,m_3\in\Sph^3$, and the concentration along the principal axes are described by $-z_1,-z_2,-z_3$ respectively, with larger $-z_i$ implying higher concentration.
 For the MLE of the parameter $A$, suppose the second order moment $\expect{qq^T}$ is given.
 Let its eigen decomposition be given in \eqref{eqn:Bh-Eqq}, and let $Z = \diag(z_0,z_1,z_2,z_3)$ be solved from \eqref{eqn:Bh-Z2D} using $D$, then $A = MZM^T$.
-The Bingham distribution can also be constructed by conditioning a Gaussian distribution from $\mathbb{R}^4$ onto $\Sph^3$, the details of this construction is available in \cite{bingham1974antipodally}.
+The Bingham distribution can also be constructed by conditioning a Gaussian distribution from $\mathbb{R}^4$ onto $\Sph^3$, the detail of this construction is available in \cite{bingham1974antipodally}.
 
 \subsection{Equivalence With the Matrix Fisher Distribution}
 
@@ -323,8 +323,9 @@ Specifically, any $M\in\SO{4}$ can be uniquely decomposed into
 \end{align}
 for some $p,q\in\Sph^3$ up to the signs of $p$ and $q$.
 
-The Lie group $\Sph^3$ is isomorphic to $\mathrm{SU}(2)$, which is also a double cover of $\SO{3}$, so $q$ and $-q$ represent the same 3D rotation.
-The conversion from a rotation vector to a unit quaternion is given in \eqref{eqn:rv2qua}, together with $\eqref{eqn:aa2rot}$, this defines a Lie group homomorphism $\varphi:\, \Sph^3\to\SO{3}$
+The Lie group $\Sph^3$ is isomorphic to $\mathrm{SU}(2)$, which is a double cover of $\SO{3}$, so $q$ and $-q$ represent the same 3D rotation.
+The conversion from a rotation vector to a unit quaternion is given in \eqref{eqn:rv2qua}.
+Together with $\eqref{eqn:aa2rot}$, this defines a Lie group homomorphism $\varphi:\, \Sph^3\to\SO{3}$
 \begin{align} \label{eqn:SO3-Sph3}
 	q \mapsto \varphi(q) =  \begin{bmatrix}
 		1-2(q_2^2+q_3^2) & 2(q_1q_2-q_0q_3) & 2(q_1q_3+q_0q_2) \\
@@ -413,12 +414,12 @@ The derivative $\partial c_M(S)/\partial s_k$ can be directly obtained by taking
 \end{align}
 for $(i,j,k) \in \{(1,2,3),(2,3,1),(3,1,2)\}$.
 Moreover, the derivative $\partial c_B(Z)/\partial z_j$ can be evaluated using the approach proposed in \cite{kume2007derivatives} by computing the normalizing constant of a Bingham distribution on $\Sph^5$.
-Higher order derivatives of $c_M(S)$ can be calculated using a recursive algorithm in Theorem \ref{thm:MF-moment-dcds} introduced in Chapter \ref{section:MF-moments}.
+Higher order derivatives of $c_M(S)$ can be calculated using a recursive algorithm in Theorem \ref{thm:MF-moment-dcds} to be introduced in Chapter \ref{section:MF-moments}.
 In particular, the second order derivatives of $c_M(S)$ can be evaluated by solving a simple linear system using the first order derivatives, as given in Theorem \ref{thm:MF-moment-dcds-second}.
 
 \section{Central Moments of Matrix Fisher Distribution} \label{section:MF-moments}
 
-This chapter presents a new algorithms to compute the higher order moments of the matrix Fisher distribution on $\SO{3}$.
+This section presents a new algorithms to compute the higher order moments of the matrix Fisher distribution on $\SO{3}$.
 The algorithm is recursive in the order of the moments, and is able to compute moments up to an arbitrary order in theory, despite it becomes prohibitively computational expansive when the order is too high.
 A set of non-recursive expressions for the second and third order moments are given in Appendix \ref{app:MF-moment-second-third}.
 Also, if not stated otherwise, this chapter assumes $s_1$, $s_2$ and $|s_3|$ have distinct values to avoid a singular case in the recursive formula.
@@ -428,7 +429,7 @@ However, this approximation becomes inaccurate when the order is very high due t
 \subsection{The Central Moments}
 
 For a random rotation matrix $R\sim\mathcal{M}(F)$, let $F=USV^T$ be its pSVD, and $Q = U^TRV$.
-This chapter calculates the following moments
+This section calculates the following moments
 \begin{align} \label{eqn:MF-moment-int}
 	\expect{Q_{i_1j_1} \cdots Q_{i_nj_n}} = \frac{1}{c(S)} \int_{Q\in\SO{3}} Q_{i_1j_1} \cdots Q_{i_nj_n} \etr{SQ^T} \diff Q,
 \end{align}
@@ -500,7 +501,7 @@ This is formulated in the following lemma:
 \begin{lemma} \label{lemma:MF-moment-dsdT-zero}
 	Suppose $s'_1 \neq s'_2 \neq |s'_3|$, and let $n_1\in\mathbb{N}$ be the number of occurrence of $1$ in $\{i_1,j_1,\ldots,i_t,j_t\}$.
 	The integers $n_2$ and $n_3$ are defined similarly. 
-	Then  $\left. \partial_m s'_\alpha \right|_{T=0} = 0$ if any of $n_1$, $n_2$, or $n_3$ is odd.
+	Then $\left. \partial_m s'_\alpha \right|_{T=0} = 0$ if any of $n_1$, $n_2$, or $n_3$ is odd.
 \end{lemma}
 \begin{proof}
 	Let $(\gamma_1,\gamma_2,\gamma_3) \in \{(1,-1,-1),(-1,1,-1),(-1,-1,1)\}$ and $\Gamma = \diag(\gamma_1,\gamma_2,\gamma_3)$.
@@ -655,21 +656,21 @@ Next, a recursive calculation for $\partial^n c(S) / (\partial s_{i_1} \cdots \p
 	Thus, \eqref{eqn:MF-moment-dcdsisi} defines a recursion which terminates in finite steps when $n$ hits 1.
 	
 	Next suppose $i_1\neq i_2$.
-	Note $Q_{k_1k_1} = Q_{i_1i_1}Q_{i_2i_2}-Q_{i_1i_2}Q_{i_2i_1}$ by \eqref{eqn:SO3-Rkk}, from which \eqref{eqn:MF-moment-dcdsi1si2} can be shown similarly as the case (i).
+	Note that $Q_{k_1k_1} = Q_{i_1i_1}Q_{i_2i_2}-Q_{i_1i_2}Q_{i_2i_1}$ by \eqref{eqn:SO3-Rkk}, so \eqref{eqn:MF-moment-dcdsi1si2} can be shown similarly as the case (i).
 \end{proof}
 
 When $n=1$, $\partial c(S)/\partial s_i$ can be calculated using the one dimensional integration formula in \eqref{eqn:MF-S2D-1dint}, as the terminating step for the above recursion.
-Also, in 
+Also, in Appendix \ref{app:MF-moment-second-third}, the second order derivative of $c(S)$ is obtained by solving a very simple linear system using the first order derivatives.
 
 \subsection{Numerical Verification}
 
-The presented algorithm numerically is validated numerically with 32 different $S$, where $10 \leq s_1 \leq 50$, $10 \leq s_2 \leq s_1$, $-s_2 \leq s_3 \leq s_2$, and $|s_i|-|s_j| \geq 5$ for any $i\neq j\in\{1,2,3\}$.
+The presented algorithm is validated numerically with 32 different $S$, where $10 \leq s_1 \leq 50$, $10 \leq s_2 \leq s_1$, $-s_2 \leq s_3 \leq s_2$, and $|s_i|-|s_j| \geq 5$ for any $i\neq j\in\{1,2,3\}$.
 A hundred million random samples are drawn from the corresponding matrix Fisher distributions using the method in \cite{kent2013new}.
-All of central moments up to the fourth order, a fifth order $\expect{Q_{23}Q_{32}Q_{12}Q_{23}Q_{31}}$, and a sixth order $\expect{Q_{11}Q_{23}Q_{32}Q_{12}Q_{23}Q_{31}}$ are calculated numerically from the random samples and they are compared with the proposed recursive method.
+All of central moments up to the fourth order, a fifth order $\expect{Q_{23}Q_{32}Q_{12}Q_{23}Q_{31}}$, and a sixth order $\expect{Q_{11}Q_{23}Q_{32}Q_{12}Q_{23}Q_{31}}$ are calculated empirically from the random samples, and they are compared with the proposed recursive method.
 The differences between zero moments specified by Corollary \ref{cor:MF-moment-zero} are at most $7.08\times 10^{-5}$ for the two methods, and the percentage differences between non-zero moments are less than 5.6\%.
 Two specific examples are listed in Table \ref{tab:MF-moment-result}.
 The computation time for the sixth order moment is about 2 minutes, and for a fourth order moment is about 0.2 seconds, using a typical desktop CPU.
-A Matlab implementation of the presented algorithm can be found in \cite{MFMomentCode}.
+A MATLAB implementation of the presented algorithm can be found in \cite{MFMomentCode}.
 
 \begin{table}
 	\centering
@@ -706,9 +707,9 @@ This makes \eqref{eqn:MF-S2D} extremely difficult to solve when $S$ has very lar
 
 However, large $S$ means the matrix Fisher distribution is highly concentrated.
 As an analog of Gaussian distribution on $\SO{3}$, it can actually be approximated by a Gaussian distribution when $S$ is large.
-This is similar to the von Mises and von Mises Fisher distributions on $\Sph^n$ \cite{mardia2009directional}.
+This is similar to the von Mises and von Mises--Fisher distributions on $\Sph^n$ \cite{mardia2009directional}.
 Nevertheless, since $\SO{3}$ has three degrees of freedom, the number of degrees of freedom in which the distribution is highly concentrated must be specified.
-In the subsequent three subsections, the cases when the matrix Fisher distribution is highly concentrated in all three degrees of freedom, and in two degrees of freedom, are discussed.
+In the subsequent two subsections, the cases when the matrix Fisher distribution is highly concentrated in all three degrees of freedom, and in two degrees of freedom, are discussed.
 And these approximations lead to simplifications of the normalizing constant, and its first order derivatives, which are computational costly to be evaluated.
 The results can be further used to expedite the MLE of the parameter F, which requires solving the partial differential equation \eqref{eqn:MF-S2D} involving the normalizing constant.
 Unfortunately, we were unable to give an approximation when the matrix Fisher distribution is only highly concentrated in one degree of freedom using the same strategy.
@@ -716,7 +717,7 @@ Unfortunately, we were unable to give an approximation when the matrix Fisher di
 \subsection{Highly Concentrated in Three Degrees of Freedom}
 
 As shown in \eqref{eqn:MF-density-principal}, the concentration of a matrix Fisher distribution along the $i$-th principal axis is controlled by $s_j+s_k$ for $i\neq j\neq k$.
-Since $s_1+s_2 \geq s_1+s_3 \geq s_2+s_3$, $s_2+s_3 \gg 0$ implies the distribution is highly concentrated in all three degrees of freedom.
+Thus $s_1+s_2 \geq s_1+s_3 \geq s_2+s_3$, $s_2+s_3 \gg 0$ implies the distribution is highly concentrated in all three degrees of freedom.
 The Gaussian approximation for this case has been studied in \cite{lee2018bayesian-b}, and is reviewed in this subsection.
 
 \begin{theorem}[\cite{lee2018bayesian-b}] \label{thm:MF-approx-1d}
@@ -782,13 +783,13 @@ The tested parameter is when $S = sI_{3\times 3}$, for $s$ ranging from 0.1 to 1
 It is shown that all calculations agree well when $s > 50$, whereas when $s < 50$, the two approximations deviate from the other two calculations, due to that the distribution is no longer highly concentrated.
 
 The derivative of $c(S)$ is compared as $1-d_1 = 1-\tfrac{1}{c(S)} \tfrac{\partial c(S)}{\partial s_1}$ in Figure \ref{fig:MF-S2D-approx1}.
-Again, all calculates are very close when $s>100$, but the two approximations become less accurate when the distribution is not highly concentrated.
+Again, all calculates are very close when $s>10$, but the two approximations become less accurate when the distribution is not highly concentrated.
 It should be note that for extremely large $s$, for example when $s > 10^4$, the one dimensional integral formula, especially for the derivative \ref{eqn:MF-S2D-1dint}, becomes inaccurate when implemented with MATLAB \texttt{integral} function.
 
 \subsection{Highly Concentrated in Two Degrees of Freedom} \label{section:MF-approx-2}
 
-In this subsection, the case when $s_1+s_3\gg 0$ is considered, i.e., the matrix Fisher distribution is highly concentrated along the second and third principal axes, but may have large dispersion along the first axis.
-Note that because $s_1 \geq s_2 \geq |s_3| \geq 0$, $s_1+s_3\gg 0$ is equivalent to $s_1 \gg s_2$.
+In this subsection, the case when $s_1+s_3\gg s_2+s_3 \geq 0$ is considered, i.e., the matrix Fisher distribution is highly concentrated along the second and third principal axes, but has large dispersion along the first axis.
+Note that because $s_1 \geq s_2 \geq |s_3| \geq 0$, $s_1+s_3\gg s_2+s_3$ is equivalent to $s_1 \gg s_2$.
 It is proved in this case, the matrix Fisher distribution can be approximated by a combination of a two dimensional Gaussian distribution in $\mathbb{R}^2$, and a one dimensional von Mises distribution on $\Sph^1$.
 
 \begin{theorem} \label{thm:MF-approx-2d}
@@ -842,7 +843,7 @@ And the Haar measure $\diff{Q}$ can be decomposed as $\tfrac{1}{8\pi^2} \diff \t
 This decomposition can be used to obtain an approximation of the normalizing constant given in the next Corollary.
 
 \begin{corollary}
-	If $s_1+s_3 \gg 0$, then
+	If $s_1+s_3 \gg s_2+s_3$, then
 	\begin{align}
 		c(S) &\approx \frac{\exp(s_1)I_0(s_2+s_3)}{2\sqrt{(s_1+s_2)(s_1+s_3)}}, \label{eqn:MF-normalizing-approx2} \\
 		\frac{1}{c(S)}\frac{\partial c(S)}{\partial s_1} &\approx 1 - \frac{1}{2}\left( \frac{1}{s_1+s_2} + \frac{1}{s_1+s_3} \right), \label{eqn:MF-S2D-approx2-1} \\
