@@ -226,7 +226,7 @@ Because the attitude error $v$ is usually small, it avoids the singularity of th
 MEKF remains one of the most robust and efficient attitude filters, which has been validated by several NASA space missions \cite{crassidis2007survey}.
 The unit quaternion $q$ in MEKF can be replaced by a rotation matrix $R$ without changing the structure of the filter.
 Also, in \eqref{eqn:attitude error representation}, the attitude error $v$ is expressed in the body-fixed frame, and it can be changed into the inertial frame by reversing the order of multiplication
-\begin{align}
+\begin{align} \label{eqn:attitude error representation-inertial}
 	q_t = \delta q\{v\} \otimes q.
 \end{align}
 This convention has some advantages over \eqref{eqn:attitude error representation} \cite{gai1985star,li2012improving} which potentially injects some false information from the measurement when there is an unobserved degree of freedom.

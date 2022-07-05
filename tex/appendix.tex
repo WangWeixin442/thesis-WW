@@ -350,7 +350,7 @@ Similarly, the single reference direction \eqref{eqn:observability-measurement-i
 	x &= R^Ta, \label{eqn:observability-measurement-inertial-deterministic} \\
 	y &= Rb. \label{eqn:observability-measurement-body-deterministic}
 \end{align}
-Then the discrete version of Theorem \ref{thm:observability-nonobs} and Theorem \ref{thm:observability-obs} is formulated as \cite{hermann1977nonlinear}:
+Then the deterministic version of Theorem \ref{thm:observability-nonobs} and Theorem \ref{thm:observability-obs} is formulated as \cite{hermann1977nonlinear}:
 
 \begin{theorem}
 	The system \eqref{eqn:observability-kinematics-right-deterministic} and \eqref{eqn:observability-measurement-inertial-deterministic}, and the system \eqref{eqn:observability-kinematics-left-deterministic} and \eqref{eqn:observability-measurement-body-deterministic} are weakly locally observable.
@@ -579,7 +579,7 @@ Specifically, for any $A\in\mathbb{R}^{3\times 3}$, it is defined as
 	\end{subequations}
 \end{theorem}
 \begin{proof}
-	Equation \eqref{eqn:posEst-prop-ExvR_{k+1}-taylor} can be derived exactly the same as \eqref{eqn:attEst-prop-ExvR_{k+1}-taylor} in the proof of Theorem \ref{thm:attEst-prop-E(R_{k+1})}, and that $\Delta W_{gu}$ is independent on $(R_k,x_k)$, and $\expect{((H_{gu}\Delta W_{gu})^\wedge)^2} = h(G_u- \tr{G_u}I_{3\times 3})$.
+	Equation \eqref{eqn:posEst-prop-ExvR_{k+1}-taylor} can be derived exactly the same as \eqref{eqn:attEst-prop-ExvR_{k+1}-taylor} in the proof of Theorem \ref{thm:attEst-prop-E(R_{k+1})}, noting that $\Delta W_{gu}$ is independent on $(R_k,x_k)$, and $\expect{((H_{gu}\Delta W_{gu})^\wedge)^2} = h(G_u- \tr{G_u}I_{3\times 3})$.
 	Note that $\Lambda(R_k\delta R_k) = \tilde{U}\tilde{\nu}_R$ for MFGI, and $\Lambda(R_k\delta R_k) = \tilde{V}\tilde{\nu}_R$ for MFGB.
 	Using a similar calculation as \eqref{eqn:MFG-Exx-proof}, it can be shown that
 	\begin{align} \label{eqn:posEst-prop-ExLambda1-proof}
@@ -599,8 +599,8 @@ Specifically, for any $A\in\mathbb{R}^{3\times 3}$, it is defined as
 	\end{align}
 	Note that $\Lambda\left( R_k (\hat{b}_{g,k}-\hat{\mu}_{b_g,k}) \delta R_k \right)$ can be simplified as
 	\begin{flalign*}
-		\text{MFGI} && \Lambda\left( R_k (\hat{b}_{g,k}-\hat{\mu}_{b_g,k}) \delta R_k \right) &= \tilde{U} \Gamma_Q V_k^T (b_{g,k}-\mu_{b_g,k}), && \\
-		\text{MFGB} && \Lambda\left( R_k (\hat{b}_{g,k}-\hat{\mu}_{b_g,k}) \delta R_k \right) &= \tilde{V} \Gamma_Q V_k^T (b_{g,k}-\mu_{b_g,k}). &&
+		\text{(MFGI)} && \Lambda\left( R_k (\hat{b}_{g,k}-\hat{\mu}_{b_g,k}) \delta R_k \right) &= \tilde{U} \Gamma_Q V_k^T (b_{g,k}-\mu_{b_g,k}), && \\
+		\text{(MFGB)} && \Lambda\left( R_k (\hat{b}_{g,k}-\hat{\mu}_{b_g,k}) \delta R_k \right) &= \tilde{V} \Gamma_Q V_k^T (b_{g,k}-\mu_{b_g,k}). &&
 	\end{flalign*}
 	Also, it can be shown that
 	\begin{align*}
@@ -809,5 +809,5 @@ Next, the moments for $y|R$ and $p_i|R$ according to the posterior density \eqre
 		&= (I-F_i)\bar{p}_i + K_i(Rp'_i+\mu'_{t|R}),
 	\end{align*}
 	where $\mu'_{t|R}$ is the first three columns of $\mu'_{y|R}$.
-	The above calculations are used when integration the left hand side of the moments with respect to the last term of \eqref{eqn:VIO-map-posterior-factor2}, and evaluating the resulting moments with respect to $\mathcal{M}(F^+)$, which is the matrix Fisher distribution matched to the first three terms on the right hand side of \eqref{eqn:VIO-map-posterior-factor2}.
+	The above calculations are used when integrating the left hand side of the moments with respect to the last term of \eqref{eqn:VIO-map-posterior-factor2}, and evaluating the resulting moments with respect to $\mathcal{M}(F^+)$, which is the matrix Fisher distribution matched to the first three terms on the right hand side of \eqref{eqn:VIO-map-posterior-factor2}.
 \end{proof}
