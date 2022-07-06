@@ -2565,7 +2565,40 @@ The results are presented in Figure \ref{fig:VIO-KL}.
 Because the constant $\log(c)$ is not calculated, the KL divergence in the figure is sometimes negative.
 It can be seen that when $N>10$, the KL divergence for the LM method is slightly lower, indicating a slightly better estimation of the uncertainty.
 When $N \leq 10$, because the uncertainty in pose increases, the KL-divergence of the MFG becomes smaller.
-And when $N=4$, it becomes notably smaller than the LM method, indicating MFG is more accurate when dealing with very large uncertainty in the pose.
+And when $N=4$ or 3, it becomes notably smaller than the LM method, indicating MFG is more accurate when dealing with very large uncertainty in the pose.
+
+Next, the pose estimation algorithms is challenged with a singular configuration when the attitude has one degree of freedom that is not properly observed.
+More specifically, the true attitude is set as $R_t = \expb{\tfrac{\pi}{2}\hat{e}_1}\expb{\tfrac{\pi}{2}\hat{e}_2}$, and the true translation is set as $t_t = [0,0,0]^T$.
+There are ten map points, scattered as $p_i = [5,0,0]^T + \xi_i$, where $\xi_i\in\mathbb{R}^3$ is a three dimensional uniform distribution on $[-1,1] \times [-a,a]^2$, and $a$ is varied in $\{1,0.1,0.01,0\}$.
+As $a$ is decreased, the map points are closer to the $e_1$-axis of the inertial frame, making the rotation about this axis gradually becomes unobservable.
+The measurement noise is set as $A_1 = \cdots = A_N = 0.1^2I_{3\times 3}$.
+
+\begin{table}
+	\centering
+	\caption{Estimation error $\pm$ S.D. (p) of the pose for a degenerative configuration}
+	\label{tab:VIO-pose-error2}
+	\footnotesize
+	\begin{tabular}{l|cccc}
+		\hline\hline
+		estimator & \multicolumn{4}{c}{MFG} \\ \hline
+		a & 1 & 0.1 & 0.01 & 0 \\ \hline
+		att err (deg) & 3.93$\pm$1.79 (0.448) & 24.0$\pm$21.7 (0.642) & 82.4$\pm$51.4 (0.065) & 90.1$\pm$0.2 (0.279) \\
+		pos err & 0.28$\pm$0.15 (0.339) & 0.36$\pm$0.20 (<0.001) & 0.14$\pm$0.06 (<0.001) & 0.11$\pm$0.08 (<0.001) \\
+		\midrule[1.2pt]
+		estimator & \multicolumn{4}{c}{LM optimization} \\ \hline
+		a & 1 & 0.1 & 0.01 & 0 \\ \hline
+		att err (deg) & 3.93$\pm$1.79 & 24.0$\pm$21.8 & 80.7$\pm$51.2 & 90.1$\pm$0.1 \\
+		pos err & 0.28$\pm$0.15 & 0.39$\pm$0.22 & 0.39$\pm$0.22 & 0.38$\pm$0.20 \\
+		\hline\hline
+	\end{tabular}
+\end{table}
+
+The estimation errors of the MFG and LM methods are listed in Table \ref{tab:VIO-pose-error2}.
+It is shown that the two methods have very similar accuracy of attitude errors, and the error becomes very large when $a = 0.01$ or 0, indicating that the attitude cannot be fully observed due to the placement of the map points.
+On the other hand, the translation accuracy of the MFG method is much better than the LM optimization when $a = 0.01$ or 0.
+Inspection of the Jacobian $J_r^TJ_R$ indicates that it becomes almost singular, due to the unobservability of attitude for the LM optimization.
+Since $J_r^TJ_R$ is used to calculate the step size in the LM-optimization, this possibly explains why it has worse accuracy.
+Interestingly, when $a$ is close to zero, the translation accuracy is even better than that when $a$ is relatively large.
 
 Finally, the measurement update algorithm in Table \ref{tab:VIO-update} is combined with the uncertainty propagation in Table \ref{tab:posEst-prop} into a recursive Bayesian filter.
 This filter is compared with the MEKF based method in a visual-inertial navigation setting.
