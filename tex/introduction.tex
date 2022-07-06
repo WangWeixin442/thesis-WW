@@ -5,7 +5,7 @@
 The 3D attitude of a rigid body is a key concept in modeling our physical world.
 It can be defined as the directions of the three axes of an orthogonal frame fixed to the rigid body in the inertial frame, and therefore describes the orientation of the rigid body.
 The attitude is a state involved with rigid body mechanics, and is usually controlled in a robotic system through actuators to achieve the goal of alignment or moving to a specific position.
-As a feedback controller also needs estimation of the state, a number of sensors are usually used to determine the attitude of the rigid body.
+As a feedback controller also needs the estimation of the state, a number of sensors are usually used to determine the attitude of the rigid body.
 These sensors can usually be classified into the following categories:
 (i) infrastructures that measure the attitude directly, for example an optical motion capture system;
 (ii) a gyroscope that measures the angular velocity;
@@ -15,26 +15,26 @@ These sensors can usually be classified into the following categories:
 These sensors provide either direct or indirect information of the attitude of a rigid body.
 But one common feature is that they are all subject to measurement noises.
 The noise characteristics of different types of measurement are also different.
-For example, the attitude integrated from angular velocity measured by a gyroscope suffers from accumulated integration of bias, and therefore is only accurate within a short period of time.
+For example, the attitude integrated from angular velocity measured by a gyroscope suffers from accumulated integration of bias, and therefore it is reliable within a short period of time.
 It is similar for a visual odometry algorithm that estimates the attitude by capturing surrounding visual features using cameras.
 On the other hand, the attitude inferred from measurements of reference directions may be affected by instantaneous disturbances, but the average noise remains low for a long period of time.
-Thus, it is common that different sensors are combined to get a robust attitude estimate, by leveraging their different noise characteristics.
+Thus, it is common that different sensors are combined to obtain a robust attitude estimate, by leveraging their different noise characteristics.
 
 This motivates the need to model the uncertainty of the attitude.
-As when combining the estimates from two or more different measurement sources, one must decide on how much confidence should be placed on each individual source.
+As when combining the estimates from two or more different measurement sources, one must decide how much confidence should be placed on each individual source.
 As a rule of thumb, the measurement with more uncertainty should play a less important role in determining the final estimation.
 Consequently, a metric that describes the uncertainty for the estimated attitude is needed to weigh the measurements.
 From another point of view, uncertainty of the final estimation can play an important role in decision making for a robotic system.
 For example, if the uncertainty for attitude is too large, a robot may take some safety measures like slowing down, to avoid possible collisions.
 
-This dissertation focuses on modeling the uncertainty of the rigid body attitude in a geometric and global way.
-More specifically, the uncertainty is formulated on the curved and compact manifold where the attitude naturally resides in a global fashion.
+This dissertation focuses on modeling the uncertainty of the rigid body attitude in a geometric and global fashion.
+More specifically, the uncertainty is formulated on the curved and compact manifold where the attitude naturally resides in an intrinsic fashion.
 Furthermore, a model for the correlation between attitude and other Euclidean quantities, for example the 3D location, is proposed.
 Based on these, three typical estimation problems in aerospace and robotics engineering are investigated: (i) attitude estimation with a gyroscope and direction sensors, (ii) loosely coupled IMU-GNSS integration for navigation, and (iii) visual-inertial navigation and odometry with an RGB-D camera. 
 
 \section{Motivation and Goal}
 
-In existing algorithms for attitude estimation from different sensors, the uncertainty of attitude is usually modeled in two different ways.
+In the existing algorithms for attitude estimation from different sensors, the uncertainty of attitude is usually modeled in two different ways.
 In the first way, attitude parameterizations, such as Euler angles or quaternions, are treated directly as quantities in the Euclidean space, and the Gaussian distribution is used to model their uncertainty.
 This method entirely ignores the geometric constraints on the attitude parameterizations, such as the singularity of Euler angles, or that a quaternion representing attitude should have unit norm.
 As a result, its accuracy is typically low, and may have numerical issues associated with singularities, or that the covariance matrix becomes singular.
@@ -59,7 +59,7 @@ However, for large uncertainty, as indicated in Fig. \ref{fig:wrapping}, wrappin
 		The wrapped Gaussian distribution is defined in the circular space $\mathbb{R}/2\pi$ by identifying $\theta$ with $\theta+2k\pi$ for $k\in\mathbb{Z}$, so the densities beyond $[-\pi,\pi]$ are wrapped into $[-\pi,\pi]$. \label{fig:wrapping}}
 \end{figure}
 
-In this dissertation, a different approach is sought to model large uncertainty of rigid body attitude which cannot be accurately described by a Gaussian distribution as discussed above.
+In this dissertation, an alternative approach is sought to model large uncertainty of rigid body attitude, which cannot be accurately described by a Gaussian distribution as discussed above.
 The key idea is that instead of treating parameterizations of attitude as quantities in Euclidean space, a probability density defined directly in the space of attitude is used.
 Classic densities include the matrix Fisher distribution defined on the three dimensional special orthogonal group $\SO{3}$, and the Bingham distribution defined on the unit three sphere $\Sph^3$.
 In this way, the geometric constraints on the parameterizations of attitude are completely avoided, and the densities are suitable for arbitrarily large uncertainty including a uniform distribution, which is made possible by the compactness of the attitude space.
@@ -79,7 +79,7 @@ Finally, the progresses in rigid body pose estimation (attitude and position) us
 
 \subsection{Directional Statistics} \label{section:intro-review-direction}
 
-Although the Gaussian distribution is the dominate probabilistic model in both theoretical research and practical engineering, it falls short when the data of interest are on curved manifold, such as the unit sphere $\Sph^2$, and the special orthogonal group $\SO{3}$.
+Although the Gaussian distribution is the dominate probabilistic model in both theoretical research and practical engineering, it falls short when the data of interest are on a curved manifold, such as the unit sphere $\Sph^2$, and the special orthogonal group $\SO{3}$.
 Statisticians have proposed new models directly defined on these manifolds, to replace the Gaussian distribution when the uncertainty of data is large.
 The materials in this subsection are mostly based on the book \cite{mardia2009directional}.
 Another useful exposition of models on the Stiefel and Grassmann manifolds can be found in \cite{chikuse2003statistics}.
@@ -97,14 +97,14 @@ As a consequence, the unit circle can also be regarded as the space of one dimen
 \end{align*}
 Various probability densities have been developed on $\Sph^1$, such as the von Mises distribution \cite{von1918uber}, wrapped normal (Gaussian) distribution, wrapped Cauchy distribution, projected normal distribution (angular Gaussian distribution), etc.
 The first three distributions are uni-modal and have similar shapes (see \cite[Figure 3.3]{mardia2009directional}), whereas the last can be bi-modal.
-Among these, the von Mises distribution is one of the most frequently used models, and can be regarded as an analog of Gaussian distribution on $\Sph^1$, due to their several similarities.
+Among these, the von Mises distribution is one of the most frequently used models, and can be regarded as an analogue of Gaussian distribution on $\Sph^1$, due to their several similarities.
 
 The von Mises distribution can be generalized into (hyper) unit spheres $\Sph^n = \{ x\in\mathbb{R}^{n+1} \,|\, \norm{x}=1 \}$, for $n\geq 2$, and is usually named as von Mises--Fisher distribution \cite{fisher1953dispersion}.
 If $x\in\Sph^n$ follows a von Mises--Fisher distribution, it has the following density function
 \begin{align*}
 	p(x) = \left(\frac{\kappa}{2}\right)^{(n+1)/2-1} \frac{1}{\Gamma((n+1)/2) I_{(n+1)/2-1}(\kappa)} \expb{\kappa\mu^T x}
 \end{align*}
-with respect to the uniform distribution, where $\mu\in\Sph^n$, $\kappa>0$ are the parameters of the distribution, $\Gamma$ is the gamma function, $I_\nu$ is the modified Bessel function of the first kind with order $\nu$.
+with respect to the uniform distribution, where $\mu\in\Sph^n$, $\kappa>0$ are the parameters of the distribution, $\Gamma$ is the gamma function, and $I_\nu$ is the modified Bessel function of the first kind with order $\nu$.
 For the unit sphere $\Sph^2$, the density function reduces to
 \begin{align}
 	p(x) = \frac{\kappa}{\sinh\kappa} \expb{\kappa\mu^T x}.
@@ -118,7 +118,7 @@ The von Mises--Fisher distribution is used to model the uncertainty of direction
 Another frequently encountered manifold in engineering and material science is the space of 3D rotations, i.e., the three dimensional special orthogonal group: $\SO{3} = \{ R\in\mathbb{R}^{3\times 3} \,|\, RR^T = I_{3\times 3}, \, \det R = 1\}$.
 One of the most famous models on $\SO{3}$ is the matrix Fisher distribution \cite{downs1972orientation,khatri1977mises}, which is originally defined on the Stiefel manifolds, i.e., an orthogonal $r$ frame in $\mathbb{R}^n$ with $r\leq n$.
 When $r=2$, $n=3$, the Stiefel manifold is $\SO{3}$ \cite[Chapter 13.2.1]{mardia2009directional}.
-Similar to von Mises distribution, the matrix Fisher distribution can be regarded as an analog of Gaussian distribution on $\SO{3}$.
+Similar to von Mises distribution, the matrix Fisher distribution can be regarded as an analogue of the Gaussian distribution on $\SO{3}$.
 
 Any 3D rotation can also be parameterized by a unit quaternion $q\in\Sph^3$.
 The space of unit quaternions $\Sph^3$ forms a double cover of $\SO{3}$, therefore, $q$ and $-q$ represent the same 3D rotation.
@@ -161,12 +161,13 @@ But before reviewing these three categories, attitude parameterizations must be 
 
 \paragraph{Attitude Parameterizations}
 
-The attitude of a rigid body has three degrees of freedom, however, a rotation matrix $R\in\SO{3}$ has 9 parameters, and is therefore subject to 6 equality constraints.
+The attitude of a rigid body has three degrees of freedom.
+However, a rotation matrix $R\in\SO{3}$ has 9 parameters, and is therefore subject to 6 equality constraints.
 Due to its redundancy, few stochastic filters directly operate on rotation matrices.
 Instead, people seek for attitude representations with fewer parameters.
 A comprehensive review on this topic is given in \cite{shuster1993survey}.
 Nevertheless, it should be noted that it is topologically impossible to have a global 3-dimensional parameterization without singular points for $\SO{3}$ \cite{stuelpnagel1964parametrization}.
-Moreover, 5 is the minimum dimension to represent $\SO{3}$ in a one-to-one and global fashion \cite{stuelpnagel1964parametrization}.
+Moreover, 5 is the minimum dimension of parameterizations to represent $\SO{3}$ in a one-to-one and global fashion \cite{stuelpnagel1964parametrization}.
 
 Perhaps the most popular 3-dimensional parameterization of attitude is Euler angles.
 The Euler angles have 24 different forms depending on the sequence of rotations, and in which frame the rotations are formulated (intrinsic and extrinsic).
@@ -186,7 +187,7 @@ The unit quaternion corresponding to the rotation $(u,\theta)$ can be written as
 \begin{align} \label{eqn:rv2qua}
 	q = \begin{bmatrix} \cos(\theta/2) \\ \sin(\theta/2) u \end{bmatrix} \in \Sph^3
 \end{align}
-in Hamilton convention.
+in the Hamilton convention.
 It should be noted that $q$ and $-q$ represent the same 3D rotation.
 
 \paragraph{Deterministic Observers}
@@ -256,7 +257,7 @@ Given that the two distributions are equivalent, these filters are also equivale
 Furthermore, attitude filters using deterministic sampling of sigma points were developed in \cite{gilitschenski2015unscented} and \cite{lee2018bayesian} for the two distributions respectively, similar to UKF.
 The Bingham distribution has also been generalized into dual quaternions to represent the uncertainty of attitude and position simultaneously in \cite{arun2018probabilistic,gilitschenski2014new,li2019geometry,li2020unscented}.
 This approach deals with the correlation between attitude in $\SO{3}$ and position in $\mathbb{R}^3$.
-However, the correlation must respect the structure of $\SE{3}$ when it is used, hence it cannot deal with Euclidean random variables other than position.
+However, the correlation must respect the structure of three dimensional Euclidean group $\SE{3}$ when it is used, hence it cannot deal with Euclidean random variables other than position.
 
 In \cite{markley2006attitude}, an attitude filter was proposed using a new probability density on $\SO{3}\times \mathbb{R}^n$ where the attitude part is a matrix Fisher distribution, so that all sensor biases can be estimated concurrently with attitude.
 However, the quadratic terms appeared in the uncertainty propagation and measurement update steps must be omitted to make the density function closed under the proposed functional form, which lacks theoretical soundness.
@@ -292,7 +293,7 @@ Then the difference between the relative pose and the integrated pose are added 
 IMU pre-integration has later become standard in optimization based visual inertial integration \cite{brossard2021associating,mur2017visual,qin2018vins}.
 Also, by posing the optimization into a factor graph form \cite{indelman2013information}, it can be solved incrementally to reduce computation demand \cite{kaess2012isam2}.
 
-Comparing the filter and optimization methods, the major difference is that by using a multi-step iterated algorithm, the optimization method re-linearizes the non-linear measurement function several times, which is more accurate than the one-step linearization of the filtering method.
+Comparing the filtering based method and optimization method, the major difference is that by using a multi-step iterated algorithm, the optimization method re-linearizes the non-linear measurement function several times, which is more accurate than the one-step linearization of the filtering method.
 Therefore, the optimization method is usually more accurate, but at the cost of increased computation demand \cite{huang2019visual}.
 Nevertheless, the iterated EKF in classical control theory has been shown to be equivalent to applying a Gauss-Newton optimization to the posterior likelihood function \cite{bell1993iterated}, and this has been utilized in several visual-inertial odometry algorithms \cite{bloesch2017iterated,bloesch2015robust} to reduce the linearization error.
 Also, as discussed before, the filtering method cannot deal with large attitude uncertainty due to the inherent Gaussian assumption.
@@ -309,9 +310,11 @@ In this dissertation, a recursive algorithm to calculate the central moments of 
 In particular, closed form expressions are given for the second and third order moments.
 Next, a new approximation of the matrix Fisher distribution is introduced when it is highly concentrated in two degrees of freedom, generalizing the results in \cite{lee2018bayesian-b}.
 Approximate calculations for the normalizing constant and its derivatives are given for efficient computations.
+These computational techniques are used in the subsequent design of Bayesian filters for fast inference of the parameters of the distribution.
 
 \paragraph{Matrix Fisher--Gaussian Distribution}
 
+The correlation between $\SO{3}$ and Euclidean space is critical for simultaneous estimation of attitude and other Euclidean quantities.
 Based on the matrix Fisher distribution, a new probability density function, referred to as the matrix Fisher--Gaussian (MFG) distribution, is introduced on $\SO{3}\times \mathbb{R}^n$ to model the correlation between random rotations and quantities in the Euclidean space.
 The MFG is constructed using a generic method with geometric intuition, and it only models the \textit{linear} correlation with minimum number of parameters.
 Various properties of MFG are studied, and a closed form approximate maximum likelihood estimation of its parameters are given.
@@ -330,7 +333,7 @@ It is demonstrated through simulation studies that the filter based on MFG has f
 Then the attitude estimation is generalized into a full inertial navigation setting, where the uncertainty for attitude, linear velocity, position, and sensor biases are propagated through IMU kinematics using MFG.
 The loosely couple IMU-GNSS navigation is studied by proposing a filter based on MFG to deal with the position measurements.
 And this is later generalized to landmark or feature measurements given by a camera in RGB-D or stereo settings, which is used in a visual-inertial navigation or odometry problem.
-It is shown by simulation that the MFG filter has much faster convergence rate then MEKF given a wrong initial attitude, such as a wrong heading direction when it is initially unknown.
+It is shown by simulation that the MFG filter has much faster convergence rate than MEKF given a wrong initial attitude, such as a wrong heading direction when it is initially unknown.
 These demonstrate the advantage of MFG when dealing with large attitude uncertainty then the Gaussian distribution assumed in MEKF.
 
 \subsection{Publications}
@@ -357,9 +360,9 @@ The results of this dissertation have been published in the following conference
 
 In Chapter \ref{chap:MF}, the matrix Fisher distribution on $\SO{3}$, and the Bingham distribution on $\Sph^3$ are reviewed.
 A new algorithm to calculate the higher order moments, and a new approximation for a highly concentrated case of the matrix Fisher distribution are introduced.
-Chapter \ref{chap:MFG} defines the matrix Fisher--Gaussian distribution on $\SO{3} \times \mathbb{R}^n$ and Bingham--Gaussian distribution on $\Sph^3\times\mathbb{R}^n$ to model the correlation between attitude with large uncertainty and Euclidean random variables.
+Chapter \ref{chap:MFG} defines the matrix Fisher--Gaussian distribution on $\SO{3} \times \mathbb{R}^n$ and the Bingham--Gaussian distribution on $\Sph^3\times\mathbb{R}^n$ to model the correlation between attitude with large uncertainty and Euclidean random variables.
 Their various properties are studied, and a closed form approximate maximum likelihood estimation is given.
 In Chapter \ref{chap:estimation}, attitude observability with single direction measurements is examined, and recursive Bayesian filters for attitude estimation, loosely coupled IMU-GNSS navigation, and visual-inertial odometry/navigation are designed using MFG.
 These filters are compared with MEKF for performance evaluation through simulation studies.
-Finally, some future directions are discussed in Chapter \ref{chap:conclusion}.
+Finally, future directions are discussed in Chapter \ref{chap:conclusion}.
 

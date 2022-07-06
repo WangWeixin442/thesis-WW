@@ -254,7 +254,8 @@ The construction is summarized into the following theorem.
 	The proof of \eqref{eqn:MFG-construct-condition-MFGB} for MFGB follows exactly the same steps, and is omitted for brevity.
 \end{proof}
 
-In Theorem \ref{thm:MFG-construction}, the covariance for MFGI between $\mathrm{vec}(R^T)$ and $x$ is $P_I =[ P, 0_{n\times 6}]T_I$, i.e., it is non-zero only along $\{t_{I1}, t_{I2}, t_{I3}\}$, which is a basis for the tangent space of $\SO{3}$ at the mean attitude $M=UV^T$.
+Theorem \ref{thm:MFG-construction} is a generalization of Theorem \ref{thm:MF-construction}, where the correlation between $\SO{3}$ and $\mathbb{R}^n$ is inherited from the correlation between $\mathbb{R}^9$ and $\mathbb{R}^n$ before conditioning.
+Specifically, the covariance for MFGI between $\mathrm{vec}(R^T)$ and $x$ is $P_I =[ P, 0_{n\times 6}]T_I$, i.e., it is non-zero only along $\{t_{I1}, t_{I2}, t_{I3}\}$, which is a basis for the tangent space of $\SO{3}$ at the mean attitude $M=UV^T$.
 It is similar for MFGB where the correlation between $\mathrm{vec}(R)$ and $x$ is only non-zero along $\{t_{B1}, t_{B2}, t_{B3}\}$.
 The basis of the tangent space is chosen as the principal axes of the matrix Fisher part, so that the correlation $P$ is expressed with respect to the principal axes, which simplifies the corresponding mathematical analysis and provides geometric interpretations.
 Also, there are only $3n$ parameters required to quantify the linear correlation between the three-dimensional attitude and the $n$-dimensional linear variable, instead of $9n$.
