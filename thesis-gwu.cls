@@ -1348,7 +1348,7 @@
  % Use front page styling.
  \frntpg %
  % Start the automatic abbreviations feature.
- \printglossary[type=\glsxtrabbrvtype,style=acronymsandsymbols,title={\normalsize List of Abbreviations}]
+ \printglossary[type=\glsxtrabbrvtype,style=acronymsandsymbols,title={\normalsize List of Abbreviations},nonumberlist]
 }
 
 
@@ -1358,12 +1358,12 @@
  % Use front page styling.
  \frntpg %
  % Start the automatic abbreviations feature.
- \printglossary[type=symbols,style=acronymsandsymbols,title={\normalsize List of Symbols}]
+ \printglossary[type=symbols,style=acronymsandsymbols,title={\normalsize List of Symbols},nonumberlist]
 }
 
 \newcommand*{\listofglossaryofterms}{%
 \frntpg%
-\printglossary[style=glossaryofterms,type=main,title={\normalsize Glossary of Terms}]
+\printglossary[style=glossaryofterms,type=main,title={\normalsize Glossary of Terms},nonumberlist]
 }
 %% ---- ABSTRACT -------------------------------------------------------
 % Command to hold the text of the abstract.

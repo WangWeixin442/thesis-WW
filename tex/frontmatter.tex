@@ -75,6 +75,27 @@ Texas A\&M University, Committee Member\\
 % Typically only one of Preface/Foreward/Prologue would be in your thesis.
 % To choose one simply delete the others and they will automatically dissappear
 
+% Preface
+\preface{
+    This is the preface. 
+    It's another front matter page that offers additional detail into your work.
+    Typically, only one (preface OR prologue OR foreword) is used. 
+    You can remove the other sections by deleting them inside \texttt{tex/frontmatter.tex} or using the appropriate show or hide commands.
+}
+
+\prologue{
+    This is the prologe. 
+    It's another front matter page that offers additional detail into your work.
+    Typically, only one (preface OR prologue OR foreword) is used. 
+    You can remove the other sections by deleting them inside \texttt{tex/frontmatter.tex} or using the appropriate show or hide commands.
+}
+
+\foreword[2]{
+    This is the forword. 
+    It's another front matter page that offers additional detail into your work.
+    Typically, only one (preface OR prologue OR foreword) is used. 
+    You can remove the other sections by deleting them inside \texttt{tex/frontmatter.tex} or using the appropriate show or hide commands.
+}
 % ----------------------------------------------------------------------
 
 % commands to show or hide front matter pages
@@ -82,8 +103,11 @@ Texas A\&M University, Committee Member\\
 \showcopyright
 \showabstract
 \showcommitteepage
-%\showdedication
+\hidededication
 \showacknowledgments
+\hidepreface
+\hideprologue
+\hideforeword
 
 % ------------ TABLE OF CONTENTS ----------------------
 % Commands to hide or show lists of figures, tables, etc.
@@ -126,43 +150,364 @@ Texas A\&M University, Committee Member\\
 \showglossariesglossaryofterms
 
 % acronyms defined in glossaries
-\newabbreviation{crtbp}{CRTBP}{Circular Restricted Three Body Problem}
-\newabbreviation{lidar}{LIDAR}{Light Detection and Ranging}
 % defining abbreviations like this allows for autocompletion
-\newglossaryentry{filo}{
-    name={FILO},
+\newglossaryentry{IMU}{
+    name={IMU},
     type=\glsxtrabbrvtype,
-    description={first in last out},
-    first={first in last out (FILO)}
+    description={Inertial Measurement Unit}
 }
+
+\newglossaryentry{GNSS}{
+	name={GNSS},
+	type=\glsxtrabbrvtype,
+	description={Global Navigation Satellite System}
+}
+
+\newglossaryentry{MFG}{
+	name={MFG},
+	type=\glsxtrabbrvtype,
+	description={Matrix Fisher--Gaussian Distribution}
+}
+
+\newglossaryentry{EKF}{
+	name={EKF},
+	type=\glsxtrabbrvtype,
+	description={Extended Kalman Filter}
+}
+
+\newglossaryentry{MEKF}{
+	name={MEKF},
+	type=\glsxtrabbrvtype,
+	description={Multiplicative Extended Kalman Filter}
+}
+
+\newglossaryentry{UKF}{
+	name={UKF},
+	type=\glsxtrabbrvtype,
+	description={Unscented Kalman Filter}
+}
+
+\newglossaryentry{SLAM}{
+	name={SLAM},
+	type=\glsxtrabbrvtype,
+	description={Simultaneous Localization and Mapping}
+}
+
+\newglossaryentry{IEKF}{
+	name={IEKF},
+	type=\glsxtrabbrvtype,
+	description={Invariant Extended Kalman Filter}
+}
+
+\newglossaryentry{MSCKF}{
+	name={MSCKF},
+	type=\glsxtrabbrvtype,
+	description={Multi-State Constraint Kalman Filter}
+}
+
+\newglossaryentry{BCH}{
+	name={BCH},
+	type=\glsxtrabbrvtype,
+	description={Baker--Campbell--Hausdorff Formula}
+}
+
+\newglossaryentry{psvd}{
+	name={pSVD},
+	type=\glsxtrabbrvtype,
+	description={proper Singular Value Decomposition}
+}
+
+\newglossaryentry{MLE}{
+	name={MLE},
+	type=\glsxtrabbrvtype,
+	description={Maximum Likelihood Estimation}
+}
+
+\newglossaryentry{BG}{
+	name={BG},
+	type=\glsxtrabbrvtype,
+	description={Bingham--Gaussian Distribution}
+}
+
+\newglossaryentry{MMSE}{
+	name={MMSE},
+	type=\glsxtrabbrvtype,
+	description={Minimum Mean Square Estimate}
+}
+
 
 % glossary entries
-\newglossaryentry{linux}{
-    name=Linux,
-    description={is a generic term referring to the family of Unix-like computer operating systems that use the Linux kernel},
-    plural=Linuces
+\newglossaryentry{stiefel}{
+    name=Stiefel manifold,
+    description={An orthogonal $r$ frame in $\mathbb{R}^n$ with $r\leq n$.}
 }
 
-\newglossaryentry{matrix}{
-    name={matrix},
-    plural={matrices},
-    description={rectangular array of quanttities}
+\newglossaryentry{normalizing}{
+	name=normalizing constant,
+	description={A constant for an un-normalized probability density function such that it integrates into one.}
+}
+
+\newglossaryentry{moment}{
+	name=moment,
+	description={The expectation of a random variable.}
+}
+
+\newglossaryentry{Haar}{
+	name=Haar measure,
+	description={The bi-invariant measure on $\SO{3}$ for integration of functions on $\SO{3}$. In is normalized such that $\SO{3}$ has unit volume.}
+}
+
+\newglossaryentry{inertial}{
+	name=inertial frame,
+	description={The reference frame that is assumed to be fixed in a navigation problem.}
+}
+
+\newglossaryentry{body-fixed}{
+	name=body-fixed frame,
+	description={The reference frame fixed to a rigid body.}
+}
+
+\newglossaryentry{recursive Bayesian filter}{
+	name=recursive Bayesian filter,
+	description={A stochastic estimator that estimates the state of a dynamical system by calculating the posterior distribution conditioned on the history of all measurements.}
+}
+
+\newglossaryentry{uncertainty propagation}{
+	name=uncertainty propagation,
+	description={Calculate how the probability density function of the state of a dynamical system evolves in time.}
+}
+
+\newglossaryentry{measurement update}{
+	name=measurement update,
+	description={Calculate the posterior density function from the prior and likelihood, using the Bayes' formula.}
+}
+
+\newglossaryentry{mle}{
+	name=maximum likelihood estimation,
+	description={Inference of the parameters of a probability distribution by maximizing the likelihood function of measurements.}
+}
+
+\newglossaryentry{kl}{
+	name=KL-divergence,
+	description={A metric that on the difference between two probability distributions.}
+}
+
+\newglossaryentry{lm}{
+	name=LM algorithm,
+	description={An iterative gradient based algorithm to solve nonlinear minimum least square problems.}
 }
 
 % symbols
-\newglossaryentry{M}{
-    type=symbols,
-    name={\ensuremath{M}},
-    sort=M,
-    description={a \gls{matrix}}
+\newglossaryentry{SEN}{
+	type=symbols,
+	name={$\SE{n}$},
+	sort=SEN,
+	description={The $n$-dimensional Euclidean group.}
 }
 
-\newglossaryentry{F}{
+\newglossaryentry{SON}{
     type=symbols,
-    name={\ensuremath{F}},
-    sort=F,
-    description={External Force}
+    name={$\SO{n}$},
+    sort=SON,
+    description={The $n$-dimensional special orthogonal group.}
 }
+
+\newglossaryentry{SUN}{
+	type=symbols,
+	name={$\mathrm{SU}(n)$},
+	sort=SUN,
+	description={The $n$-dimensional special unitary group.}
+}
+
+\newglossaryentry{soN}{
+	type=symbols,
+	name={$\so{n}$},
+	sort=soN,
+	description={The Lie algebra of $\SO{n}$.}
+}
+
+\newglossaryentry{real}{
+	type=symbols,
+	name={$\mathbb{R}^n$},
+	sort=R,
+	description={The $n$-dimensional Euclidean space.}
+}
+
+\newglossaryentry{sph}{
+	type=symbols,
+	name={$\Sph^n$},
+	sort=sph,
+	description={Unit $n$-sphere.}
+}
+
+\newglossaryentry{int}{
+	type=symbols,
+	name={$\mathbb{Z}$},
+	sort=z,
+	description={The space of integers.}
+}
+
+\newglossaryentry{gamma}{
+	type=symbols,
+	name={$\Gamma(x)$},
+	sort=gamma,
+	description={Gamma function.}
+}
+
+\newglossaryentry{bessel}{
+	type=symbols,
+	name={$I_{\nu}(x)$},
+	sort=Iv,
+	description={Modified Bessel function of the first kind with order $\nu$.}
+}
+
+\newglossaryentry{hat}{
+	type=symbols,
+	name={$\hat{x}$},
+	sort=hat,
+	description={The hat map that identifies $\mathbb{R}^3$ to $\so{3}$.}
+}
+
+\newglossaryentry{vee}{
+	type=symbols,
+	name={$x^\vee$},
+	sort=hat2,
+	description={The vee map, inverse of the hat map.}
+}
+
+\newglossaryentry{exp}{
+	type=symbols,
+	name={$\exp(x)$},
+	sort=exp,
+	description={The exponential of a number $x\in\mathbb{R}$, or the exponential map of $x\in\so{3}$.}
+}
+
+\newglossaryentry{bracket}{
+	type=symbols,
+	name={$[A,B]$},
+	sort=bracket,
+	description={The Lie bracket for $A,B\in\so{3}$.}
+}
+
+\newglossaryentry{mf}{
+	type=symbols,
+	name={$\mathcal{M}(F)$},
+	sort=matrixFisher,
+	description={The matrix Fisher distribution with parameter $F$.}
+}
+
+\newglossaryentry{diag}{
+	type=symbols,
+	name={$\diag(x_1,\ldots,x_n)$},
+	sort=diag,
+	description={The (block) diagonal matrix with the diagonal terms given by $x_1,\ldots,x_n$.}
+}
+
+\newglossaryentry{vec}{
+	type=symbols,
+	name={$\mathrm{vec}(A)$},
+	sort=vec,
+	description={Concatenation of the columns of matrix $A$ into a column vector.}
+}
+
+\newglossaryentry{kron}{
+	type=symbols,
+	name={$\otimes$},
+	sort=otime,
+	description={Quaternion multiplication or Kronecker product depending on the context.}
+}
+
+\newglossaryentry{normal}{
+	type=symbols,
+	name={$\mathcal{N}(\mu,\Sigma)$},
+	sort=normal,
+	description={Normal distribution with mean $\mu$, and covariance matrix $\Sigma$.}
+}
+
+\newglossaryentry{von}{
+	type=symbols,
+	name={$\mathcal{VM}(\mu,\kappa)$},
+	sort=von,
+	description={The von Mises (Fisher) distribution with mean direction $\mu$, and concentration parameter $\kappa$.}
+}
+
+\newglossaryentry{MFGs}{
+	type=symbols,
+	name={$\mathcal{MG}(\mu,\allowbreak \Sigma,\allowbreak P,\allowbreak U,\allowbreak S,\allowbreak V)$},
+	sort=MFG,
+	description={The matrix Fisher--Gaussian distribution with parameters $(\mu,\Sigma,P,U,S,V)$.}
+}
+
+\newglossaryentry{bingham}{
+	type=symbols,
+	name={$\mathcal{B}(A)$},
+	sort=bingham,
+	description={The Bingham distribution with parameter $A$.}
+}
+
+\newglossaryentry{BGs}{
+	type=symbols,
+	name={$\mathcal{BG}(\mu,\Sigma,P,M,Z)$},
+	sort=BG,
+	description={The Bingham--Gaussian distribution with parameters $(\mu,\Sigma,P,M,Z)$.}
+}
+
+\newglossaryentry{phi}{
+	type=symbols,
+	name={$\varphi$},
+	sort=phi,
+	description={The homomorphism from $\Sph^3$ to $\SO{3}$.}
+}
+
+\newglossaryentry{trace}{
+	type=symbols,
+	name={$\tr{A}$},
+	sort=trace,
+	description={The trace of matrix $A$.}
+}
+
+\newglossaryentry{etr}{
+	type=symbols,
+	name={$\etr{A}$},
+	sort=etr,
+	description={An abbreviation of $\exp(\tr{A})$.}
+}
+
+\newglossaryentry{comb}{
+	type=symbols,
+	name={$\mathcal{C}(n,k)$},
+	sort=comb,
+	description={The set of all $k$-partitions of the set $\{1,2,\ldots,n\}$. For example $\mathcal{C}(3,2) = \Big\{ \big\{\{1\}, \allowbreak \{2,3\}\big\}, \allowbreak \big\{\{2\}, \allowbreak \{1,3\}\big\}, \allowbreak \big\{\{3\}, \allowbreak \{1,2\}\big\} \Big\}$}
+}
+
+\newglossaryentry{cS}{
+	type=symbols,
+	name={$c(S)$},
+	sort=cS,
+	description={The normalizing constant of the matrix Fisher distribution with parameter $S$.}
+}
+
+\newglossaryentry{ei}{
+	type=symbols,
+	name={$e_i$},
+	sort=ei,
+	description={The $i$-th column of $I_{n\times n}$, where $n$ depends on the context.}
+}
+
+\newglossaryentry{I}{
+	type=symbols,
+	name={$\mathcal{I}$},
+	sort=I,
+	description={The Fisher information.}
+}
+
+\newglossaryentry{expect}{
+	type=symbols,
+	name={$\expect{x}$},
+	sort=expect,
+	description={The expectation of a random element $x$.}
+}
+
 % Some abstract text
 \abstract{
 Modeling the uncertainty of three dimensional attitude is critical in numerous estimation problems in aerospace engineering and robotics.
