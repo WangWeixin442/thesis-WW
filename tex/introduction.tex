@@ -289,7 +289,7 @@ This method has later been improved to account for the correct observability of 
 The optimization method can be traced back to the bundle adjustment technique \cite{triggs1999bundle} in computer vision.
 The idea is to estimate the pose and feature locations by minimizing the camera reprojection error, which is formulated into a nonlinear least square problem.
 The optimization can be efficiently solved using the Gauss-Newton or Levenberg–Marquardt algorithms while exploiting the sparseness of the Jacobian matrix.
-In \cite{forster2016manifold,lupton2011visual}, the inertial measurement in also incorporated into this framework using the so called \text{IMU pre-integration} technique.
+In \cite{forster2016manifold,lupton2011visual}, the inertial measurement is also incorporated into this framework using the so called \text{IMU pre-integration} technique.
 The idea is that the IMU measurements are integrated between two keyframes with the uncertainty of the integrated pose propagated using the classic EKF approach.
 Then the difference between the relative pose and the integrated pose are added into the loss function of the bundle adjustment problem.
 IMU pre-integration has later become standard in optimization based visual inertial integration \cite{brossard2021associating,mur2017visual,qin2018vins}.

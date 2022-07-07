@@ -32,13 +32,13 @@ In this section, the MFG is used to design a Bayesian filter that estimates atti
 \subsection{Problem Formulation}
 
 The IMU kinematic model is formulated in discrete time as follows.
-\begin{align}
+\begingroup \allowdisplaybreaks \begin{align}
 	R_{k+1} &= R_k \expb{ h(\hat{\Omega}_k + \hat{b}_{g,k}) + H_{gu}\Delta W_{gu} }, \label{eqn:posEst-kinematics-attitude} \\
 	b_{g,k+1} &= b_{g,k} + H_{gv}\Delta W_{gv}, \label{eqn:posEst-kinematics-gyrobias} \\
 	p_{k+1} &= p_k + hv_k, \label{eqn:posEst-kinematics-pos} \\
 	v_{k+1} &= v_k - gh + R_k\left( h(a_k+b_{a,k}) + H_{au}\Delta W_{au} \right), \label{eqn:posEst-kinematics-velocity} \\
 	b_{a,k+1} &= b_{a,k} + H_{av}\Delta W_{av}, \label{eqn:posEst-kinematics-accebias}
-\end{align}
+\end{align} \endgroup
 where $R\in\SO{3}$ is the attitude, $x = \big[b_g^T, p^T, v^T, b_a^T\big]^T \in \mathbb{R}^{12}$ are gyroscope bias, position, linear velocity and accelerometer bias, respectively.
 The position and linear velocity are resolved in the inertial frame.
 The gravity vector in the inertial frame is denoted by $g\in\mathbb{R}^3$.
@@ -1116,13 +1116,6 @@ A hundred Monte Carlo simulations are carried out for both initial conditions, a
 	\end{tabular}
 \end{table}
 
-\begin{figure}
-	\centering
-	\includegraphics[scale=1.3]{figures/VIO-filter-error}
-	\caption{Error trajectory of a particular simulation for visual-inertial navigation without map noises.}
-	\label{fig:VIO-filter-error}
-\end{figure}
-
 For the MFG filter, only definition MFGI is tested, because all linear components, i.e., velocity and position, are defined in the inertial frame.
 The estimation errors for MFG and MEKF are summarized in Table \ref{tab:VIO-filter-error}.
 It demonstrates that MEKF has slightly better accuracy than MFG for the small initial uncertainty case, which is consistent with the results in Table \eqref{tab:VIO-pose-error} for static pose estimation.
@@ -1133,6 +1126,13 @@ It is seen that the MEKF suffers from extremely slow convergence from the initia
 Even worse, the wrong attitude estimation for MEKF contributes to the large errors in velocity and position.
 This is very similar to the simulation for IMU-GNSS navigation in Figure \ref{fig:posEst-error}.
 And the reason for this slow convergence can be attributed to that the Gaussian distribution of MEKF does not properly describe the initial large attitude uncertainty.
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=1.3]{figures/VIO-filter-error}
+	\caption{Error trajectory of a particular simulation for visual-inertial navigation without map noises.}
+	\label{fig:VIO-filter-error}
+\end{figure}
 
 \subsection{Pose Estimation With Map Uncertainty} \label{section:VIO-pose-map}
 
