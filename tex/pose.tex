@@ -85,7 +85,7 @@ According to Theorem \ref{thm:MFG-MLE-conditional}, $\expect{x_{k+1}}$, $\expect
 Note that $\expect{\nu_{R_{k+1}}\nu_{R_{k+1}}^T}$ is only involved with the gyroscope kinematics \eqref{eqn:posEst-kinematics-attitude} and \eqref{eqn:posEst-kinematics-gyrobias}, so it can be calculated using \eqref{eqn:attEst-prop-EvRvR_{k+1}} in Theorem \ref{thm:attEst-prop-otherMoments}.
 In the remainder of this subsection, the calculations for $\expect{x_{k+1}}$, $\expect{x_{k+1}\nu_{R_{k+1}}^T}$, and $\expect{x_{k+1}x_{k+1}^T}$ are developed.
 
-In perpetration for these calculations, the parameters $\mu_k$, $P_k$ and $\Sigma_k$ are written for each component in block form as
+In preparation for these calculations, the parameters $\mu_k$, $P_k$ and $\Sigma_k$ are written for each component in block form as
 \begin{gather} \label{eqn:posEst-prop-blocks}
 	\allowdisplaybreaks
 	\mu_k = \begin{bmatrix}
@@ -229,7 +229,7 @@ Finally, the last $F^l$ is set as the parameter $F^+$ of the matrix Fisher distr
 The motivation for progressive update is that the update in each step is not too aggressive that the posterior distribution is drastically shifted from the prior.
 And sample degeneration is avoided so that no sample has weight close to zero after each step.
 This progressive update scheme for the posterior parameter $F^+$ is summarized in Table \ref{tab:posEst-update-att}.
-It should be noted that if the unscented transform in \cite{lee2018bayesian} is used to select sigma points in step 12, the moment $\expect{R}$ must be first matched to a matrix Fisher distribution.
+It should be noted that if the unscented transform in \cite{lee2018bayesian} is used to select sigma points in step 13, the moment $\expect{R}$ must be first matched to a matrix Fisher distribution.
 Whereas if the unscented transform in \cite{gilitschenski2015unscented} is used, $\expect{R}$ can be directly used and there is no need to solve \eqref{eqn:MF-S2D} which is very computationally demanding.
 
 \begin{table}
@@ -272,7 +272,7 @@ As $f_R(R)$ in \eqref{eqn:posEst-update-density-R} has been approximated by the 
 \end{align}
 where $c$ is a constant independent of $(R,x)$.
 Let $F^+ = U^+S^+(V^+)^T$ be its proper singular value decomposition, define $\nu_R^+ = (Q^+S^+ - S^+(Q^+)^T)^\vee$ for MFGI, or $\nu_R^+ = (S^+Q^+ - (Q^+)^TS^+)^\vee$ for MFGB, with $Q^+ = (U^+)^TS^+V^+$.
-Then to match the above density function to an MFG, the conditional MLE in Theorem \ref{thm:MFG-MLE-conditional} needs to be used, which requires the moments $\expect{x|\mathcal{Z}}$, $\expect{x(\mu_R^+)^T|\mathcal{Z}}$, and $\expect{xx^T|\mathcal{Z}}$ to be calculated.
+Then to match the above density function to an MFG, the conditional MLE in Theorem \ref{thm:MFG-MLE-conditional} needs to be used, which requires the moments $\expect{x|\mathcal{Z}}$, $\expect{x(\nu_R^+)^T|\mathcal{Z}}$, and $\expect{xx^T|\mathcal{Z}}$ to be calculated.
 These expectations are evaluated with respect to \eqref{eqn:posEst-update-density-approx}, and are calculated in the next theorem.
 
 \begin{theorem} \label{thm:posEst-update-moments}

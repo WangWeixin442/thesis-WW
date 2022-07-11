@@ -794,7 +794,7 @@ It is proved in this case, the matrix Fisher distribution can be approximated by
 
 \begin{theorem} \label{thm:MF-approx-2d}
 	Let $R\sim\mathcal{M}(F)$, where $F=USV^T$ is the pSVD of $F$.
-	Suppose $s_1+s_3\gg 0$.
+	Suppose $s_1+s_3\gg s_2+s_3 \geq 0$.
 	Let $Q = U^TRV = \exp\left(\hat{\eta}\right) \exp\left(\hat{\eta}'\right)$, where $\eta = [0, \eta_2, \eta_3]^T$, and $\eta' = [\eta_1, 0, 0]^T$.
 	Then $\eta_3 \approxsim \mathcal{VM}(0,s_2+s_3)$, and $ [\eta_2, \eta_3]^T  \approxsim \mathcal{N}\left( 0, \diag\left( \tfrac{1}{s_1+s_3}, \tfrac{1}{s_1+s_2} \right) \right)$, and they are approximately independent.
 \end{theorem}
