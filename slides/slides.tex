@@ -196,7 +196,6 @@ George Washington University, Washington DC\\$ $\\}
 			\item Problems with three dimensional parameterizations:
 			\begin{itemize}
 				\item \Emph{Singularities}: such as gimbal lock for Euler angles.
-				\item The Lebesgue measure on $\mathbb{R}^3$ is no longer uniform when transformed to $\SO{3}$.
 			\end{itemize}
 		
 			\item Problems with quaternions:
@@ -233,50 +232,60 @@ George Washington University, Washington DC\\$ $\\}
 			\end{itemize}
 		\end{itemize}
 	
-		\vspace{0.3cm}
-		\item Multiplicative Extended Kalman Filter
-		\begin{itemize}
-			\item Using Gaussian distribution to model the uncertainty of attitude error.
-			\item Problems: \Emph{not suitable for large uncertainty}
+		\only<1>{
+			\vspace{0.2cm}
+			\item Multiplicative Extended Kalman Filter (MEKF)
 			\begin{itemize}
-				\item Linearization error.
-				\item Wrapping error.
+				\item Using Gaussian distribution to model the uncertainty of attitude error.
+				\item Problems: \Emph{not suitable for large uncertainty}
+				\begin{itemize}
+					\item Linearization error.
+					\item \Emph{Wrapping error}.
+				\end{itemize}
 			\end{itemize}
-		\end{itemize}
+		}
+		
+		\only<2>{
+			\centerline{
+				\begin{tikzpicture}
+					\node[opacity=1.0,outer sep=0pt,inner sep=0pt] at (0,0) {\includegraphics[scale=0.4]{circle_density_edited}};
+					\node[opacity=1.0,outer sep=0pt,inner sep=0pt] at (5.2,-0.2) {\includegraphics[scale=0.7]{wrapping}};
+				\end{tikzpicture}
+			}
+		}
 	\end{itemize}
 \end{frame}
 
 \begin{frame}
-	\frametitle{Problems for Gaussian Distribution}
+	\frametitle{Large Attitude Uncertainty}
 	
 	\begin{itemize}
-		\item Attitude Error is in the \Emph{Tangent Space} of $\SO{3}$.
-		
-		\vspace{0.4cm}
-		\item Problems: not suitable for large uncertainty
+		\item \Emph{Large Attitude Uncertainty} in Estimation Problems
 		\begin{itemize}
-			\item Inherent \Emph{non-linearity}: $\SO{3}$ is a curved manifold.
-			\item \Emph{Wrapping errors} for cyclic tangent space.
+			\item Unknown initial conditions, e.g., unknown heading direction in a building.
+			\item Not properly observed degree of freedom, e.g., single reference direction that is slowly varying in the inertial frame.
+			\item Sensor failure, e.g., no GPS signal in a tunnel.
 		\end{itemize}
+	
+		\vspace{0.2cm}
+		\item Goal of This Dissertation
+		\begin{itemize}
+			\item Deal with large attitude uncertainty using probability distribution \Emph{defined intrinsically on $\SO{3}$} for attitude.
+			\begin{itemize}
+				\item Matrix Fisher distribution on $\SO{3}$.
+				\item Bingham distribution on $\Sph^3$ for unit quaternions.
+				\item No singularities, no geometric constraints, able to model arbitrarily large attitude uncertainty.
+			\end{itemize}
 		
-		\vspace{-0.1cm}
-	
-		\centerline{
-			\begin{tikzpicture}
-				\node[opacity=1.0,outer sep=0pt,inner sep=0pt] at (0,0) {\includegraphics[scale=0.4]{circle_density_edited}};
-				\node[opacity=1.0,outer sep=0pt,inner sep=0pt] at (5.2,-0.2) {\includegraphics[scale=0.7]{wrapping}};
-			\end{tikzpicture}
-		}
-	
-		\pause
-		\item A probability distribution \Emph{directly defined on $\SO{3}$} could avoid these issues.
+			\item Design Bayesian filters for classical estimation problems involving the attitude/pose of a rigid body.
+		\end{itemize}
 	\end{itemize}
 \end{frame}
 
 \section{Matrix Fisher Distribution}
 
 \begin{frame}
-	\frametitle{Matrix Fisher Distribuiton}
+	\frametitle{Matrix Fisher Distribution}
 	
 	\begin{itemize}
 		\item Matrix Fisher Distribution: Defined on $\SO{3}$
@@ -405,7 +414,7 @@ George Washington University, Washington DC\\$ $\\}
 	
 		\vspace{0.2cm}
 		\only<1>{
-			\item Highly Concentrated in Three Degrees of Freedom
+			\item Highly Concentrated in Three Degrees of Freedom \footnote{\tiny T.~Lee, ``Bayesian attitude estimation with approximate matrix {F}isher distributions on {SO}(3),'' in \emph{Conference on Decision and Control}, 2018, pp. 5319--5325.}
 			\begin{theorem}
 				Let $R\sim\mathcal{M}(F)$, where $F=USV^T$ is the pSVD of $F$.
 				Suppose $s_2+s_3\gg 0$.
@@ -479,26 +488,43 @@ George Washington University, Washington DC\\$ $\\}
 	\frametitle{Correlation Between $\SO{3}$ and $\mathbb{R}^n$}
 	
 	\begin{itemize}
-		\item Examples
-		\begin{itemize}
-			\item Attitude estimation: correlation between attitude and gyroscope bias.
-			\item Inertial navigation: correlation between attitude and position.
-			\item SLAM: correlation between attitude and landmark locations.
-		\end{itemize}
-	
-		\vspace{0.2cm}
-		\item Existing Models
-		\begin{itemize}
-			\item In Markley 2006\footnote{\tiny F.~L. Markley, ``Attitude filtering on $\mathrm{SO}(3)$,'' \emph{The Journal of the Astronautical Sciences}, vol.~54, no. 3-4, pp. 391--413, 2006.}, the matrix Fisher distribution on $\SO{3}$ is combined with Gaussian distribution in $\mathbb{R}^n$.
-			
-			\item In Darling 2016\footnote{\tiny J.~E. Darling and K.~J. DeMars, ``Uncertainty propagation of correlated quaternion and {E}uclidean states using the {G}auss-{B}ingham density,'' \emph{Journal of Advances in Information Fusion}, vol.~11, no.~2, pp. 1--20, 2016}, the Bingham distribution on $\Sph^3$ is combined with Gaussian distribution in $\mathbb{R}^n$.
-			
-			\item Problems:
+		\only<1>{
+			\item Matrix Fisher Distribution
 			\begin{itemize}
-				\item These models do not have a generic geometric construction.
-				\item Their MLEs are complicated and need numerical optimizations, so they are \Emph{not suitable for real time implementations}.
+				\item Defined on $\SO{3}$.
+				\item \Emph{Cannot model the correlation between $\SO{3}$ and $\mathbb{R}^n$}.
+				\item Correlation: transfer information from observed state to unobserved state.
 			\end{itemize}
-		\end{itemize}
+		
+			\vspace{0.2cm}
+			\item Examples
+			\begin{itemize}
+				\item Attitude estimation: correlation between attitude and gyroscope bias.
+				\item Inertial navigation: correlation between attitude and position.
+				\item SLAM: correlation between attitude and landmark locations.
+			\end{itemize}
+		}
+	
+		\only<2>{
+			\item Existing Models
+			\begin{itemize}
+				\item In Markley 2006\footnote{\tiny F.~L. Markley, ``Attitude filtering on $\mathrm{SO}(3)$,'' \emph{The Journal of the Astronautical Sciences}, vol.~54, no. 3-4, pp. 391--413, 2006.}, the matrix Fisher distribution on $\SO{3}$ is combined with Gaussian distribution in $\mathbb{R}^n$.
+				
+				\item In Darling 2016\footnote{\tiny J.~E. Darling and K.~J. DeMars, ``Uncertainty propagation of correlated quaternion and {E}uclidean states using the {G}auss-{B}ingham density,'' \emph{Journal of Advances in Information Fusion}, vol.~11, no.~2, pp. 1--20, 2016}, the Bingham distribution on $\Sph^3$ is combined with Gaussian distribution in $\mathbb{R}^n$.
+				
+				\item Problems:
+				\begin{itemize}
+					\item These models do not have a generic geometric construction.
+					\item Their MLEs are complicated and need numerical optimizations, so they are \Emph{not suitable for real time implementations}.
+				\end{itemize}
+			\end{itemize}
+		
+			\item Objective: a New Model on $\SO{3}\times\mathbb{R}^n$
+			\begin{itemize}
+				\item Generic construction from directional statistics.
+				\item \Emph{Closed form maximum likelihood estimation}.
+			\end{itemize}
+		}
 	\end{itemize}
 \end{frame}
 
@@ -661,8 +687,26 @@ George Washington University, Washington DC\\$ $\\}
 	\frametitle{Attitude Estimation}
 	
 	\begin{itemize}
-		\item Attitude Observability with Single Direction Measurements
-		\item Attitude Estimation Based on MFG
+		\item Matrix Fisher Gaussian Distribution
+		\begin{itemize}
+			\item Defined on $\SO{3}\times \mathbb{R}^n$.
+			\item Extends the matrix Fisher distribution to deal with the correlation between $\SO{3}$ and $\mathbb{R}^n$.
+			\item Applications: simultaneous estimation of attitude and other Euclidean quantities.
+			\begin{itemize}
+				\item Sensor biases.
+				\item Velocity, position.
+				\item Landmark locations.
+			\end{itemize}
+		\end{itemize}
+	\end{itemize}
+	
+	\vspace{0.2cm}
+	\begin{itemize}
+		\item Application of MFG in Attitude Estimation
+		\begin{itemize}
+			\item Attitude Observability with Single Direction Measurements
+			\item Attitude Estimation Based on MFG
+		\end{itemize}
 	\end{itemize}
 \end{frame}
 
@@ -762,7 +806,7 @@ George Washington University, Washington DC\\$ $\\}
 			body-fixed frame (2b) & \color{red} observable & unobservable \\
 			inertial frame (2a) & unobservable & \color{red} observable
 		\end{tabular}
-	\end{table}	
+	\end{table}
 \end{frame}
 
 \begin{frame}
@@ -1186,8 +1230,11 @@ George Washington University, Washington DC\\$ $\\}
 
 \begin{frame}
 	\begin{itemize}
-		\item Loosely Coupled IMU-GNSS Integration
-		\item Visual-Inertial Navigation
+		\item Application of MFG in Attitude Estimation
+		\begin{itemize}
+			\item Loosely Coupled IMU-GNSS Integration
+			\item Visual-Inertial Navigation
+		\end{itemize}
 	\end{itemize}
 \end{frame}
 
@@ -1526,8 +1573,8 @@ George Washington University, Washington DC\\$ $\\}
 		
 			\item \Emph{Importance sampling}
 			\begin{itemize}
-				\item Find a matrix Fisher distribution $\mathcal{M}(F)$ through Wahba's problem.
-				\item Select sigma points $\{R_i,w_i\}_{i=1}^7$ from $\mathcal{M}(F)$.
+				\item Find a matrix Fisher distribution $\mathcal{M}(\tilde{F})$ through Wahba's problem.
+				\item Select sigma points $\{R_i,w_i\}_{i=1}^7$ from $\mathcal{M}(\tilde{F})$.
 				\item Reweigh the weights as $w_i^+ = w_i p_R(R_i) / p_\text{prop}(R_i)$.
 				\item Use MLE to the reweighed sigma points $\{R_i,w_i^+\}_{i=1}^7$.
 				\item Progressive update can also be applied to improve accuracy.
@@ -1793,7 +1840,7 @@ George Washington University, Washington DC\\$ $\\}
 		\item No Prior Information for the Map
 		\begin{itemize}
 			\item The features captured by cameras are usually geometric corners.
-			\item The map must be built incrementally from previously captured corners.
+			\item The map must be built incrementally from previously captured features.
 		\end{itemize}
 	
 		\vspace{0.2cm}
@@ -1847,29 +1894,33 @@ George Washington University, Washington DC\\$ $\\}
 	\frametitle{Summary of Contributions}
 	
 	\begin{itemize}
-		\item Matrix Fisher Distribution
+		\item Objective: Deal With \Emph{Large Attitude Uncertainty}
 		\begin{itemize}
-			\item Recursive algorithms for higher order central moments.
-			\item Highly concentrated approximates in two degrees of freedom.
+			\item Unknown initial conditions.
+			\item Not properly observed degree of freedom for attitude.
+			\item Sensor failure.
 		\end{itemize}
 	
 		\vspace{0.2cm}
-		\item Matrix Fisher--Gaussian Distribution
+		\item Contributions
 		\begin{itemize}
-			\item Construction and closed form maximum likelihood estimation.
-			\item Bingham--Gaussian distribution.
-		\end{itemize}
-	
-		\vspace{0.2cm}
-		\item Application of MFG to Estimation Problems
-		\begin{itemize}
-			\item Attitude estimation (observability) with gyroscope and direction measurements.
-			\item Loosely-coupled IMU-GNSS navigation.
-			\item Visual-inertial navigation.
-			\item Benefits of MFG
+			\item Use probability distribution \Emph{intrinsically defined on $\SO{3}$}.
+			\item Matrix Fisher distribution
 			\begin{itemize}
-				\item Better accuracy when the attitude uncertainty is large.
-				\item Faster convergence speed from wrong initial conditions.
+				\item Higher order moments and highly concentrated approximations.
+			\end{itemize}
+		
+			\item Matrix Fisher--Gaussian distribution (MFG)
+			\begin{itemize}
+				\item Correlation between attitude and Euclidean quantities.
+			\end{itemize}
+		
+			\item MFG in classical estimation problems
+			\begin{itemize}
+				\item Attitude estimation with gyroscope and direction sensors.
+				\item Loosely coupled IMU-GNSS navigation.
+				\item Visual-inertial navigation/odometry.
+				\item \Emph{Improved accuracy and convergence} speed when the attitude uncertainty is large.
 			\end{itemize}
 		\end{itemize}
 	\end{itemize}
