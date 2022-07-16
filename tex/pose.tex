@@ -18,7 +18,7 @@ In this section, the attitude estimation problem considered in Chapter \ref{sect
 More specifically, it is assumed that an inertial measurement unit (IMU) is attached to a rigid body, which has a gyroscope measuring the angular velocity, and an accelerometer measuring the linear acceleration, both in the body fixed frame.
 The linear acceleration can be transformed into the inertial frame using the integrated attitude, and then it can be integrated twice into position after subtracting the gravity component.
 It is also assumed that a global navigation satellite system (GNSS) receiver provides position measurements of the rigid body, which are used to correct the attitude and position integrated using the IMU.
-Since the pseudorange from GNSS is first converted into position measurements, and then used to correct the inertial navigation estimation, this is usually referred to as loosely coupled IMU-GNSS integration.
+Since the pseudorange from GNSS is first converted into position measurements, and then used to correct the inertial navigation estimation, this is usually referred to as \textit{loosely} coupled IMU-GNSS integration.
 
 The MEKF for attitude estimation can be generalized to deal with this inertial navigation setting \cite{sola2017quaternion}.
 However, as discussed in previous sections, it cannot handle large attitude uncertainty due to its inherent Gaussian assumption.
@@ -64,7 +64,7 @@ Also, $N_v$ fixed reference directions $a_j\in\Sph^2$ in inertial frame are meas
 All measurements at time $t_k$ are denoted by $\mathcal{Z}_k$.
 
 Suppose $(R_0,x_0) = (R_0,b_{g,0},p_0,v_0,b_{a,0})$ at the initial time $t_0$ follow an MFG with $n=12$ and parameters $(\mu_0,\Sigma_0,P_0,U_0,S_0,V_0)$ of appropriate dimensions.
-Given the IMU measurements $\{\Omega_k,a_k\}_{k=1}^\infty$, and all position, attitude, and direction measurements $\mathcal{Z}_{k=1}^\infty$, the problem is to find the posterior distribution of $(R_k,x_k) | \{\mathcal{Z}_m\}_{m=1}^k$, and approximate it to an MFG with parameters $(\mu_k, \Sigma_k, P_k, U_k, S_k, V_k)$.
+Given the IMU measurements $\{\Omega_k,a_k\}_{k=1}^\infty$, and all position, attitude, and direction measurements $\{\mathcal{Z}_k\}_{k=1}^\infty$, the problem is to find the posterior distribution of $(R_k,x_k) | \{\mathcal{Z}_m\}_{m=1}^k$, and approximate it to an MFG with parameters $(\mu_k, \Sigma_k, P_k, U_k, S_k, V_k)$.
 Similar to the attitude estimator, two steps are needed.
 In the uncertainty propagation step, the posterior distribution $(R_k,x_k) | \{\mathcal{Z}_m\}_{m=1}^k$ is propagated using the IMU kinematic equations \eqref{eqn:posEst-kinematics-attitude}-\eqref{eqn:posEst-kinematics-accebias} to the next time step as $(R_{k+1},x_{k+1}) | \{\mathcal{Z}_m\}_{m=1}^k$.
 Next, the propagated distribution is updated by the measurements $\mathcal{Z}_{k+1}$ using Bayes' formula into $(R_{k+1},x_{k+1}) | \{\mathcal{Z}_m\}_{m=1}^{k+1}$.
@@ -74,7 +74,7 @@ In the next two subsections, algorithms for these two steps are developed.
 
 Suppose $(R_k,x_k) | \{\mathcal{Z}_m\}_{m=1}^k \sim \mathcal{MG}(\mu_k, \Sigma_k, P_k, U_k, S_k, V_k)$.
 In this subsection, the moments of $(R_{k+1},x_{k+1})$ required for the MLE of MFG are calculated using the IMU kinematics equations \eqref{eqn:posEst-kinematics-attitude}-\eqref{eqn:posEst-kinematics-accebias}.
-One way of calculating those moments is to propagated deterministically sampled sigma points through the kinematic equations using the unscented transform of MFG, as introduced in Chapter \ref{section:attEst-propagation}.
+One way of calculating these moments is to propagated deterministically sampled sigma points through the kinematic equations using the unscented transform of MFG, as introduced in Chapter \ref{section:attEst-propagation}.
 This approach can be easily generalized to the inertial navigation settings considered in this subsection, and will not be discussed here.
 Instead, this subsection calculates approximate analytical expressions of the required moments.
 
@@ -169,15 +169,15 @@ To deal with this posterior density, it is first shown that \eqref{eqn:posEst-up
 	\end{align}
 	Then the posterior density \eqref{eqn:posEst-update-density} can be factorized into two parts:
 	\begin{align} \label{eqn:posEst-update-density-factor}
-		p(R,x|\mathcal{Z}) = f_R(R) f_{x|R}(x|R),
+		p(R,x|\mathcal{Z}) = p_R(R) p_{x|R}(x|R),
 	\end{align}
-	where the marginal part $f_R(R)$ is given by
+	where the marginal part $p_R(R)$ is given by
 	\begin{align} \label{eqn:posEst-update-density-R}
-		f_R(R) \propto \etr{\tilde{F}R^T} \expb{-\tfrac{1}{2}(H\mu_c-y)^T (\Sigma_y+H\Sigma_cH^T)^{-1} (H\mu_c-y)},
+		p_R(R) \propto \etr{\tilde{F}R^T} \expb{-\tfrac{1}{2}(H\mu_c-y)^T (\Sigma_y+H\Sigma_cH^T)^{-1} (H\mu_c-y)},
 	\end{align}
 	and the conditional part $f(x|R)$ is given by
 	\begin{align} \label{eqn:posEst-update-density-x|R}
-		f_{x|R}(x|R) \propto \expb{-\tfrac{1}{2} \big(x-(I-KH)\mu_c-Ky\big)^T \big((I-KH)\Sigma_c\big)^{-1} \big(x-(I-KH)\mu_c-Ky\big)},
+		p_{x|R}(x|R) \propto \expb{-\tfrac{1}{2} \big(x-(I-KH)\mu_c-Ky\big)^T \big((I-KH)\Sigma_c\big)^{-1} \big(x-(I-KH)\mu_c-Ky\big)},
 	\end{align}
 	where $I$ is an abbreviation of $I_{12\times 12}$.
 \end{lemma}
@@ -191,8 +191,8 @@ To deal with this posterior density, it is first shown that \eqref{eqn:posEst-up
 	which gives the desired \eqref{eqn:posEst-update-density-factor}.
 \end{proof}
 
-Note that the marginal part $f_R(R)$ does not depend on $x$, so according to the marginal-conditional MLE of MFG, the first step is to approximate $f_R(R)$ into the density function of a matrix Fisher distribution.
-Since the $\mu_c$ is linear in $R$, $f_R(R)$ has quadratic terms of $R$ in its exponent, making the expectation $\expect{R}$ corresponding to $f_R(R)$ impractical to be calculated directly from the density function.
+Note that the marginal part $p_R(R)$ does not depend on $x$, so according to the marginal-conditional MLE of MFG, the first step is to approximate $p_R(R)$ into the density function of a matrix Fisher distribution.
+Since the $\mu_c$ is linear in $R$, $p_R(R)$ has quadratic terms of $R$ in its exponent, making the expectation $\expect{R}$ corresponding to $p_R(R)$ impractical to be calculated directly from the density function.
 Instead, $\expect{R}$ is approximated using the unscented transform of matrix Fisher distribution \cite{gilitschenski2015unscented,lee2018bayesian} \footnote{The unscented transform in \cite{gilitschenski2015unscented} is developed for the Bingham distribution, and it can be converted to the matrix Fisher distribution using Theorem \ref{thm:Bh2MF}}.
 The idea is that the weighted sigma points $\{R_i,w_i\}_{i=1}^7$ are selected from $\mathcal{M}(\tilde{F})$, corresponding to the first part of \eqref{eqn:posEst-update-density-R}.
 The weights are reweighed by the second part of \eqref{eqn:posEst-update-density-R} as
@@ -265,10 +265,10 @@ Whereas if the unscented transform in \cite{gilitschenski2015unscented} is used,
 	\end{algorithmic}
 \end{table}
 
-Next, the conditional part of \eqref{eqn:posEst-update-density-factor}, i.e., the $f_{x|R}(x|R)$ in \eqref{eqn:posEst-update-density-x|R} is considered.
-As $f_R(R)$ in \eqref{eqn:posEst-update-density-R} has been approximated by the density function of the matrix Fisher distribution with parameter $F^+$, the posterior density \eqref{eqn:posEst-update-density-factor} is now approximated by
+Next, the conditional part of \eqref{eqn:posEst-update-density-factor}, i.e., the $p_{x|R}(x|R)$ in \eqref{eqn:posEst-update-density-x|R} is considered.
+As $p_R(R)$ in \eqref{eqn:posEst-update-density-R} has been approximated by the density function of the matrix Fisher distribution with parameter $F^+$, the posterior density \eqref{eqn:posEst-update-density-factor} is now approximated by
 \begin{align} \label{eqn:posEst-update-density-approx}
-	p(R,x|\mathcal{Z}) \approx c \cdot \etr{F^+R^T} f_{x|R}(x|R),
+	p(R,x|\mathcal{Z}) \approx c \cdot \etr{F^+R^T} p_{x|R}(x|R),
 \end{align}
 where $c$ is a constant independent of $(R,x)$.
 Let $F^+ = U^+S^+(V^+)^T$ be its proper singular value decomposition, define $\nu_R^+ = (Q^+S^+ - S^+(Q^+)^T)^\vee$ for MFGI, or $\nu_R^+ = (S^+Q^+ - (Q^+)^TS^+)^\vee$ for MFGB, with $Q^+ = (U^+)^TS^+V^+$.
@@ -351,7 +351,7 @@ This indicates an initial condition with relatively small attitude uncertainty.
 To challenge the filters with large uncertainty, in the second case, it is assumed that the gravity direction is given by the first accelerometer measurement, assuming zero free acceleration.
 And the rotation around gravity is set as the true direction rotated by $\SI{180}{\deg}$, indicating a completely wrong heading.
 This scenario is frequently encountered in practical navigation problems when the initial heading direction cannot be estimated, for example in a building where the magnetometer reading is unreliable.
-The initial attitude uncertainties in the directions perpendicular to gravity, i.e., $s_1$ for MFG, and the first two diagonal entries of the covariance matrix for MEKF, are determined from the accuracy of the accelerometer.
+The initial attitude uncertainties in the directions perpendicular to gravity, i.e., $s_1+s_2$ and $s_1+s_3$ for MFG, and the first two diagonal entries of the covariance matrix for MEKF, are determined from the accuracy of the accelerometer.
 And the initial uncertainty in the heading direction is set for MFG as $s_2 = s_3 = 0$, and for MEKF as $1000$ for the third diagonal entry of the covariance matrix.
 All initial correlation terms are set as zero.
 
@@ -402,7 +402,7 @@ In the presence of large initial attitude uncertainty, the two MFG filters have 
 The error trajectory of a single simulation is presented in Figure \ref{fig:posEst-error}.
 It is seen that the major advantage of MFG filters is that the attitude error converges much faster than MEKF.
 Although the estimation errors for other quantities are initially small for all filters, the wrong estimation of attitude makes the error grow very large for MEKF later.
-This is because the integrated velocity and position from \eqref{eqn:posEst-kinematics-velocity} and \eqref{eqn:posEst-kinematics-pos} contains large error due to the inaccuracy of attitude, but the MEKF still maintains small variance of these integrated values, giving falsely high confidence to them in the measurement update step.
+This is because the integrated velocity and position from \eqref{eqn:posEst-kinematics-velocity} and \eqref{eqn:posEst-kinematics-pos} contain large error due to the inaccuracy of attitude, but the MEKF still maintains small variance of these integrated values, giving falsely high confidence to them in the measurement update step.
 
 \begin{figure}
 	\centering
@@ -469,7 +469,7 @@ Suppose the coordinates of landmarks in the inertial frame are given as $\{p_i\}
 These are measured by a camera in the body-fixed frame as $\{p'_i\}_{i=1}^N$.
 It is assumed that the correspondences are known, i.e., $p'_i$ is the measurement of $p_i$, for $i = 1,\ldots,N$.
 The pose of the rigid body is denoted by $(R,t)\in\SE{3}$, where $\SE{3}$ is the three dimensional Euclidean group.
-The measurements are affected by noises which are assumed to be zero mean Gaussian, with covariance matrices $A_i$, i.e.,
+The measurements are affected by noises which are assumed to be Gaussian with zero mean and covariance matrices $A_i$, i.e.,
 \begin{align}
 	p'_i = R^T(p_i-t) + \mathcal{N}(0,A_i).
 \end{align}
@@ -480,9 +480,9 @@ The negative log-likelihood function of $(R,t)$ given the point measurements can
 \begin{align} \label{eqn:VIO-likelihood}
 	f(p'_1,\ldots,p'_N | R,t) = \sum_{i=1}^N \big(R^T(p_i-t)-p'_i\big)^T A_i^{-1} \big(R^T(p_i-t)-p'_i\big).
 \end{align}
-The conventional method to find $(R,t)$ is to solve the maximum likelihood estimation by posting the above equation into a least square problem, and finding the maximum using Gauss-Newton or Levenberg–Marquardt algorithm.
+The conventional method to find $(R,t)$ is to solve the maximum likelihood estimation by posting the above equation into a least square problem, and finding the minimum using Gauss-Newton or Levenberg–Marquardt algorithm.
 Denote the Jacobian matrix of the residual error with respect to $(R,t)$ as $J_r\in\mathbb{R}^{3N\times 6}$ in the last step of the optimization, then the covariance of the estimated pose is approximated by $(J_r^TJ_r)^{-1}$.
-However, this method is expected to only deal with small uncertainty, and in this subsection \eqref{eqn:VIO-likelihood} is approximated by the exponent of an MFG as in \eqref{eqn:MFG-density}.
+However, this method is expected to only deal with small uncertainty, and in this subsection, \eqref{eqn:VIO-likelihood} is approximated by the exponent of an MFG as in \eqref{eqn:MFG-density}.
 
 As in chapter \ref{section:posEst-update}, the idea is to decompose \eqref{eqn:VIO-likelihood} into two parts: the marginal likelihood of $R$, and the conditional likelihood of $x|R$.
 And then the MLE for MFG can be used to recover the parameters from these two likelihood functions.
@@ -493,9 +493,9 @@ This decomposition is formulated in the following theorem.
 	Define $T\in\mathbb{R}^{(N-1)\times N}$ as
 	\begin{align}
 		T = \begin{bmatrix} 
-			\frac{N-1}{N} I_{3\times 3} & \cdots & -\frac{1}{N} I_{3\times 3} & -\frac{1}{N} I_{3\times 3}
+			\frac{N-1}{N}  & \cdots & -\frac{1}{N}  & -\frac{1}{N}
 			\\ \vdots & \ddots & \vdots & \vdots
-			\\ -\frac{1}{N} I_{3\times 3} & \cdots & \frac{N-1}{N} I_{3\times 3} & -\frac{1}{N} I_{3\times 3} 
+			\\ -\frac{1}{N} & \cdots & \frac{N-1}{N} & -\frac{1}{N}
 		\end{bmatrix},
 	\end{align}
 	and $\mathbf{T} = T\otimes I_{3\times 3} \in \mathbb{R}^{3(N-1)\times 3N}$.
@@ -507,7 +507,7 @@ This decomposition is formulated in the following theorem.
 		C &= \mathbf{Y}\mathbf{A}\mathbf{Y}^T - \mathbf{Y}\mathbf{A}\mathbf{T}^T (\mathbf{T}\mathbf{A}\mathbf{T}^T)^{-1} \mathbf{T}\mathbf{A}\mathbf{Y}^T, \label{eqn:VIO-likelihood-C} \\
 		\mathbf{D} &= \mathbf{Y}\mathbf{A}\mathbf{T}^T (\mathbf{T}\mathbf{A}\mathbf{T}^T)^{-1} \mathbf{T} - \mathbf{Y}. \label{eqn:VIO-likelihood-D}
 	\end{align}
-	Let $\mathbf{D}$ be written in block as $\mathbf{D} = \big[D_1, \cdots, D_N\big]$, where $D_i\in\mathbb{R}^{3\times 3}$ for $i=1,\ldots,N$.
+	Let $\mathbf{D}$ be written in block form as $\mathbf{D} = \big[D_1, \cdots, D_N\big]$, where $D_i\in\mathbb{R}^{3\times 3}$ for $i=1,\ldots,N$.
 	Then, the likelihood \eqref{eqn:VIO-likelihood} can be decomposed as
 	\begin{align}
 		f(p'_1,\ldots,p'_N | R,t) = f_R(R) + f_{t|R}(t|R),
@@ -557,7 +557,7 @@ This decomposition is formulated in the following theorem.
 	Substitute these into \eqref{eqn:VIO-likelihood-conditional-proof} yields $f(p'_1,\ldots,p'_N | R,t) - f_R(R) = f_{x|R}(x|R)$.
 \end{proof}
 
-With this decomposition of the likelihood \eqref{eqn:VIO-likelihood}, the marginal part $f_R(R)$ can be first approximated by a matrix Fisher density, then the conditional part $f_{x|R}(x|R)$ can be use in Theorem \ref{thm:MFG-MLE-conditional} to recover the parameters $\mu$, $\Sigma$, and $P$ of the MFG.
+With this decomposition of the likelihood \eqref{eqn:VIO-likelihood}, the marginal part $f_R(R)$ can be first approximated by a matrix Fisher density, then the conditional part $f_{x|R}(x|R)$ can be used in Theorem \ref{thm:MFG-MLE-conditional} to recover the parameters $\mu$, $\Sigma$, and $P$ of the MFG.
 
 \paragraph{Marginal Likelihood}
 
@@ -577,7 +577,7 @@ With these notations, the marginal likelihood \eqref{eqn:VIO-likelihood-marginal
 
 Now finding the $R\in\SO{3}$ that maximizes $f_R(R)$ becomes very similar to the classic Wahba's problem \cite{markley1988attitude,shuster1981three}.
 In other words, $q'_i$ can be regarded as direction measurements of $q_i$, for $i=1,\ldots,N-1$, and $R$ can be found by aligning these two sets of directions.
-However, the difficulty is that $q'_i$ are correlated, since $\mathbf{T}\mathbf{A}\mathbf{T}^T$ in general has nonzero diagonal terms.
+However, the difficulty is that $\{q'_i\}$ are correlated, since $\mathbf{T}\mathbf{A}\mathbf{T}^T$ in general has nonzero off-diagonal terms.
 Two cases are considered here: (i) all measurements have equal covariance matrices, i.e. $A_1 = \cdots = A_N$, and (ii) the covariance matrices are different.
 It is firstly shown that for equal covariance matrices, a linear transform can be applied to $\{q_i\}_{i=1}^{N-1}$ again to make them uncorrelated, so $R$ can be found using an algorithm similar to Theorem III.2 in \cite{lee2018bayesian}.
 
@@ -596,7 +596,7 @@ It is firstly shown that for equal covariance matrices, a linear transform can b
 	where $\bm{r}'$ and $\bm{r}_m$ are the concatenation of $\{r'_i\}_{i=1}^{N-1}$ and $\{R^T r_i\}_{i=1}^{N-1}$ respectively.
 \end{theorem}
 \begin{proof}
-	The invertibility of $TT^T \in \mathbb{R}$ can be verified by direction calculation.
+	The invertibility of $TT^T$ can be verified by direction calculation.
 	Also, it can be easily shown that $\bm{r}' = (U\otimes I_{3\times 3}) \bm{q}'$, and $\bm{r}_m = (U\otimes I_{3\times 3})\bm{q}_m$.
 	Note that $(U\otimes I_{3\times 3})^{-1} = U^T\otimes I_{3\times 3} = (U\otimes I_{3\times 3})^T$, so $\bm{q}' = (U\otimes I_{3\times 3})^T \bm{r}'$, and $\bm{q}_m = (U\otimes I_{3\times 3})^T \bm{r}_m$.
 	Then by \eqref{eqn:VIO-likelihood-marginal-q}, $f_R(R)$ can be written as
@@ -709,16 +709,16 @@ The pseudocode to match \eqref{eqn:VIO-likelihood-marginal} to a matrix Fisher d
 
 In summary, after matching the marginal likelihood \eqref{eqn:VIO-likelihood-marginal} to a matrix Fisher distribution with parameter $F$, the full likelihood \eqref{eqn:VIO-likelihood} has been approximated by
 \begin{align} \label{eqn:VIO-likelihood-approx}
-	\expb{-\tfrac{1}{2}f(p'_1,\ldots,p'_N|R,t)} \approx c\cdot \etr{FR^T} \expb{-\tfrac{1}{2}f_{x|R}(x|R)},
+	\expb{-\tfrac{1}{2}f(p'_1,\ldots,p'_N|R,t)} \approx c\cdot \etr{FR^T} \expb{-\tfrac{1}{2}f_{t|R}(t|R)},
 \end{align}
-where $c$ is a normalizing constant, and $f_{x|R}(x|R)$ is the conditional likelihood \eqref{eqn:VIO-likelihood-conditional}.
+where $c$ is a normalizing constant, and $f_{t|R}(t|R)$ is the conditional likelihood \eqref{eqn:VIO-likelihood-conditional}.
 In the next subsection, the conditional likelihood \eqref{eqn:VIO-likelihood-conditional} is further used to match \eqref{eqn:VIO-likelihood-approx} to an MFG density.
 
 \paragraph{Conditional Likelihood}
 
 As before, the conditional likelihood is handled by the conditional MLE of MFG in Theorem \ref{thm:MFG-MLE-conditional}.
 After obtaining $F$ from the marginal likelihood, let $F = USV^T$ be its pSVD, and define $\nu_R = (QS-SQ^T)^\vee$ for MFGI, or $\nu_R = (SQ-Q^TS)^\vee$ for MFGB, with $Q = U^TRV$.
-To use the theorem, the following moments needs to be calculated: $\expect{t}$, $\expect{t\nu_R^T}$, and $\expect{tt^T}$.
+To use the theorem, the following moments need to be calculated: $\expect{t}$, $\expect{t\nu_R^T}$, and $\expect{tt^T}$.
 These moments are according to the density function \eqref{eqn:VIO-likelihood-approx}.
 As shown in \eqref{eqn:VIO-likelihood-mu_{t|R}}, clearly $\expect{tt^T}$ involves the fourth order of $R$, which currently do not have closed form formulae.
 To simplify these moments, the follow lemma is very useful.
@@ -771,7 +771,7 @@ Then the moments required for the conditional MLE of MFG are evaluated as follow
 \end{proof}
 
 It is notable that the complexity for $\expect{tt^T}$ in \eqref{eqn:VIO-likelihood-Ett} is $O(N^2)$, which becomes computationally demanding if the number of points is large.
-This cannot be avoided for general cases, but in next theorem, it is shown that if all measurements have the same covariance matrices, the expressions for $\expect{t}$, $\expect{t\nu_R^T}$, and $\expect{tt^T}$ can be greatly simplified.
+This cannot be avoided for general cases, but in next theorem, it is shown that if all measurements have the same covariance matrix, the expressions for $\expect{t}$, $\expect{t\nu_R^T}$, and $\expect{tt^T}$ can be greatly simplified.
 
 \begin{theorem} \label{thm:VIO-conditional-sim}
 	Let $p_c = \tfrac{1}{N}\sum_{i=1}^N p_i$, and $p'_c = \tfrac{1}{N}\sum_{i=1}^N p'_i$.
@@ -783,7 +783,7 @@ This cannot be avoided for general cases, but in next theorem, it is shown that 
 	\end{align}
 \end{theorem}
 \begin{proof}
-	Let $Y = \tfrac{1}{N}[1,\ldots,1]\in\mathbb{R}^{1,N}$ so that $\mathbf{Y} = Y\otimes I_{3\times 3}$.
+	Let $Y = \tfrac{1}{N}[1,\ldots,1]\in\mathbb{R}^{1\times N}$ so that $\mathbf{Y} = Y\otimes I_{3\times 3}$.
 	Note that $YT^T = 0$, so it can be shown that
 	\begin{align*}
 		\mathbf{YAT}^T = (Y\otimes I_{3\times 3})(I_{N\times N}\otimes A) (T^T\otimes I_{3\times 3}) = YT^T\otimes A = 0.
@@ -834,11 +834,11 @@ According to the Bayes' formula, the posterior density for $(R,y)$ after incorpo
 	&= \expb{-\tfrac{1}{2}\sum_{i=1}^N \big(R^T(p_i-Hy)-p'_i\big)^T A_i^{-1} \big(R^T(p_i-Hy)-p'_i\big)} \nonumber \\
 	&\qquad \cdot \etr{FR^T} \expb{-\tfrac{1}{2}(y-\mu_c)^T \Sigma_c^{-1} (y-\mu_c)},
 \end{align}
-where the first exponential term on the right hand side is the likelihood \eqref{eqn:VIO-likelihood}, with $H = [I_{3\times 3}, 0_{3\times (n-3)}]$ selects $t$ from $y$.
+where the first exponential term on the right hand side is the likelihood \eqref{eqn:VIO-likelihood}, with $H = [I_{3\times 3}, 0_{3\times (n-3)}]$ selecting $t$ from $y$.
 The intermediate parameters $F$, $\mu_c$, and $\Sigma_c$ are defined with respect to $\mathcal{MG}(\mu,\Sigma,P,U,S,V)$.
 Next, matching the posterior density $p(R,y|p'_1,\ldots,p'_N)$ to an MFG is studied.
 
-In Theorem \ref{thm:VIO-factor}, the likelihood $f(p'_1,\ldots,p'_N|R,t)$ has been factorized into the marginal $f_R(R)$ and the conditional $f_{x|R}(x|R)$, which can be directly applied to the posterior density.
+In Theorem \ref{thm:VIO-factor}, the likelihood $f(p'_1,\ldots,p'_N|R,t)$ has been factorized into the marginal $f_R(R)$ and the conditional $f_{t|R}(t|R)$, which can be directly applied to the posterior density.
 \begin{align} \label{eqn:VIO-posterior-factor1}
 	&p(R,y|p'_1,\ldots,p'_N) \propto \expb{FR^T} \expb{-\tfrac{1}{2}(\bm{q}'-\bm{q}_m)^T \big(\mathbf{T}\mathbf{A}\mathbf{T}^T\big)^{-1} (\bm{q}'-\bm{q}_m)} \nonumber \\
 	&\qquad \cdot \expb{-\tfrac{1}{2}(y-\mu_c)^T \Sigma_c^{-1} (y-\mu_c)} \expb{-\tfrac{1}{2}(Hy - \mu_{t|R})^T C^{-1} (Hy - \mu_{t|R})}
@@ -935,7 +935,7 @@ To distinguish these moments with those moments according to the prior $\mathcal
 	\end{align}
 \end{theorem}
 \begin{proof}
-	The proof is a very straightforward extension of Theorem \ref{thm:posEst-update-moments}, with $y$ replaced by $\mu_{t|R}$.
+	The proof is a very straightforward extension of Theorem \ref{thm:posEst-update-moments}, with $y$ in \eqref{eqn:posEst-update-density-x|R} replaced by $\mu_{t|R}$.
 \end{proof}
 
 With these moments, the conditional MLE of $\mu^+$, $\Sigma^+$, and $P^+$ can be obtained using Theorem \ref{thm:MFG-MLE-conditional} as before.
@@ -950,7 +950,7 @@ First, the algorithm in Table \ref{tab:VIO-pose} without pose prior is tested.
 The true attitude is set as $R_t = \expb{\tfrac{\pi}{2}\hat{e}_3}$, and the true translation is $t_t = [5,0,0]^T$.
 The measurement noise is set as $A_1 = \cdots = A_N = 0.5^2I_{3\times 3}$, and the number of points are varied as $N\in\{4,\allowbreak 6,\allowbreak 8,\allowbreak 10,\allowbreak 12,\allowbreak 14,\allowbreak 16,\allowbreak 18,\allowbreak 20\}$.
 Smaller number of points indicates more uncertainty in the estimation of pose.
-The map points $\{p_i\}_{i=1}^N$ are randomly scattered as $p_i = t_t + \xi_i$, where $\xi_i\in\mathbb{R}^3$ is a three dimensional uniform distribution on $[0,1]^3$.
+The map points $\{p_i\}_{i=1}^N$ are randomly scattered as $p_i = t_t + \xi_i$, where $\xi_i\in\mathbb{R}^3$ follows a three dimensional uniform distribution on $[0,1]^3$.
 For the algorithm in Table \ref{tab:VIO-pose}, the attitude estimate is given as $UV^T$, and the translation estimate is given as $\mu$.
 A thousand Monte Carlo simulations are carried out for each $N$ with respect to the random measurement noises.
 Paired $t$-test with significance level at $\alpha = 0.001$ are used to detect significant differences between the two algorithms.
@@ -997,7 +997,7 @@ Paired $t$-test with significance level at $\alpha = 0.001$ are used to detect s
 
 The estimation errors of the two algorithms are listed in Table \ref{tab:VIO-pose-error}.
 Unfortunately, the attitude estimation from the MFG based method is worse than the LM optimization, and their difference is significant when $N>8$.
-This is not surprising because the optimization method finds the maximum likelihood estimation directly, and should have better accuracy if the algorithms converges properly.
+This is not surprising because the optimization method finds the maximum likelihood estimation directly, and should have better accuracy if the algorithm converges properly.
 The translation (position) estimation for MFG is worse than the LM method when $N=20$, but it becomes better when $N<12$.
 The reason for this is currently unknown, but it may indicate that the gradient based optimization is not very effective when the uncertainty is large, i.e., the Hessian or the Fisher information is small.
 
@@ -1032,9 +1032,9 @@ It can be seen that when $N>10$, the KL divergence for the LM method is slightly
 When $N \leq 10$, because the uncertainty in pose increases, the KL-divergence of the MFG becomes smaller.
 And when $N=4$ or 3, it becomes notably smaller than the LM method, indicating MFG is more accurate when dealing with very large uncertainty in the pose.
 
-Next, the pose estimation algorithms is challenged with a singular configuration when the attitude has one degree of freedom that is not properly observed.
+Next, the pose estimation algorithms are challenged with a singular configuration when the attitude has one degree of freedom that is not properly observed.
 More specifically, the true attitude is set as $R_t = \expb{\tfrac{\pi}{2}\hat{e}_1}\expb{\tfrac{\pi}{2}\hat{e}_2}$, and the true translation is set as $t_t = [0,0,0]^T$.
-There are ten map points, scattered as $p_i = [5,0,0]^T + \xi_i$, where $\xi_i\in\mathbb{R}^3$ is a three dimensional uniform distribution on $[-1,1] \times [-a,a]^2$, and $a$ is varied in $\{1,0.1,0.01,0\}$.
+There are ten map points, scattered as $p_i = [5,0,0]^T + \xi_i$, where $\xi_i\in\mathbb{R}^3$ follows a three dimensional uniform distribution on $[-1,1] \times [-a,a]^2$, and $a$ is varied in $\{1,0.1,0.01,0\}$.
 As $a$ is decreased, the map points are closer to the $e_1$-axis of the inertial frame, making the rotation about this axis gradually becomes unobservable.
 The measurement noise is set as $A_1 = \cdots = A_N = 0.1^2I_{3\times 3}$.
 
@@ -1061,9 +1061,9 @@ The measurement noise is set as $A_1 = \cdots = A_N = 0.1^2I_{3\times 3}$.
 The estimation errors of the MFG and LM methods are listed in Table \ref{tab:VIO-pose-error2}.
 It is shown that the two methods have very similar accuracy of attitude errors, and the error becomes very large when $a = 0.01$ or 0, indicating that the attitude cannot be fully observed due to the placement of the map points.
 On the other hand, the translation accuracy of the MFG method is much better than the LM optimization when $a = 0.01$ or 0.
-Inspection of the Jacobian $J_r^TJ_R$ indicates that it becomes almost singular, due to the unobservability of attitude for the LM optimization.
-Since $J_r^TJ_R$ is used to calculate the step size in the LM-optimization, this possibly explains why it has worse accuracy.
-Interestingly, when $a$ is close to zero, the translation accuracy is even better than that when $a$ is relatively large.
+Inspection of the Jacobian $J_r^TJ_r$ indicates that it becomes almost singular, due to the unobservability of attitude for the LM optimization.
+Since $J_r^TJ_r$ is used to calculate the step size in the LM-optimization, this possibly explains why it has worse accuracy.
+Interestingly, when $a$ is close to zero, the translation accuracy for MFG is even better than that when $a$ is relatively large.
 
 Finally, the measurement update algorithm in Table \ref{tab:VIO-update} is combined with the uncertainty propagation in Table \ref{tab:posEst-prop} into a recursive Bayesian filter.
 This filter is compared with the MEKF based method in a visual-inertial navigation setting.
@@ -1118,7 +1118,7 @@ A hundred Monte Carlo simulations are carried out for both initial conditions, a
 
 For the MFG filter, only definition MFGI is tested, because all linear components, i.e., velocity and position, are defined in the inertial frame.
 The estimation errors for MFG and MEKF are summarized in Table \ref{tab:VIO-filter-error}.
-It demonstrates that MEKF has slightly better accuracy than MFG for the small initial uncertainty case, which is consistent with the results in Table \eqref{tab:VIO-pose-error} for static pose estimation.
+It demonstrates that MEKF has slightly better accuracy than MFG for the small initial uncertainty case, which is consistent with the results in Table \ref{tab:VIO-pose-error} for static pose estimation.
 But their relative differences are very small compared to the magnitude of error.
 On the other hand, for large initial uncertainty, the MFG filter behaves much better than MEKF.
 The trajectory of the estimation error for one particular simulation is presented in Figure \ref{fig:VIO-filter-error}.
@@ -1139,7 +1139,7 @@ And the reason for this slow convergence can be attributed to that the Gaussian 
 In Chapter \ref{section:VIO-pose}, an algorithm is developed to model the uncertainty of the pose $(R,t)\in\SE{3}$ that aligns two point sets.
 In particular, the map point set is assumed to be perfectly known, and the measurement point set is affected by random noises.
 However, in some cases the noise of map point set also needs to be modeled.
-For example, the 3D coordinates of triangulated features from a stereo camera have larger noises when the feature is further away from the camera, so it may be beneficial to also model the uncertainty of those triangulated map points.
+For example, the 3D coordinates of triangulated features from a stereo camera have larger noises when the feature is further away from the camera, so it may be beneficial to also model this difference in uncertainty after the features are added to the map.
 In this subsection, the MFG is used to model the pose where the map point set also suffers from noises.
 
 Suppose there are $N$ landmarks, whose coordinates in the inertial frame are denoted by $\{p_i\}_{i=1}^N$.
@@ -1274,7 +1274,7 @@ Also, the conditional mean $\mu_{t|R}$ is simplified as follows
 \begin{align}
 	\mu_{t|R} = \sum_{i=1}^N \tilde{D}_i(Rp'_i-\bar{p}_i).
 \end{align}
-With these simplifications, the conditional mean $\mu_{t|R}$ and covariance matrices $\Sigma_{x|R}$ has exactly the same expression as in \eqref{eqn:VIO-likelihood-conditional-sim}, so the moments $\expect{t}$, $\expect{t\nu_R^T}$, and $\expect{tt^T}$ according to \eqref{eqn:VIO-likelihood-map-tp}, that are necessary for the conditional MLE, can be calculated as in Theorem \ref{thm:VIO-conditional} or Theorem \ref{thm:VIO-conditional-sim}, with $C$, $D_i$, and $p_i$ replaced by $\tilde{C}$, $\tilde{D}_i$, and $\bar{p}_i$, depending on whether $A_1+B_1 = \cdots = A_N+B_N$.
+With these simplifications, the conditional mean $\mu_{t|R}$ and covariance matrix $\Sigma_{t|R}$ have exactly the same expression as in \eqref{eqn:VIO-likelihood-conditional-sim}, so the moments $\expect{t}$, $\expect{t\nu_R^T}$, and $\expect{tt^T}$ according to \eqref{eqn:VIO-likelihood-map-tp}, that are necessary for the conditional MLE, can be calculated as in Theorem \ref{thm:VIO-conditional} or Theorem \ref{thm:VIO-conditional-sim}, with $C$, $D_i$, and $p_i$ replaced by $\tilde{C}$, $\tilde{D}_i$, and $\bar{p}_i$, depending on whether $A_1+B_1 = \cdots = A_N+B_N$.
 Also, the moments $\expect{p_i}$ and $\expect{p_ip_i^T}$ are given as follows.
 
 \begin{theorem} \label{thm:VIO-likelihood-Ep}
@@ -1311,7 +1311,7 @@ The pseudocode is summarized in Table \ref{tab:VIO-pose-map}.
 		\algrule[0.8pt]
 		\Procedure{($\mathcal{MG}, \{\mathcal{N}_i^+\}) = $ Pose-Map Estimation}{$\{p'_i\}$, $\{\mathcal{N}_i(\bar{p}_i,B_i)\}$}
 		\algrule
-		\State Obtain $F=$ Attitude Estimation($\{\bar{p}_i\}$, $\{p'_i\}$) in Table \ref{tab:VIO-marginal} with $A_i$ replaced by $A_i+B_i$, and $\expb{-\tfrac{1}{2}f_R(R)}$ as the first term on the right hand side of \eqref{eqn:VIO-likelihood-map-Rt-factor}.
+		\State Obtain $F=$ Attitude Estimation($\{\bar{p}_i\}$, $\{p'_i\}$) in Table \ref{tab:VIO-marginal} with $A_i$ replaced by $A_i+B_i$, and $\expb{-\tfrac{1}{2}f_R(R)}$ by the first term on the right hand side of \eqref{eqn:VIO-likelihood-map-Rt-factor}.
 		\State Let $F = USV^T$ be its pSVD.
 		\State Calculate $\expect{\nu_R\nu_R^T}$ as in \eqref{eqn:MFG-EvRvR} using $S$.
 		\If{$A_1+B_1 = \cdots = A_N+B_N$}
@@ -1510,7 +1510,7 @@ For the third case when the initial heading direction is completely reversed, th
 The estimation error for one particular simulation is presented in Figure \ref{fig:VIO-map-filter-error1}, and the estimated trajectory of the vehicle and final map point coordinates are shown in Figure \ref{fig:VIO-map-filter-trajectory1}.
 Similar to the simulation without prior map noises (Figure \ref{fig:VIO-trajectory}), the MEKF suffers from convergence problems.
 Moreover, since MEKF also estimates map coordinates in this simulation, they are also adversely affected by the wrong attitude estimation.
-These large errors in the estimated map coordinates further contributes to large pose errors in the subsequent estimation, making the filter unable to converge at all.
+These large errors in the estimated map coordinates further contribute to large pose errors in the subsequent estimation, making the filter unable to converge at all.
 Therefore, as seen in Figure \ref{fig:VIO-map-filter-error1}, the estimation error for MEKF becomes periodic as the vehicle circles around, i.e., it has smaller errors near where it starts because of the smaller map error.
 This signifies the advantage of MFG filter that has very fast convergence speed thanks to its better accuracy when modeling large attitude uncertainty, and linearization free measurement update.
 
@@ -1542,10 +1542,10 @@ But its first and second order moments can be calculated as
 \end{align}
 So the distribution of $p_i$ can be matched to $\mathcal{N}(\expect{p_i}, \expect{p_ip_i^T}-\expect{p_i}\expect{p_i}^T)$.
 But unfortunately, using Gaussian to model the distribution of $p_i$ is very inaccurate when $R$ has large uncertainty.
-For example, if $R$ has a uniform distribution on $\SO{3}$, i.e., when $S = 0_{3\times 3}$, the density of $p_i$ is a spherical thin shell centered around $t$, which cannot be approximated by a Gaussian distribution.
+For example, if $R$ has a uniform distribution on $\SO{3}$, i.e., when $S = 0_{3\times 3}$, the shape of the density for $p_i$ is a spherical thin shell centered around $t$, which cannot be approximated by a Gaussian distribution.
 
-As a consequence, for the third simulation case when the attitude error is initialized as $S = 0.01I_{3\times 3}$, the resulting uncertainty of the map coordinates cannot be accurately modeled by Gaussian.
-In order to circumvent this problem but still test the proposed algorithm in visual-inertial odometry settings, in the next simulation, only the features measured in the first second are assumed to have a map prior, and subsequent map coordinates are modeled by Gaussian distribution with the first and second moments.
+As a consequence, for the third simulation case when the attitude error is initialized as $S = 0.01I_{3\times 3}$, the resulting uncertainty of the map coordinates cannot be accurately modeled by Gaussian distributions.
+In order to circumvent this problem but still test the proposed algorithm in visual-inertial odometry settings, in the next simulation, only the features measured in the first second are assumed to have a map prior, and subsequent map coordinates are built incrementally from the camera measurements, modeled by Gaussian distributions with the first and second moments.
 
 \begin{table}
 	\centering
@@ -1579,8 +1579,8 @@ In order to circumvent this problem but still test the proposed algorithm in vis
 \end{table}
 
 The estimation errors for the three cases are summarized in Table \ref{tab:VIO-map-filter-error2}.
-For the normal, and large map uncertainty cases, the MFG filter is slightly more accurate than MEKF, but most differences are statistically insignificant, indicating that the MFG and Gaussian distributions work similarly well for these cases when then attitude uncertainty is relatively small.
-However, when coming to the third case where the initial attitude uncertainty is very large, the MEKF again does not converge.
+For the normal, and large map uncertainty cases, the MFG filter is slightly more accurate than MEKF, but most differences are statistically insignificant, indicating that the MFG and Gaussian distributions work similarly well for these cases when the attitude uncertainty is relatively small.
+However, coming to the third case where the initial attitude uncertainty is very large, the MEKF again does not converge.
 This is indicated in Figure \ref{fig:VIO-map-filter-error2}, where the estimation errors for a particular simulation is presented; and in Figure \ref{fig:VIO-map-filter-trajectory2}, where the trajectory of the vehicle and the estimated feature positions are shown.
 In this simulation, because there are no map priors for the features measured after one second, the trajectory and map coordinates estimated by MEKF are exactly rotated around the vertical axis by $\SI{180}{\deg}$, i.e., they are not constrained by the map priors as in Figure \ref{fig:VIO-map-filter-trajectory1}.
 This is usually considered to be successful in visual-inertial odometry algorithms since the shape of the trajectory is accurately estimated.
@@ -1611,7 +1611,7 @@ The data are collected with a BMI1055 IMU at $\SI{100}{\hertz}$, and a Structure
 The five trials ``lab\_bumper1'' to ``lab\_bumper5'' are used, where the IMU and camera are attached to a wheeled robot, moving around an indoor environment installed with speed bumps to provide 3D motions.
 
 Next, some implementation details of the algorithms are described.
-The map is composed of a set of previously detected points, including their coordinates in the inertial frame (and their uncertainties for the algorithm in Chapter \ref{section:VIO-pose-map}), their ORB features \cite{mur2015orb}, their viewing directions (a unit vector connecting the camera and the position of the point in inertial frame), and time indices denoting the last frame in which they are detected.
+The map is composed of a set of previously detected points, including their coordinates in the inertial frame (and their uncertainties for the algorithm in Chapter \ref{section:VIO-pose-map}), their ORB features \cite{mur2015orb}, their viewing directions (a unit vector connecting the camera and the position of the point in inertial frame), and time indices denoting the last frame in which they were detected.
 The visual features are detected using the MATLAB \texttt{detectORBFeatures} function, and extracted into ORB features.
 After valid points are detected for the current frame, they are matched
 to the map.
@@ -1642,7 +1642,7 @@ In particular, the algorithms with map uncertainty behave better in the first an
 The performance of the MFG filter and MEKF when the map is fixed is almost indistinguishable; whereas if the map coordinates have uncertainty, the MFG filter seems to be a little worse than MEKF.
 
 As discussed in Chapter \ref{section:VIO-pose-map}, the uncertainty of map coordinates cannot be modeled by Gaussian distributions when the attitude uncertainty is large.
-Therefore, for this odometry problem, the tested algorithms, including the MFG filters, cannot deal with wrong initial attitude as in the simulation studies.
+Therefore, for this odometry problem, all tested algorithms, including the MFG filters, cannot deal with wrong initial attitude as in the simulation studies.
 Also, this testing with real world dataset is still too preliminary to draw any conclusions, as the parameters for the filters are not well tuned, and the sensor biases are not estimated.
 These will be pursued in future works.
 
