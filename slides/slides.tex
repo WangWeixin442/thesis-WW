@@ -1230,7 +1230,7 @@ George Washington University, Washington DC\\$ $\\}
 
 \begin{frame}
 	\begin{itemize}
-		\item Application of MFG in Attitude Estimation
+		\item Application of MFG in Rigid Body Pose Estimation
 		\begin{itemize}
 			\item Loosely Coupled IMU-GNSS Integration
 			\item Visual-Inertial Navigation
@@ -1368,7 +1368,7 @@ George Washington University, Washington DC\\$ $\\}
 					\footnotesize
 					\vspace{-0.3cm}
 					\begin{align*}
-						f_m(R) = f_m(R)^{\lambda_1} f_m(R)^{\lambda_2} \cdots f_m(R)^{\lambda_l}
+						f_m(R) = f_m(R)^{\lambda_1} f_m(R)^{\lambda_2} \cdots f_m(R)^{\lambda_l}, \qquad \lambda_1 + \cdots + \lambda_l = 1
 					\end{align*}
 					\vspace{-0.4cm}
 				\end{beamercolorbox}
@@ -1528,7 +1528,7 @@ George Washington University, Washington DC\\$ $\\}
 			\item $\mathbf{T}\bm{p}_m$ is independent of $t$.
 			\item If $A_i = \sigma_i^2I_{3\times 3}$, $\Sigma_{t|R}$ is independent of $R$, $\mu_{t|R}$ is linear in $R$.
 			\item Use \Emph{marginal MLE} to $p_R(R)$.
-			\item Use \Emph{conditional MLE} to $p_{x|R}(x|R)$.
+			\item Use \Emph{conditional MLE} to $p_{t|R}(t|R)$.
 		\end{itemize}
 	\end{itemize}
 \end{frame}
@@ -1920,7 +1920,7 @@ George Washington University, Washington DC\\$ $\\}
 				\item Attitude estimation with gyroscope and direction sensors.
 				\item Loosely coupled IMU-GNSS navigation.
 				\item Visual-inertial navigation/odometry.
-				\item \Emph{Improved accuracy and convergence} speed when the attitude uncertainty is large.
+				\item \Emph{Improved accuracy and convergence speed} when the attitude uncertainty is large.
 			\end{itemize}
 		\end{itemize}
 	\end{itemize}
