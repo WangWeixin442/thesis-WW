@@ -468,7 +468,7 @@ Next, selected moments of MFG are presented, which are used in the approximate M
 		&\expect{xx^T} = \Sigma_c+\mu\mu^T+P\expect{\nu_R\nu_R^T}P^T, \label{eqn:MFG-Exx} \\
 		&\expect{x\nu_R^T} = P\expect{\nu_R\nu_R^T} \label{eqn:MFG-ExvR},
 	\end{align}
-	where $\mathrm{E}[\nu_R\nu_R^T]\in\real{3\times3}$ is a diagonal matrix with the $i$-th diagonal element given by
+	where $\mathrm{E}[\nu_R\nu_R^T]\in\mathbb{R}^{3\times3}$ is a diagonal matrix with the $i$-th diagonal element given by
 	\begin{equation} \label{eqn:MFG-EvRvR}
 		\expect{\nu_R\nu_R^T}_{ii} = s_jd_j+s_kd_k,
 	\end{equation}
@@ -521,7 +521,7 @@ and the estimation of $S$ is solved using \eqref{eqn:MF-S2D} from $D$.
 These are used in the conditional log-likelihood for $x|R$, which is addressed in the next theorem.
 
 \begin{theorem} \label{thm:MFG-MLE-conditional}
-	Let $U,V\in\SO{3}$ and $S\in\real{3\times 3}$ be the solution of the marginal MLE for $R$.
+	Let $U,V\in\SO{3}$ and $S\in\mathbb{R}^{3\times 3}$ be the solution of the marginal MLE for $R$.
 	Define $Q_i = U^TR_iV$, and $\nu_{R_i} = (SQ_i-Q_i^TS)^\vee$ for $i=1,\ldots,N_s$.
 	Also define the following sample covariance matrices:
 	\begin{align}
@@ -556,7 +556,7 @@ Intuitively, the correlation between $x$ and $R$ indicated by the samples is not
 
 To understand how well the marginal-conditional MLE approximates the joint MLE, we perform the following analysis to compare the information that $R$ carries about the unknown parameter $S$, with that of $x|R$.
 To simplify analysis, it is assumed that the dimension of the linear part is one, i.e., $n=1$.
-Define a metric $\lambda_{s_i}\in\real{1}$ as
+Define a metric $\lambda_{s_i}\in\mathbb{R}$ as
 \begin{equation}
 	\lambda_{s_i} = \frac{g_{s_is_i}(R)}{g_{s_is_i}(x|R)},
 \end{equation}

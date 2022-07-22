@@ -6,7 +6,7 @@ The matrix Fisher distribution was first introduced as a density function on the
 As a special case, it is defined on the 3D rotational group $\SO{3}$, and can be regarded as an analogue of the Gaussian distribution.
 As a tool to model random rotation matrices, it has been used in attitude estimation algorithms \cite{lee2018bayesian}, head pose estimation \cite{liu2021mfdnet}, and regression for 3D rotations from image and point cloud inputs \cite{mohlin2020probabilistic,yin2022fishermatch}.
 
-This chapter introduces some properties of the matrix Fisher distribution, which will be useful in the subsequent construction of the matrix Fisher--Gaussian distribution on $\SO{3}\times \mathbb{R}^n$ in Chapter \ref{chap:MFG}, and the developments of estimation algorithms in Chapter \ref{chap:att-estimation} and Chapter \ref{chap:pose-estimation}.
+This chapter introduces some properties of the matrix Fisher distribution, which will be useful in the subsequent construction of the matrix Fisher--Gaussian distribution on $\SO{3}\times \mathbb{R}^n$ in Chapter \ref{chap:MFG}, and the development of estimation algorithms in Chapter \ref{chap:att-estimation} and Chapter \ref{chap:pose-estimation}.
 In particular, Chapter \ref{section:MF-SO(3)} reviews some basic properties of $\SO{3}$.
 The matrix Fisher distribution is formally introduced in Chapter \ref{section:MF-MF}, and its construction and properties are also reviewed.
 In Chapter \ref{section:MF-Bingham}, the Bingham distribution defined on $\Sph^3$, which is equivalent to the matrix Fisher distribution, is reviewed.
@@ -124,7 +124,7 @@ From \eqref{eqn:MF-density}, it is straightforward to show the matrix Fisher dis
 Various properties of a matrix Fisher distribution can be accessed through the \textit{proper} singular value decomposition (pSVD) of $F$~\cite{khatri1977mises,lee2018bayesian,markley1988attitude}.
 
 \begin{definition} \label{def:psvd}
-	Let the singular value decomposition of $F$ be given by $F= U'S' V'^T$, where $S'\in\real{3\times3}$ is a diagonal matrix composed of the singular values $ s'_1\geq s'_2\geq s'_3\geq 0$ of $F$, and $U',V'\in\mathrm{O}(3)$ are orthogonal matrices.
+	Let the singular value decomposition of $F$ be given by $F= U'S' V'^T$, where $S'\in\mathbb{R}^{3\times3}$ is a diagonal matrix composed of the singular values $ s'_1\geq s'_2\geq s'_3\geq 0$ of $F$, and $U',V'\in\mathrm{O}(3)$ are orthogonal matrices.
 	The \textit{proper singular value decomposition} of $F$ is 
 	\begin{align}
 		F=USV^T
@@ -147,7 +147,7 @@ where $d_i\in\mathbb{R}$ for $i\in\{1,2,3\}$ is
 \begin{gather} \label{eqn:MF-S2D}
 	d_i = \frac{1}{c(S)} \frac{\partial c(S)}{\partial s_i}.
 \end{gather}
-However, $\expect{R}\in\real{3\times 3}$  does not belong to $\SO{3}$ in general. 
+However, $\expect{R}\in\mathbb{R}^{3\times 3}$  does not belong to $\SO{3}$ in general. 
 Instead, the \textit{mean attitude} of $R$ is usually interpreted as $UV^T \triangleq M\in\SO{3}$, which maximizes the density \eqref{eqn:MF-density}, and also minimizes the Frobenius mean squared error \cite{lee2018bayesian}. 
 
 Similar to the Gaussian distribution, the matrix Fisher distribution has three principal axes, given by the columns of $U$ resolved in the inertial frame, or equivalently the columns of $V$ when resolved in the body-fixed frame specified by the mean attitude $M$.
@@ -439,7 +439,7 @@ The central moments can be evaluated using the moment generating function of the
 \begin{equation}
 	M(T) = \expect{\etr{T^TQ}} = \frac{c(S+T)}{c(S)},
 \end{equation}
-for $T\in\real{3\times 3}$. 
+for $T\in\mathbb{R}^{3\times 3}$. 
 And the moments are calculated by differentiating $M(T)$ with respect to $T$ evaluated at $T=0$, namely
 \begin{equation} \label{eqn:MF-moment-dcdT}
 	\expect{Q_{i_1j_1} \cdots Q_{i_nj_n}} = \frac{1}{c(S)} \left. \frac{\partial^n c(S+T)}{\partial T_{i_1j_1} \cdots \partial T_{i_nj_n}} \right|_{T=0}.
@@ -575,7 +575,7 @@ for $k\neq l \in\{1,2,3\}$.
 It should be noted that since $s'_1 \neq s'_2 \neq |s'_3|$, the above linear system always has a unique solution.
 In addition, the generalized Leibniz rule is adapted to the notation $\mathcal{C}$ in \eqref{eqn:MF-moment-C} as below.
 \begin{lemma} \label{lemma:Leibniz}
-	Suppose $f,g\in C^t(\real{N})$, then for any $i_1,\ldots,i_t\in\{1,\ldots,N\}$
+	Suppose $f,g\in C^t(\mathbb{R}^N)$, then for any $i_1,\ldots,i_t\in\{1,\ldots,N\}$
 	\begin{equation}
 		\frac{\partial^t (fg)}{\partial x_{i_1} \cdots \partial x_{i_t}} = f\frac{\partial^t g}{\partial x_{i_1} \cdots \partial x_{i_t}} + g\frac{\partial^t f}{\partial x_{i_1} \cdots \partial x_{i_t}} + \sum_{\{m_1,m_2\}\in\mathcal{C}(t,2)} \left( \partial_{m_1}f\partial_{m_2}g + \partial_{m_2}f\partial_{m_1}g \right).
 	\end{equation}
